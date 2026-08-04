@@ -3,6 +3,7 @@ import * as authService from "./auth.service.js";
 import { changePasswordService, forgotPasswordService, getProfileService } from "./auth.service.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { User } from "./auth.model.js";
+import { cookieOptions } from "./auth.constant.js";
 
 export const register = async (req: Request, res: Response) => {
   const result = await authService.registerUser(req.body);
@@ -52,30 +53,24 @@ export const login = async (req: Request, res: Response) => {
   const { token, user } = result;
 
   // ✅ Set cookie here
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // true in prod
-    sameSite: "lax",
-    maxAge: 1 * 24 * 60 * 60 * 1000, // 7 days
-  });
-  res.cookie("role", user.role, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 1 * 24 * 60 * 60 * 1000,
-  });
+  res.cookie("token", token, cookieOptions);
+
+  res.cookie("role", user.role, cookieOptions);
 
   res.cookie("isLoggedIn", "true", {
     httpOnly: false,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 1 * 24 * 60 * 60 * 1000,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000,
+    path: "/",
   });
+
   res.cookie("emailVerified", String(user.emailVerified), {
     httpOnly: false,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 1 * 24 * 60 * 60 * 1000,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 24 * 60 * 60 * 1000,
+    path: "/",
   });
   res.status(201).json({
     success: true,
