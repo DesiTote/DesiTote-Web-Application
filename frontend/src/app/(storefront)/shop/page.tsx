@@ -105,7 +105,7 @@ export default function ShopPage() {
 
           {/* SIDEBAR ZONE */}
           {!isError && (
-            <div className="shrink-0 lg:w-64 w-full">
+            <div className="shrink-0 lg:w-64 w-full lg:sticky lg:top-32 z-30">
               <ShopSidebar
                 filters={draftFilters}
                 onChange={setDraftFilters}

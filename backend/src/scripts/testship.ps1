@@ -12,8 +12,8 @@
 
 $WebhookUrl = "http://localhost:5000/api/webhooks/shiprocket"
 $Token      = "2d764be20eb0d898c2d895713ccc1ef05455f1908ed967fdaf0718b404387dd5"
-$SrOrderId  = 1494575679   # replace with a real shiprocket.orderId from your DB
-$Awb        = "AWB1234567892"
+$SrOrderId  = 1536662429   # replace with a real shiprocket.orderId from your DB
+$Awb        = "AWB1234567852"
 
 $Headers = @{
     "Content-Type" = "application/json"

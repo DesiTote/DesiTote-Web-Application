@@ -15,6 +15,8 @@ export interface IOrderItem {
     originalPrice?: number;
     gstPercentage: number;
     lineTotal: number;
+    returnRequestedQuantity: number;
+    returnedQuantity: number;
 }
 
 export interface IDeliveryAddress {
@@ -158,6 +160,16 @@ const OrderItemSchema = new Schema<IOrderItem>(
         gstPercentage: { type: Number, required: true, min: 0, max: 100 },
         unitPrice: { type: Number, required: true },
         lineTotal: { type: Number, required: true },
+        returnRequestedQuantity: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+        returnedQuantity: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
     },
     { _id: false }
 );
@@ -297,7 +309,6 @@ const OrderSchema = new Schema<IOrder>(
             smallBagsCount: { type: Number, required: true },
             usesBigBag: { type: Boolean, required: true },
         },
-
         cancelReason: { type: String },
         cancelledAt: { type: Date },
         notes: { type: String },

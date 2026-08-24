@@ -207,7 +207,7 @@ export default function ShopSidebar({ filters, onChange, onApply, onClear, disab
             </div>
 
             {/* DESKTOP VIEW */}
-            <aside className="hidden lg:block w-64 bg-[#FBF8F1] p-6 rounded-2xl shadow-sm border border-[#1B2A41]/10 h-fit sticky top-6">
+            <aside className="hidden lg:block w-full bg-[#FBF8F1] p-6 rounded-2xl shadow-sm border border-[#1B2A41]/10 max-h-[calc(100vh-9.5rem)] overflow-y-auto">
                 <div className="flex items-center gap-2 pb-4 border-b border-[#1B2A41]/10 mb-6">
                     <h2 className="text-lg font-black text-[#1B2A41] tracking-tight">Filters</h2>
                 </div>

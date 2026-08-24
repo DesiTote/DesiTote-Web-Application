@@ -28,6 +28,7 @@ background:#ffffff;
 border-radius:18px;
 overflow:hidden;
 border:1px solid #ECE2CF;
+border-collapse:collapse;
 ">
 
 <tr>
@@ -37,6 +38,25 @@ background:#1B2A41;
 padding:40px;
 text-align:center;
 ">
+
+<img 
+  src="https://desitotes-media.s3.ap-south-1.amazonaws.com/logo/DesiTotesLogo.jpeg?v=3" 
+  alt="DesiTotes Logo" 
+  width="80"
+  height="80"
+  style="
+    display: block;
+    width: 80px;
+    height: 80px;
+    max-width: 80px;
+    max-height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 16px auto;
+    border: 0;
+    outline: none;
+    text-decoration: none;
+  "
+/>
 
 <h1
 style="

@@ -47,7 +47,7 @@ export const registerUser = async (data: RegisterFormData) => {
 
     await redis.del(`verified:register:${data.email}`);
     await sendEmail({
-        to: "desitotes0401@gmail.com",
+        to: data.email,
         subject: EMAIL_SUBJECTS.welcome,
         html: welcomeEmailTemplate(data.fullName),
     });
@@ -196,7 +196,7 @@ export const requestActionOtp = async (email: string, type: OtpOperationType) =>
     const emailContent = OTP_EMAIL_CONTENT[type];
 
     await sendEmail({
-        to: "desitotes0401@gmail.com",
+        to: email,
         subject: EMAIL_SUBJECTS[type],
         html: otpEmailTemplate({
             title: emailContent.title,
@@ -312,7 +312,7 @@ export const forgotPasswordService = async (email: string, password: string) => 
 
     await redis.del(`verified:forgot:${email}`);
     await sendEmail({
-        to: 'desitotes0401@gmail.com',
+        to: email,
         subject: EMAIL_SUBJECTS.passwordChanged,
         html: resetPasswordSuccessEmailTemplate(),
     });
@@ -346,7 +346,7 @@ export const changePasswordService = async (userId: string, currentPassword: str
     await user.save();
 
     await sendEmail({
-        to: "desitotes0401@gmail.com",
+        to: user.email,
         subject: EMAIL_SUBJECTS.passwordChanged,
         html: resetPasswordSuccessEmailTemplate(),
     });

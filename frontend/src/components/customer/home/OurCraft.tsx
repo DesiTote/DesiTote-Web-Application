@@ -70,13 +70,7 @@ export default function OurStory() {
                     </div>
 
                     {/* Link */}
-                    <a
-                        href="/our-craft"
-                        className="group inline-flex items-center gap-1.5 font-mono text-sm uppercase tracking-wide text-[#7A2A28] font-bold border-b border-[#7A2A28]/40 pb-1 hover:border-[#7A2A28] transition-colors"
-                    >
-                        Meet Our Artisan Partners
-                        <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                    </a>
+                   
                 </div>
 
             </div>

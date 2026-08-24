@@ -16,8 +16,8 @@ body {
   padding: 0;
   width: 100%;
   min-height: 100vh;
-  /* This prevents the white gap on horizontal scrolling */
-  overflow-x: hidden;
+  /* This prevents the white gap on horizontal scrolling without breaking position: sticky */
+  overflow-x: clip;
   background-color: var(--bg-desi);
 }
 
@@ -176,3 +176,23 @@ pre,
     transform: translateX(100%);
   }
 }
+/* gemini */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee-container:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+

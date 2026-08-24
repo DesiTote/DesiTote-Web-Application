@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 type SidebarItemProps = {
     href: string;
-    icon: React.ElementType;
+    icon: React.ComponentType<{ className?: string }>;
     label: string;
     active: boolean;
     collapsed: boolean;

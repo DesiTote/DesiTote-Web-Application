@@ -19,6 +19,7 @@ import teamAdminRoutes from "./modules/team-members/team.admin.route.js";
 import webhookRoutes from "./modules/webhooks/webhook.route.js";
 import reviewRoutes from "./modules/review/review.route.js";
 import subscriptRoutes from "./modules/subscription/subscription.route.js"
+import returnRoutes from "./modules/return/return.route.js"
 
 
 
@@ -26,7 +27,7 @@ const app = express();
 
 /* ================= MIDDLEWARE ================= */
 app.use(cookieParser());
-app.use(  
+app.use(
   cors({
     origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
     credentials: true,
@@ -64,6 +65,7 @@ app.use("/api/order", orderRoutes)
 app.use("/api/products", productPublicRoutes)
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/subscriptions", subscriptRoutes);
+app.use("/api/orders", returnRoutes);
 
 
 /* ================= ADMIN ROUTES ================= */

@@ -174,16 +174,21 @@ import {
 } from "@/services/customer/wishlist.api";
 
 import { toast } from "sonner";
+import { getCookie } from "@/utils/cookie";
 
 /* ───────────────── GET ───────────────── */
 
 export const useGetWishlist = () => {
+    const hasSessionHint = getCookie("isLoggedIn") === "true";
+
     return useQuery({
         queryKey: ["wishlist"],
         queryFn: async () => {
             const response = await getWishlistService();
             return response.data; // Expecting an array of items
         },
+        enabled: hasSessionHint,
+        retry: false,
         staleTime: 1000 * 60 * 5,
     });
 };

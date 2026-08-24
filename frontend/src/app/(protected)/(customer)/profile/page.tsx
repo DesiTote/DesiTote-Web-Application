@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { User, ShoppingBag, Heart, Lock } from "lucide-react";
 import ProfileSkeleton from "@/components/skeletons/customer/ProfileSkeleton";
 import PageContainer from "@/components/shared/PageContainer";
 
-// Imported Refactored Components Mapped Here
+// Imported Refactored Components
 import ProfileSidebar from "@/components/customer/profile/ProfileSidebar";
 import ProfileTab from "@/components/customer/profile/ProfileTab";
 import OrdersTab from "@/components/customer/profile/OrdersTab";
@@ -14,12 +14,23 @@ import WishlistTab from "@/components/customer/profile/WishListTab";
 import ResetPasswordTab from "@/components/customer/profile/ResetPasswordTab";
 import { TabType } from "@/types/customer/profile.type";
 
-// Brand palette: Ink Navy #1B2A41 · Canvas Cream #F5EEDE · Surface Cream #FBF8F1
-// Marigold Gold #C6941E (buttons/highlights) · Brick Maroon #7A2A28 (tags/accents)
-
 export default function ProfilePage() {
   const { loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>("profile");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const VALID_TABS: TabType[] = ["profile", "orders", "wishlist", "reset-password"];
+
+  // Read active tab directly from URL query param, defaulting to "profile"
+  const rawTab = searchParams.get("tab") as TabType;
+  const activeTab: TabType = VALID_TABS.includes(rawTab) ? rawTab : "profile";
+
+  // Function to switch tab by updating search params in the URL
+  const handleTabChange = (tab: TabType) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`/profile?${params.toString()}`, { scroll: false });
+  };
 
   const menuItems = [
     { id: "profile", label: "Profile", icon: <User className="w-4 h-4" /> },
@@ -27,8 +38,9 @@ export default function ProfilePage() {
     { id: "wishlist", label: "Wishlist", icon: <Heart className="w-4 h-4" /> },
     { id: "reset-password", label: "Reset Password", icon: <Lock className="w-4 h-4" /> },
   ];
+
   if (loading) {
-    return <ProfileSkeleton />
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -36,7 +48,9 @@ export default function ProfilePage() {
       <div className="space-y-6">
         {/* Global Page Heading Layout */}
         <div className="space-y-1">
-          <h1 className="text-2xl md:text-3xl font-black text-[#1B2A41] tracking-tight">My Account</h1>
+          <h1 className="text-2xl md:text-3xl font-black text-[#1B2A41] tracking-tight">
+            My Account
+          </h1>
           <p className="text-xs md:text-sm text-[#1B2A41]/60 font-medium">
             Manage your profile details, look up order statuses, and verify your configurations.
           </p>
@@ -47,14 +61,11 @@ export default function ProfilePage() {
           <ProfileSidebar
             menuItems={menuItems}
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
           />
 
-          {/* Right WorkSpace Column Section */}
+          {/* Right Workspace Column Section */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Top Stat blocks - Can supply independent counts down the line */}
-
-            {/* Conditional Tab Rendering prevents unmounted APIs execution */}
             {activeTab === "profile" && <ProfileTab />}
             {activeTab === "orders" && <OrdersTab />}
             {activeTab === "wishlist" && <WishlistTab />}

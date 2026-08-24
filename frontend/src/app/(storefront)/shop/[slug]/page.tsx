@@ -220,7 +220,7 @@ export default function ProductPage() {
         {/* Main Layout */}
         <div className="grid gap-10 lg:grid-cols-2 items-start">
           {/* Sticky Image Column */}
-          <div className="lg:sticky lg:top-24 lg:self-start w-full rounded-3xl border border-[#1B2A41]/10 bg-[#FBF8F1] p-3 sm:p-4 shadow-sm">
+          <div className="lg:sticky lg:top-32 lg:self-start w-full rounded-3xl border border-[#1B2A41]/10 bg-[#FBF8F1] p-3 sm:p-4 shadow-sm">
             <ProductGallery
               images={images}
               active={selectedImage}

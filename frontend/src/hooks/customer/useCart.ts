@@ -12,15 +12,19 @@ import {
   updateCartQuantityAPI,
 } from "@/services/customer/cart.api";
 import { toast } from "sonner";
+import { getCookie } from "@/utils/cookie";
 
 // =========================
 // 📦 GET CART
 // =========================
 
 export const useGetCart = () => {
+  const hasSessionHint = getCookie("isLoggedIn") === "true";
+
   return useQuery({
     queryKey: ["cart"],
     queryFn: getCartAPI,
+    enabled: hasSessionHint,
     retry: false,
     staleTime: 1000 * 60 * 5,
   });

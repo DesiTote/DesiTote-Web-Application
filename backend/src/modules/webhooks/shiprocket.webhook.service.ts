@@ -103,7 +103,7 @@ export async function processShiprocketWebhookEvent(payload: any) {
         try {
           
             await sendEmail({
-                to: "desitotes0401@gmail.com", // the ACTUAL customer's email
+                to: updated.billingEmail, // the ACTUAL customer's email
                 subject: EMAIL_SUBJECTS.orderDelivered,
                 html: orderDeliveredEmailTemplate({
                     name:  updated.deliveryAddress?.fullName|| "there",

@@ -123,6 +123,9 @@ export default function ReturnAndRefundPolicy() {
                             <li>Unwashed and undamaged</li>
                             <li>In the same condition as received</li>
                             <li>
+                                In its original condition with all product tags attached
+                            </li>
+                            <li>
                                 Returned with all original tags and packaging
                             </li>
                         </ul>

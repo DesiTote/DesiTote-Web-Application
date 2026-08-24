@@ -13,6 +13,7 @@ import crypto from "crypto"
 import { EMAIL_SUBJECTS } from "../../constants/customer/email.js";
 import { sendEmail } from "../../email/email.service.js";
 import { orderConfirmedEmailTemplate } from "../../email/templates/order-confirmed.js";
+import { decrementStockForOrder } from "./stock.service.js";
 
 const SHIPROCKET_PICKUP_LOCATION = "work";
 const DEFAULT_PACKAGE_DIMENSIONS_CM = { length: 25, breadth: 20, height: 5 };
@@ -583,6 +584,35 @@ export async function pushToShiprocket(order: any, sessionId: string) {
 
     order = claimed;
 
+    // ── Decrement stock BEFORE calling Shiprocket ──────────────────
+    // If any item lacks stock, this throws and we never create a
+    // shipment for stock we don't have. Order is marked failed so the
+    // customer sees a clear error rather than a silent hang.
+    try {
+        await decrementStockForOrder(
+            order.items.map((item: any) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                name: item.name,
+            }))
+        );
+    } catch (stockErr: any) {
+        await Order.findByIdAndUpdate(order._id, {
+            status: "failed",
+            "shiprocket.status": "failed",
+            "shiprocket.error": stockErr?.message || "Insufficient stock",
+            $push: {
+                statusHistory: {
+                    status: "failed",
+                    timestamp: new Date(),
+                    note: stockErr?.message,
+                    source: "system",
+                },
+            },
+        });
+        throw stockErr;
+    }
+
     try {
         const payload = buildShiprocketPayload(order);
         const srResponse = await shiprocketClient.createOrder(payload);
@@ -604,12 +634,12 @@ export async function pushToShiprocket(order: any, sessionId: string) {
         const redis = getRedis();
         await redis.del(`checkout:${sessionId}`);
         await sendEmail({
-            to: "desitotes0401@gmail.com", // the ACTUAL customer's email, not a hardcoded test address updated!.billingEmail
+            to:  updated!.billingEmail,
             subject: EMAIL_SUBJECTS.orderConfirmed,
             html: orderConfirmedEmailTemplate({
                 name: updated!.deliveryAddress?.fullName || "there",
                 orderId: updated!._id.toString(),
-                orderNumber:updated!.orderNumber.toString(),
+                orderNumber: updated!.orderNumber.toString(),
             }),
         });
         return buildResponse(updated);

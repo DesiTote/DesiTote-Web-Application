@@ -29,13 +29,13 @@ export default function LoginModal({ open, setOpen }: any) {
           <DialogTitle className="text-lg font-semibold">
             Login Required
           </DialogTitle>
-          <DialogDescription className="text-gray-500 text-sm mt-2">
+          <DialogDescription className="text-[#1B2A41] text-sm mt-2">
             Please login to continue
           </DialogDescription>
         </DialogHeader>
 
         <Button
-          className="cursor-pointer bg-amber-500 mt-4 w-full"
+          className="cursor-pointer text-[#1B2A41] bg-[#C6941E] mt-4 w-full"
           onClick={(e) => {
             e.stopPropagation();
             goToLogin();
