@@ -1,6 +1,19 @@
+import type { Metadata } from "next";
 import Providers from "./providers";
 import { Marcellus, Jost, Space_Mono } from 'next/font/google';
 import './globals.css';
+
+export const metadata: Metadata = {
+    title: "Desi Totes",
+    description: "Discover thoughtfully designed, sustainable everyday essentials.",
+    icons: {
+        icon: [
+            { url: "/images/DesiTotesLogoCircular.png" },
+            { url: "/favicon.ico", sizes: "32x32" },
+        ],
+        apple: "/apple-icon.png",
+    },
+};
 
 // Load Marcellus
 const marcellus = Marcellus({

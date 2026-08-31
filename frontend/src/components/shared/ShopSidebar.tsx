@@ -1,17 +1,10 @@
 "use client";
 
-import { useState } from "react"; // Added for controlling the mobile sheet
-import { SlidersHorizontal, X } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { SlidersHorizontal, X, ChevronDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import {
     Sheet,
     SheetTrigger,
@@ -21,6 +14,12 @@ import {
 } from "@/components/ui/sheet"
 import { GetProductsParams } from "@/types/customer/product.type";
 
+const SORT_OPTIONS: { value: GetProductsParams["sort"]; label: string }[] = [
+    { value: "default", label: "Default" },
+    { value: "price_asc", label: "Price Low → High" },
+    { value: "price_desc", label: "Price High → Low" },
+];
+
 // Brand palette: Ink Navy #1B2A41 · Canvas Cream #F5EEDE · Surface Cream #FBF8F1
 // Marigold Gold #C6941E (buttons/highlights) · Brick Maroon #7A2A28 (tags/accents)
 
@@ -29,7 +28,7 @@ const CATEGORIES = ["Eco Friendly", "Printed", "Minimal", "Custom"];
 
 const DEFAULT_FILTERS: GetProductsParams = {
     category: [],
-    maxPrice: 500,
+    maxPrice: 1000,
     sort: "default",
 };
 
@@ -44,13 +43,25 @@ interface ShopSidebarProps {
 export default function ShopSidebar({ filters, onChange, onApply, onClear, disabled }: ShopSidebarProps) {
     // State to control mobile sheet opening/closing
     const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [isSortOpen, setIsSortOpen] = useState(false);
+    const sortRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
+                setIsSortOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const selectedCategories = filters.category ?? [];
     const isAllSelected = selectedCategories.length === 0;
 
     const hasActiveFilters =
         selectedCategories.length > 0 ||
-        (filters.maxPrice ?? 500) !== DEFAULT_FILTERS.maxPrice ||
+        (filters.maxPrice ?? 1000) !== DEFAULT_FILTERS.maxPrice ||
         (filters.sort ?? "default") !== DEFAULT_FILTERS.sort;
 
     const handleCategoryToggle = (category: string) => {
@@ -71,15 +82,16 @@ export default function ShopSidebar({ filters, onChange, onApply, onClear, disab
         onChange({ ...filters, maxPrice: value[0] });
     };
 
-    const handleSortChange = (value: string) => {
+    const handleSortChange = (value: GetProductsParams["sort"]) => {
         // Keeps values direct and clean
-        onChange({ ...filters, sort: value as GetProductsParams["sort"] });
+        onChange({ ...filters, sort: value });
     };
 
     // Combined handler to apply filters AND close the mobile view modal
     const handleApplyFilters = () => {
         onApply();
         setIsMobileOpen(false);
+        setIsSortOpen(false);
     };
 
     const filterContent = (
@@ -145,19 +157,46 @@ export default function ShopSidebar({ filters, onChange, onApply, onClear, disab
             </div>
 
             {/* SORT BY */}
-            <div className="space-y-3">
+            <div className="space-y-3" ref={sortRef}>
                 <h3 className="text-sm font-semibold text-[#1B2A41] tracking-wide uppercase">Sort By</h3>
-                <Select value={filters.sort ?? "default"} onValueChange={handleSortChange}>
-                    <SelectTrigger className="w-full bg-[#FBF8F1] border-[#1B2A41]/15 focus:ring-[#C6941E] text-[#1B2A41] rounded-xl">
-                        <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    {/* Value tags match backend strings ('price_asc' & 'price_desc') exactly so display value registers */}
-                    <SelectContent className="bg-[#FBF8F1] border-[#1B2A41]/10 rounded-xl shadow-lg">
-                        <SelectItem value="default" className="focus:bg-[#F5EEDE] focus:text-[#1B2A41]">Default</SelectItem>
-                        <SelectItem value="price_asc" className="focus:bg-[#F5EEDE] focus:text-[#1B2A41]">Price Low → High</SelectItem>
-                        <SelectItem value="price_desc" className="focus:bg-[#F5EEDE] focus:text-[#1B2A41]">Price High → Low</SelectItem>
-                    </SelectContent>
-                </Select>
+                <div className="relative">
+                    <button
+                        type="button"
+                        onClick={() => setIsSortOpen((prev) => !prev)}
+                        className="w-full bg-[#FBF8F1] border border-[#1B2A41]/15 hover:border-[#1B2A41]/30 focus:border-[#C6941E] focus:ring-1 focus:ring-[#C6941E] text-[#1B2A41] rounded-xl px-3.5 py-2.5 text-sm flex items-center justify-between transition-all select-none cursor-pointer"
+                    >
+                        <span className="font-medium">
+                            {SORT_OPTIONS.find((opt) => opt.value === (filters.sort ?? "default"))?.label || "Default"}
+                        </span>
+                        <ChevronDown className={`w-4 h-4 text-[#1B2A41]/60 transition-transform duration-200 ${isSortOpen ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {isSortOpen && (
+                        <div className="absolute top-full left-0 mt-1.5 w-full bg-[#FBF8F1] border border-[#1B2A41]/15 rounded-xl shadow-lg z-50 p-1 space-y-0.5 animate-in fade-in-0 zoom-in-95 duration-150">
+                            {SORT_OPTIONS.map((opt) => {
+                                const isSelected = (filters.sort ?? "default") === opt.value;
+                                return (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => {
+                                            handleSortChange(opt.value);
+                                            setIsSortOpen(false);
+                                        }}
+                                        className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg text-left font-medium transition-colors cursor-pointer ${
+                                            isSelected
+                                                ? "bg-[#C6941E]/15 text-[#1B2A41] font-semibold"
+                                                : "text-[#1B2A41]/80 hover:bg-[#F5EEDE] hover:text-[#1B2A41]"
+                                        }`}
+                                    >
+                                        <span>{opt.label}</span>
+                                        {isSelected && <Check className="w-4 h-4 text-[#C6941E]" />}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* ACTION BUTTONS */}
@@ -207,7 +246,7 @@ export default function ShopSidebar({ filters, onChange, onApply, onClear, disab
             </div>
 
             {/* DESKTOP VIEW */}
-            <aside className="hidden lg:block w-full bg-[#FBF8F1] p-6 rounded-2xl shadow-sm border border-[#1B2A41]/10 max-h-[calc(100vh-9.5rem)] overflow-y-auto">
+            <aside className="hidden lg:block w-full bg-[#FBF8F1] p-6 rounded-2xl shadow-sm border border-[#1B2A41]/10">
                 <div className="flex items-center gap-2 pb-4 border-b border-[#1B2A41]/10 mb-6">
                     <h2 className="text-lg font-black text-[#1B2A41] tracking-tight">Filters</h2>
                 </div>

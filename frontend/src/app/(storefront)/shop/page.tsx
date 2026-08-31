@@ -15,7 +15,7 @@ import SearchBar from "@/components/shared/SearchBar";
 const DEFAULT_FILTERS: GetProductsParams = {
   page: 1,
   limit: 12,
-  maxPrice: 500,
+  maxPrice: 1000,
   sort: "default",
 };
 
@@ -105,7 +105,7 @@ export default function ShopPage() {
 
           {/* SIDEBAR ZONE */}
           {!isError && (
-            <div className="shrink-0 lg:w-64 w-full lg:sticky lg:top-32 z-30">
+            <div className="shrink-0 lg:w-64 w-full lg:sticky lg:top-24 z-30">
               <ShopSidebar
                 filters={draftFilters}
                 onChange={setDraftFilters}

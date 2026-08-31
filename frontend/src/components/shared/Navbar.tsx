@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { User, Menu, X, LogIn } from "lucide-react";
+import { User, Menu, X, LogIn, ArrowRight } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import BaseSkeleton from "@/components/skeletons/BaseSkeleton";
@@ -18,19 +18,22 @@ export default function Navbar() {
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     }
 
     return () => {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     };
   }, [mobileOpen]);
 
   return (
-    <nav className="w-full bg-[#FBF8F1] sticky top-0 left-0 z-50 font-body border-b border-[#1B2A41]/10">
+    <nav className="w-full bg-[#FBF8F1] sticky top-0 left-0 z-40 font-body border-b border-[#1B2A41]/10">
       {/* Main Navbar Top Header Bar */}
-      <div className="w-full px-6 md:px-16 lg:px-24 py-6 md:py-7 flex items-center justify-between bg-[#FBF8F1] relative z-20">
+      <div className="w-full px-5 sm:px-8 md:px-16 lg:px-24 py-3 sm:py-4 md:py-6 flex items-center justify-between bg-[#FBF8F1] relative z-20">
 
         {/* --- LOGO --- */}
         <div
@@ -38,9 +41,9 @@ export default function Navbar() {
             setMobileOpen(false);
             router.push("/");
           }}
-          className="flex items-center gap-3 cursor-pointer group select-none"
+          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group select-none"
         >
-          <div className="relative w-11 h-11 md:w-14 md:h-14 shrink-0 rounded-full overflow-hidden ring-1 ring-[#1B2A41]/15 shadow-sm transition-transform duration-300 group-hover:rotate-[8deg]">
+          <div className="relative w-9 h-9 sm:w-11 sm:h-11 md:w-14 md:h-14 shrink-0 rounded-full overflow-hidden ring-1 ring-[#1B2A41]/15 shadow-sm transition-transform duration-300 group-hover:rotate-[8deg]">
             <Image
               src="/images/DesiTotesLogo.png"
               alt="Desi Totes logo"
@@ -50,11 +53,11 @@ export default function Navbar() {
               priority
             />
           </div>
-          <span className="flex items-baseline gap-1.5 leading-none">
-            <span className="text-2xl md:text-[34px] font-bold tracking-tight text-[#1B2A41]">
+          <span className="flex items-baseline gap-1 sm:gap-1.5 leading-none">
+            <span className="text-xl sm:text-2xl md:text-[34px] font-bold tracking-tight text-[#1B2A41]">
               Desi
             </span>
-            <span className="text-2xl md:text-[34px] font-semibold tracking-tight text-[#7A2A28]">
+            <span className="text-xl sm:text-2xl md:text-[34px] font-semibold tracking-tight text-[#7A2A28]">
               Totes
             </span>
           </span>
@@ -115,50 +118,98 @@ export default function Navbar() {
 
           {/* Mobile Toggle Button */}
           <button
-            className="lg:hidden cursor-pointer p-0 text-[#1B2A41] bg-transparent border-none flex items-center justify-center relative w-[30px] h-[30px]"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle Navigation Menu"
+            className="lg:hidden cursor-pointer p-0 text-[#1B2A41] bg-transparent border-none flex items-center justify-center relative w-[32px] h-[32px]"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open Navigation Menu"
           >
-            <Menu
-              size={30}
-              className={`absolute inset-0 transition-opacity duration-200 ease-in-out ${mobileOpen ? "opacity-0 pointer-events-none" : "opacity-100"
-                }`}
-            />
-            <X
-              size={30}
-              className={`absolute inset-0 transition-opacity duration-200 ease-in-out ${mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-                }`}
-            />
+            <Menu size={28} className="text-[#1B2A41]" />
           </button>
         </div>
       </div>
 
-      {/* --- EXTENDED MOBILE MENU DROPDOWN PANEL --- */}
+      {/* --- FULLSCREEN MOBILE MENU MODAL OVERLAY --- */}
       <div
-        className={`lg:hidden absolute top-full left-0 w-full bg-[#FBF8F1] z-10 border-t border-[#1B2A41]/10 shadow-2xl overflow-hidden transition-all duration-300 ease-in-out ${mobileOpen
-            ? "max-h-[calc(100dvh-100%)] opacity-100 translate-y-0"
-            : "max-h-0 opacity-0 -translate-y-2 pointer-events-none"
-          }`}
+        className={`lg:hidden fixed inset-0 w-full h-[100dvh] bg-[#FBF8F1] z-[100] flex flex-col transition-all duration-300 ease-in-out ${
+          mobileOpen
+            ? "opacity-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 -translate-y-4 pointer-events-none"
+        }`}
       >
-        <div className="px-8 py-8 flex flex-col justify-between h-[calc(100dvh-80px)] overflow-y-auto">
-          {/* Core Navigation Pathways */}
-          <div className="flex flex-col gap-6">
-            {navLinks.map((link) => (
-              <button
-                key={link.name}
-                className="text-left text-2xl font-bold text-[#1B2A41] bg-transparent border-none active:text-[#7A2A28] transition-colors"
-                onClick={() => {
-                  router.push(link.path);
-                  setMobileOpen(false);
-                }}
-              >
-                {link.name}
-              </button>
-            ))}
+        {/* Fullscreen Modal Header */}
+        <div className="w-full px-5 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between border-b border-[#1B2A41]/10 bg-[#FBF8F1] shrink-0">
+          <div
+            onClick={() => {
+              setMobileOpen(false);
+              router.push("/");
+            }}
+            className="flex items-center gap-2.5 cursor-pointer select-none"
+          >
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full overflow-hidden ring-1 ring-[#1B2A41]/15 shadow-sm">
+              <Image
+                src="/images/DesiTotesLogo.png"
+                alt="Desi Totes logo"
+                fill
+                sizes="40px"
+                className="object-cover"
+                priority
+              />
+            </div>
+            <span className="flex items-baseline gap-1 leading-none">
+              <span className="text-xl sm:text-2xl font-bold tracking-tight text-[#1B2A41]">
+                Desi
+              </span>
+              <span className="text-xl sm:text-2xl font-semibold tracking-tight text-[#7A2A28]">
+                Totes
+              </span>
+            </span>
           </div>
 
-          {/* Mobile Accessibility Footer Switch */}
-          <div className="border-t border-[#1B2A41]/10 pt-6 space-y-4 pb-10">
+          {/* Close Button */}
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1B2A41]/5 hover:bg-[#1B2A41]/10 active:scale-95 text-[#1B2A41] flex items-center justify-center transition-all cursor-pointer border border-[#1B2A41]/10"
+            aria-label="Close Navigation Menu"
+          >
+            <X size={22} className="text-[#1B2A41]" />
+          </button>
+        </div>
+
+        {/* Scrollable Modal Body */}
+        <div className="flex-1 overflow-y-auto px-5 sm:px-8 py-6 flex flex-col justify-between">
+          {/* Navigation Links */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#7A2A28] font-bold px-3 mb-1">
+              Menu Navigation
+            </span>
+            {navLinks.map((link) => {
+              const isActive =
+                pathname === link.path || (link.name === "Home" && pathname === "/");
+              return (
+                <button
+                  key={link.name}
+                  className={`w-full text-left py-3 px-4 rounded-xl font-display text-2xl font-bold transition-all duration-200 flex items-center justify-between group cursor-pointer ${
+                    isActive
+                      ? "bg-[#7A2A28]/10 text-[#7A2A28] pl-5"
+                      : "text-[#1B2A41] hover:bg-[#1B2A41]/5 hover:text-[#7A2A28]"
+                  }`}
+                  onClick={() => {
+                    router.push(link.path);
+                    setMobileOpen(false);
+                  }}
+                >
+                  <span>{link.name}</span>
+                  {isActive ? (
+                    <span className="w-2 h-2 rounded-full bg-[#7A2A28]" />
+                  ) : (
+                    <ArrowRight className="w-5 h-5 text-[#1B2A41]/30 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-[#7A2A28]" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Footer Actions & Account */}
+          <div className="mt-8 border-t border-[#1B2A41]/10 pt-6 space-y-4 pb-4">
             {loading ? (
               <BaseSkeleton className="w-full h-12 rounded-xl bg-[#1B2A41]/10" />
             ) : isLoggedIn ? (
@@ -172,7 +223,7 @@ export default function Navbar() {
                     router.push("/profile");
                     setMobileOpen(false);
                   }}
-                  className="w-full h-12 rounded-xl bg-[#1B2A41] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full h-12 rounded-xl bg-[#1B2A41] hover:bg-[#1B2A41]/90 text-white text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer active:scale-[0.99]"
                 >
                   <div className="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-[10px] font-black">
                     {user?.fullName?.charAt(0).toUpperCase()}
@@ -186,12 +237,19 @@ export default function Navbar() {
                   router.push("/login");
                   setMobileOpen(false);
                 }}
-                className="w-full h-12 rounded-xl bg-[#C6941E] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-sm"
+                className="w-full h-12 rounded-xl bg-[#C6941E] hover:bg-[#A87A14] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer active:scale-[0.99]"
               >
-                <LogIn size={16} strokeWidth={2.5} />
+                <LogIn size={18} strokeWidth={2.5} />
                 <span>Sign In to Continue</span>
               </button>
             )}
+
+            {/* Brand Tagline */}
+            <div className="text-center pt-2">
+              <p className="text-[11px] font-mono tracking-wider text-[#1B2A41]/50 uppercase">
+                100% Handcrafted • Maharashtra, India
+              </p>
+            </div>
           </div>
         </div>
       </div>

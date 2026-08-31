@@ -90,7 +90,15 @@ export const getPublicProductsService = async (
     };
 
     if (!isAllSelected && categories.length > 0) {
-        matchStage.tags = { $in: categories };
+        const categoryRegexes = categories.map((cat) => {
+            const pattern = cat.trim().replace(/[-_\s]+/g, "[-_\\s]?");
+            return new RegExp(`^${pattern}$`, "i");
+        });
+
+        matchStage.$or = [
+            { tags: { $in: categoryRegexes } },
+            { productCategory: { $in: categoryRegexes } },
+        ];
     }
 
     if (query.minPrice || query.maxPrice) {

@@ -10,9 +10,22 @@ export default function Hero() {
 
   return (
     <>
-      <section className="relative w-full overflow-hidden bg-[#F5EEDE] min-h-[calc(100vh-108px)] lg:h-[calc(100vh-108px)] flex flex-col justify-center">
-        {/* --- FULL HERO BACKGROUND IMAGE --- */}
-        <div className="absolute inset-0 z-0">
+      <section className="relative w-full overflow-hidden bg-[#F5EEDE] min-h-[760px] sm:min-h-[820px] lg:min-h-[calc(100vh-108px)] lg:h-[calc(100vh-108px)] flex flex-col justify-start lg:justify-center">
+        {/* --- MOBILE BACKGROUND IMAGE (9:16 vertical layout with tote bag anchored at bottom) --- */}
+        <div className="absolute inset-0 z-0 block lg:hidden pointer-events-none">
+          <Image
+            src="/images/finalBgMobile.jpg"
+            alt="DesiTote Artisanal Handcrafted Collection"
+            fill
+            priority
+            quality={90}
+            sizes="100vw"
+            className="object-cover object-bottom"
+          />
+        </div>
+
+        {/* --- DESKTOP HERO BACKGROUND IMAGE --- */}
+        <div className="absolute inset-0 z-0 hidden lg:block pointer-events-none">
           <Image
             src="/images/finalBg.png"
             alt="DesiTote Artisanal Handcrafted Collection"
@@ -20,25 +33,24 @@ export default function Hero() {
             priority
             quality={95}
             sizes="100vw"
-            className="object-cover object-[78%_bottom] sm:object-[72%_bottom] lg:object-[right_bottom]"
+            className="object-cover object-[right_bottom]"
           />
-          {/* Soft Mobile-only Scrim for small phone screens */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#F5EEDE]/90 via-[#F5EEDE]/40 to-transparent sm:hidden pointer-events-none" />
         </div>
 
         {/* --- OVERLAID LEFT TEXT & CTAS CONTENT --- */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-10 flex flex-col justify-center h-full">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 pt-5 sm:pt-8 lg:py-8 flex flex-col justify-start lg:justify-center h-full">
           <div className="max-w-xl lg:max-w-2xl flex flex-col items-start text-left">
             {/* Eyebrow */}
-            <div className="flex items-center gap-2.5 mb-4 lg:mb-5">
-              <span className="w-[26px] h-px bg-[#7A2A28]" />
-              <span className="font-mono text-xs sm:text-sm tracking-[0.18em] uppercase text-[#7A2A28] [text-shadow:_0_1px_2px_rgba(122,42,40,0.15)]">
+            <div className="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4 lg:mb-5">
+              <span className="w-6 sm:w-8 h-px bg-[#7A2A28]" />
+              <span className="font-mono text-xs sm:text-sm tracking-[0.18em] uppercase font-bold text-[#7A2A28]">
                 Handcrafted Tote Co. — Estd. in Maharashtra
               </span>
+              <span className="w-8 sm:w-16 h-px bg-[#7A2A28]/30 hidden xs:block" />
             </div>
 
-            {/* Headline with Gold Underline Highlight */}
-            <h1 className="font-display text-[#1B2A41] text-4xl sm:text-5xl lg:text-[3.6rem] xl:text-[4rem] leading-[1.1] mb-5 [text-shadow:_0_2px_8px_rgba(27,42,65,0.12)]">
+            {/* Headline with Gold Underline Highlight - Bold & Impactful like Hydr8 */}
+            <h1 className="font-display text-[#1B2A41] text-[2.75rem] xs:text-[3.2rem] sm:text-5xl lg:text-[3.8rem] xl:text-[4.2rem] font-bold leading-[1.08] tracking-tight mb-3.5 sm:mb-5 [text-shadow:_0_2px_8px_rgba(27,42,65,0.1)]">
               Stamped by hand.
               <br />
               <span className="relative inline-block whitespace-nowrap z-0">
@@ -49,55 +61,60 @@ export default function Hero() {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-[#1B2A41]/85 text-base sm:text-lg lg:text-xl max-w-[500px] mb-7 lg:mb-9 leading-relaxed [text-shadow:_0_1px_2px_rgba(27,42,65,0.08)]">
+            <p className="text-[#1B2A41]/80 text-sm sm:text-base lg:text-xl max-w-[360px] sm:max-w-[480px] mb-5 sm:mb-7 lg:mb-9 leading-relaxed">
               Small-batch tote bags in handwoven cotton, hand printed with love, to hold your everyday essentials.
             </p>
 
             {/* CTAs */}
-            {/* CTAs */}
-            <div className="flex flex-row flex-wrap items-center gap-4 w-auto mb-8 sm:mb-10">
+            <div className="flex flex-row flex-wrap items-center gap-3 sm:gap-4 w-auto mb-5 sm:mb-7">
               <button
                 onClick={() => router.push("/shop")}
-                className="group inline-flex items-center justify-between gap-4 bg-[#C6941E] hover:bg-[#A87A14] text-[#1B2A41] font-semibold text-base sm:text-lg pl-8 pr-2.5 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 active:scale-[0.98] cursor-pointer"
+                className="group inline-flex items-center justify-between gap-3 sm:gap-4 bg-[#C6941E] hover:bg-[#A87A14] text-[#1B2A41] font-bold text-sm sm:text-base lg:text-lg pl-6 sm:pl-8 pr-2 sm:pr-2.5 py-2.5 sm:py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-300 active:scale-[0.98] cursor-pointer"
               >
                 <span>Shop Now</span>
-                <span className="w-10 h-10 rounded-full bg-[#1B2A41]/10 flex items-center justify-center text-[#1B2A41] transition-all duration-300 group-hover:bg-[#1B2A41] group-hover:text-[#FBF8F1]">
-                  <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5" />
+                <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1B2A41]/10 flex items-center justify-center text-[#1B2A41] transition-all duration-300 group-hover:bg-[#1B2A41] group-hover:text-[#FBF8F1]">
+                  <ArrowRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-300 group-hover:translate-x-0.5" />
                 </span>
               </button>
 
               <Link
                 href="/#craft"
-                className="group inline-flex items-center justify-between gap-4 bg-[#FBF8F1]/80 backdrop-blur-sm border border-[#1B2A41]/30 hover:border-[#1B2A41] text-[#1B2A41] font-semibold text-base sm:text-lg pl-8 pr-2.5 py-2.5 rounded-full transition-all duration-300 active:scale-[0.98] cursor-pointer shadow-xs"
+                className="group inline-flex items-center justify-between gap-3 sm:gap-4 bg-[#FBF8F1]/85 backdrop-blur-sm border border-[#1B2A41]/25 hover:border-[#1B2A41] text-[#1B2A41] font-bold text-sm sm:text-base lg:text-lg pl-6 sm:pl-8 pr-2 sm:pr-2.5 py-2.5 sm:py-3 rounded-full transition-all duration-300 active:scale-[0.98] cursor-pointer shadow-xs"
               >
                 <span>See Our Collection</span>
-                <span className="w-10 h-10 rounded-full bg-[#1B2A41]/10 flex items-center justify-center text-[#1B2A41] transition-all duration-300 group-hover:bg-[#1B2A41] group-hover:text-[#FBF8F1]">
-                  <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5" />
+                <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1B2A41]/10 flex items-center justify-center text-[#1B2A41] transition-all duration-300 group-hover:bg-[#1B2A41] group-hover:text-[#FBF8F1]">
+                  <ArrowRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform duration-300 group-hover:translate-x-0.5" />
                 </span>
               </Link>
             </div>
 
-            {/* USP BADGES (Embedded with subtle pill containers) */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 pt-2">
-              <div className="flex items-center gap-2.5 bg-[#FBF8F1]/60 backdrop-blur-xs px-3 py-1.5 rounded-full border border-[#1B2A41]/10">
-                <span className="w-7 h-7 rounded-full bg-[#FBF8F1] flex items-center justify-center text-[#7A2A28] shadow-xs">
+            {/* USP BADGES (Hydr8 Clean Inline Style) */}
+            <div className="flex flex-row flex-wrap items-center gap-3.5 sm:gap-6 pt-1">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-[#7A2A28]/10 text-[#7A2A28] flex items-center justify-center shrink-0">
                   <Leaf className="w-3.5 h-3.5" />
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-[#1B2A41]/90 whitespace-nowrap">Handwoven Cotton</span>
+                <span className="text-xs sm:text-sm font-semibold text-[#1B2A41]/85 whitespace-nowrap">
+                  Handwoven Cotton
+                </span>
               </div>
 
-              <div className="flex items-center gap-2.5 bg-[#FBF8F1]/60 backdrop-blur-xs px-3 py-1.5 rounded-full border border-[#1B2A41]/10">
-                <span className="w-7 h-7 rounded-full bg-[#FBF8F1] flex items-center justify-center text-[#7A2A28] shadow-xs">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-[#7A2A28]/10 text-[#7A2A28] flex items-center justify-center shrink-0">
                   <Scan className="w-3.5 h-3.5" />
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-[#1B2A41]/90 whitespace-nowrap">Hand Block-Printed</span>
+                <span className="text-xs sm:text-sm font-semibold text-[#1B2A41]/85 whitespace-nowrap">
+                  Hand Block-Printed
+                </span>
               </div>
 
-              <div className="flex items-center gap-2.5 bg-[#FBF8F1]/60 backdrop-blur-xs px-3 py-1.5 rounded-full border border-[#1B2A41]/10">
-                <span className="w-7 h-7 rounded-full bg-[#FBF8F1] flex items-center justify-center text-[#7A2A28] shadow-xs">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-[#7A2A28]/10 text-[#7A2A28] flex items-center justify-center shrink-0">
                   <User className="w-3.5 h-3.5" />
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-[#1B2A41]/90 whitespace-nowrap">Fair-Wage Artisans</span>
+                <span className="text-xs sm:text-sm font-semibold text-[#1B2A41]/85 whitespace-nowrap">
+                  Fair-Wage Artisans
+                </span>
               </div>
             </div>
           </div>
