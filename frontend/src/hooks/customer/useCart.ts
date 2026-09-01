@@ -24,7 +24,7 @@ export const useGetCart = () => {
   return useQuery({
     queryKey: ["cart"],
     queryFn: getCartAPI,
-    enabled: hasSessionHint,
+    //enabled: hasSessionHint,
     retry: false,
     staleTime: 1000 * 60 * 5,
   });
