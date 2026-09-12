@@ -10,7 +10,10 @@ services:
     runtime: node
     plan: free
     rootDir: backend
-    buildCommand: npm install && npm run build
+    # --include=dev is required: NODE_ENV=production (needed at runtime for
+    # Secure cookies) makes npm skip devDependencies, but typescript and
+    # @types/node live there and the build is `tsc`.
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /
     envVars:
