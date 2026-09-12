@@ -1,4 +1,12 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:5000';
+// Must be VITE_API_URL - Vite only exposes VITE_-prefixed variables, so the
+// older NEXT_PUBLIC_API_URL from the Next.js days is ignored. Baked in at
+// build time, so changing it on the host requires a redeploy.
+// The trailing slash is stripped so `${API_BASE_URL}/api/...` can't produce a
+// double slash, which some hosts 404 on.
+const API_BASE_URL = ((import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:5000').replace(
+  /\/+$/,
+  ''
+);
 
 export class ApiError extends Error {
   status: number;
