@@ -34,12 +34,17 @@ export const DesiLogo: React.FC<DesiLogoProps> = ({
   };
 
   const dim = getDimension();
+  // Phones get a smaller mark. At full size the horizontal logo is 257px wide,
+  // which together with the navbar's action buttons overflows a 375px screen —
+  // and iOS Safari responds by zooming the whole page out, leaving a dead strip
+  // down the side of the site.
+  const mobileDim = Math.round(dim * 0.78);
 
   // The circular badge element (renders high-contrast, razor-sharp client mandala emblem)
   const badgeElement = (
     <div
-      className="relative shrink-0 rounded-full overflow-hidden shadow-2xl border-2 border-[#0B1420] bg-[#F7F2E8] group transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(200,162,123,0.45)] ring-2 ring-white/10"
-      style={{ width: `${dim}px`, height: `${dim}px` }}
+      className="relative shrink-0 rounded-full overflow-hidden shadow-2xl border-2 border-[#0B1420] bg-[#F7F2E8] group transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(200,162,123,0.45)] ring-2 ring-white/10 w-[var(--logo-dim-mobile)] h-[var(--logo-dim-mobile)] sm:w-[var(--logo-dim)] sm:h-[var(--logo-dim)]"
+      style={{ '--logo-dim': `${dim}px`, '--logo-dim-mobile': `${mobileDim}px` } as React.CSSProperties}
     >
       {useImage ? (
         <img
@@ -160,20 +165,22 @@ export const DesiLogo: React.FC<DesiLogoProps> = ({
 
   // Default: horizontal variant (for Navbar, Header, Footer) - Bold, highly visible, and elegant
   return (
-    <div className={`flex items-center gap-3.5 ${className}`}>
+    <div className={`flex items-center gap-2.5 sm:gap-3.5 min-w-0 ${className}`}>
       {badgeElement}
-      <div className="flex flex-col justify-center">
-        <div className="flex items-center gap-2.5">
-          <span className={`text-xl sm:text-2xl font-black tracking-tight font-display flex items-baseline gap-1.5 ${dark ? 'text-white' : 'text-[#0B1420]'}`}>
+      {/* Below 360px there is no room for the wordmark beside the navbar's
+          action buttons, so the badge carries the brand on its own. */}
+      <div className="flex-col justify-center min-w-0 hidden min-[360px]:flex">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className={`text-xl sm:text-2xl font-black tracking-tight font-display flex items-baseline gap-1.5 whitespace-nowrap ${dark ? 'text-white' : 'text-[#0B1420]'}`}>
             <span className={`font-black drop-shadow-[0_0_12px_rgba(200,162,123,0.3)] ${dark ? 'text-[#B87D00]' : 'text-[#0B1420]'}`}>देसी</span>
             <span className={`font-light tracking-wide lowercase ${dark ? 'text-white' : 'text-[#0B1420]'}`}>totes</span>
           </span>
-          <span className={`text-[9px] uppercase tracking-[0.24em] px-2.5 py-0.5 rounded-full font-mono font-bold shadow-sm ${dark ? 'bg-[#B87D00]/15 text-[#B87D00] border border-[#B87D00]/40' : 'bg-[#0B1420]/15 text-[#0B1420] border border-[#0B1420]/40'}`}>
+          <span className={`hidden sm:inline-block text-[9px] uppercase tracking-[0.24em] px-2.5 py-0.5 rounded-full font-mono font-bold shadow-sm ${dark ? 'bg-[#B87D00]/15 text-[#B87D00] border border-[#B87D00]/40' : 'bg-[#0B1420]/15 text-[#0B1420] border border-[#0B1420]/40'}`}>
             Atelier
           </span>
         </div>
         {showSubtitle && (
-          <span className={`text-[10.5px] tracking-[0.18em] uppercase font-mono font-semibold ${dark ? 'text-white/75' : 'text-[#0B1420]/75'}`}>
+          <span className={`hidden sm:block text-[10.5px] tracking-[0.18em] uppercase font-mono font-semibold ${dark ? 'text-white/75' : 'text-[#0B1420]/75'}`}>
             320 GSM Cotton Canvas
           </span>
         )}

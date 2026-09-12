@@ -78,12 +78,15 @@ export const Navbar: React.FC<NavbarProps> = ({
       <header className="sticky top-0 z-40 bg-[#F7F2E8]/98 backdrop-blur-2xl border-b border-[#0B1420]/15 shadow-[0_1px_0_rgba(11,20,32,0.04)] transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center gap-3 xl:gap-6">
           
-          {/* Logo & Brand Identity (Client Official Brandmark) */}
-          <motion.div 
+          {/* Logo & Brand Identity (Client Official Brandmark).
+              Allowed to shrink (and clip) rather than shrink-0 — the action
+              buttons opposite are fixed width, so a rigid logo is what pushed
+              the header past the edge of the screen on phones. */}
+          <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => handleNavClick('hero')}
-            className="cursor-pointer py-1 shrink-0"
+            className="cursor-pointer py-1 min-w-0 overflow-hidden"
           >
             <DesiLogo size="md" variant="horizontal" />
           </motion.div>
@@ -231,7 +234,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 playPop();
                 onOpenCart();
               }}
-              className="font-display relative flex items-center gap-2 sm:gap-2.5 px-4 sm:px-5 py-2 rounded-full border border-[#0B1420] bg-[#0B1420] hover:bg-[#05090F] text-[#F7F2E8] text-[12px] uppercase tracking-[0.04em] font-semibold transition-all duration-300 cursor-pointer shadow-lg group"
+              className="font-display relative flex items-center gap-2 sm:gap-2.5 px-3 sm:px-5 py-2 rounded-full border border-[#0B1420] bg-[#0B1420] hover:bg-[#05090F] text-[#F7F2E8] text-[12px] uppercase tracking-[0.04em] font-semibold transition-all duration-300 cursor-pointer shadow-lg group"
             >
               <ShoppingBag className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
               <span className="hidden sm:inline">Cart</span>

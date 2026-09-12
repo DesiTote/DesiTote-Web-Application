@@ -61,10 +61,13 @@ export const Hero: React.FC<HeroProps> = ({
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-x-14 lg:gap-y-8 items-center">
 
-          {/* Left Column: Editorial Serif Copy & Refined Conversion Controls */}
-          <div className="lg:col-span-6 space-y-6 sm:space-y-8 text-center lg:text-left">
+          {/* Intro copy. Kept separate from the purchase controls below so the
+              product photo can slot between the two when the grid collapses to
+              one column — stacked as one block, "Add to Bag" would come before
+              the shopper had seen the bag. */}
+          <div className="order-1 lg:col-start-1 lg:row-start-1 lg:col-span-6 space-y-6 sm:space-y-8 text-center lg:text-left">
 
             {/* Top Available Now Indicator */}
             <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start flex-wrap">
@@ -92,6 +95,10 @@ export const Hero: React.FC<HeroProps> = ({
                 Sturdy 320 GSM cotton canvas totes, hand-finished in plain silhouettes and fun printed designs. Reusable, washable, and kind to the planet.
               </p>
             </div>
+          </div>
+
+          {/* Purchase controls — on phones these follow the product photo. */}
+          <div className="order-3 lg:order-2 lg:col-start-1 lg:row-start-2 lg:col-span-6 space-y-6 sm:space-y-8 text-center lg:text-left">
 
             {/* Selected Colour & Swatches in Frosted Glass */}
             <div className="space-y-2.5 p-4 rounded-[22px] bg-white/50 border border-[#0B1420]/10 max-w-md mx-auto lg:mx-0 backdrop-blur-md">
@@ -172,7 +179,7 @@ export const Hero: React.FC<HeroProps> = ({
           </div>
 
           {/* Right Column: Immersive Glass Canvas Showcase */}
-          <div className="lg:col-span-6 relative">
+          <div className="order-2 lg:order-3 lg:col-start-7 lg:row-start-1 lg:row-span-2 lg:col-span-6 relative">
             <div className="relative mx-auto max-w-lg rounded-[36px] sm:rounded-[40px] bg-white/50 p-3 border border-[#0B1420]/10 shadow-2xl backdrop-blur-2xl">
 
               {/* Top Card Controls Bar */}
