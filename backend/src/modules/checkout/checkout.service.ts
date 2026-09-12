@@ -107,13 +107,24 @@ async function recalculateShipping(session: CheckoutSession) {
             }),
         ]);
 
+        // The storefront advertises free shipping above a threshold, so honour it
+        // here — this is the single place a shipping charge is decided, and every
+        // downstream total (session total, COD order, Razorpay amount, the figure
+        // sent to Shiprocket) reads from it. Set FREE_SHIPPING_THRESHOLD to 0 to
+        // charge shipping on every order.
+        const freeShippingThreshold = Number(process.env.FREE_SHIPPING_THRESHOLD ?? 999);
+        const qualifiesForFreeShipping = freeShippingThreshold > 0 && declaredValue >= freeShippingThreshold;
+
         const toQuote = (result: PromiseSettledResult<Awaited<ReturnType<typeof getShippingRate>>>): ShippingQuote | null => {
             if (result.status !== "fulfilled") return null;
             const rate = result.value;
             return {
                 courierId: rate.courierId,
                 courierName: rate.courierName,
-                charge: rate.totalCharge,
+                // Zeroed when the order qualifies. The courier and the chargeable
+                // weight below are kept intact — the shipment still has to be
+                // booked and paid for, the customer just isn't billed for it.
+                charge: qualifiesForFreeShipping ? 0 : rate.totalCharge,
                 chargeableWeight,
                 packagingBreakdown,
                 calculatedAt: Date.now(),

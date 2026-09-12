@@ -52,7 +52,7 @@ export const Footer: React.FC = () => {
                 className="p-4 rounded-full bg-[#B87D00]/15 border border-[#B87D00]/40 text-[#B87D00] flex items-center justify-center gap-3 shadow-lg"
               >
                 <CheckCircle2 className="w-5 h-5 text-[#B87D00] shrink-0" />
-                <span className="font-mono text-xs uppercase tracking-wider">You're in! Use code WELCOME10 at checkout.</span>
+                <span className="font-mono text-xs uppercase tracking-wider">You're in! Watch your inbox for new print drops.</span>
               </motion.div>
             ) : (
               <form onSubmit={handleSubscribe} className="flex gap-2">

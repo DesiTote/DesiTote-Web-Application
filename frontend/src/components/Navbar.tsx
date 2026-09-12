@@ -64,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="w-2 h-2 rounded-full bg-[#ef4444] animate-pulse shrink-0"></span>
             <span>Handmade cotton canvas totes, made to order in India</span>
             <span className="hidden md:inline text-[#F7F2E8]/40">|</span>
-            <span className="hidden md:inline text-[#F7F2E8]/90">Code <strong className="bg-[#F7F2E8] text-[#0B1420] px-1.5 py-0.5 rounded font-mono not-italic tracking-normal">DESI15</strong> for 15% off</span>
+            <span className="hidden md:inline text-[#F7F2E8]/90">Free shipping over ₹999</span>
           </div>
           <div className="hidden sm:flex items-center gap-4 text-[11px] uppercase tracking-[0.1em] text-[#F7F2E8]/85 font-medium">
             <span className="flex items-center gap-1"><Leaf className="w-3.5 h-3.5 text-[#F7F2E8]" /> 100% Cotton Canvas</span>
