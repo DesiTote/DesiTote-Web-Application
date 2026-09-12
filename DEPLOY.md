@@ -16,6 +16,36 @@ can actually process an order.
 | Resend | Transactional email (OTP, order confirmation) | Verify your sending domain in Resend (Domains → Add Domain, add the DNS records they give you) so `EMAIL_FROM` can be `orders@yourdomain.com` instead of the sandbox address |
 | A domain | e.g. `desitotes.com` | Through Hostinger or wherever you already have one |
 
+## Quick staging setup (Render + Vercel) — for client testing
+
+Production target is Hostinger (below), but for a testable URL fast, put the API
+on Render and the storefront on Vercel.
+
+**API on Render.** New > Blueprint, point at this repo — `render.yaml` configures
+the service. Fill in every value marked "sync: false" from your `.env`. Set
+`CLIENT_ORIGIN` to your exact Vercel URL (e.g. `https://desi-tote-web-application.vercel.app`),
+no trailing slash. Note the free tier sleeps after inactivity, so the first
+request after idle takes ~30s.
+
+**Storefront on Vercel.** In Project Settings:
+- **Root Directory:** `frontend`
+- Framework preset **Vite** (`frontend/vercel.json` sets the build and the SPA
+  rewrites — without those, loading `/checkout` or `/orders` directly 404s)
+- Environment variable **`VITE_API_URL`** = your Render URL, no trailing slash
+
+**Both must be HTTPS.** In production the auth cookie is `Secure` + `SameSite=None`
+because the API and the site are on different domains. Over plain HTTP, or with
+`NODE_ENV` unset, the browser silently drops it and nobody can stay logged in.
+
+After both are up, run the checks against the live API:
+
+```bash
+cd backend
+npx tsx src/scripts/checkSetup.ts
+```
+
+Then seed the catalog once (see below), and create an admin with `createUser.ts`.
+
 ## 1. Choose a Hostinger plan
 
 This backend needs a real, persistent Node.js process (it talks to Mongo,
