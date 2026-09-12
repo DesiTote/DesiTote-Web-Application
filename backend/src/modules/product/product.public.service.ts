@@ -13,7 +13,11 @@ import { Order } from "../order/order.model.js";
 
 const MAX_LIMIT = 40;
 const DEFAULT_LIMIT = 12;
-const PUBLIC_CACHE_TTL = 30000;
+// Seconds, not milliseconds — this is handed straight to Redis' `ex` option.
+// It read 30000 before, which cached the storefront for 8h20m: any product
+// change that doesn't run through a service calling invalidateProductsCache()
+// (a direct DB edit, a price sync) stayed invisible for the rest of the day.
+const PUBLIC_CACHE_TTL = 30;
 const ALL_CATEGORIES_VALUE = "all categories";
 
 const parseCategorySelection = (raw?: string | string[]) => {
