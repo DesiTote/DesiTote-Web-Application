@@ -40,8 +40,17 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // No Origin header — same-origin navigations, curl, health checks.
-      if (!origin || getAllowedOrigins().includes(origin)) return callback(null, true);
-      return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+      if (!origin) return callback(null, true);
+
+      const allowed = getAllowedOrigins();
+      if (allowed.includes(origin)) return callback(null, true);
+
+      // Deny by omitting the CORS headers rather than throwing. Throwing here
+      // surfaced as an opaque 500, which reads like a server crash; this lets
+      // the browser report a normal CORS error and leaves a log line naming
+      // the exact mismatch, which is almost always a CLIENT_ORIGIN typo.
+      console.warn(`[cors] blocked origin "${origin}" — CLIENT_ORIGIN allows: ${allowed.join(", ") || "(none)"}`);
+      return callback(null, false);
     },
     credentials: true,
   })
