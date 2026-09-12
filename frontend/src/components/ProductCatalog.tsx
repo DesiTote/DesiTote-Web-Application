@@ -173,6 +173,8 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     src={activeVariant.image}
                     alt={`${product.name} in ${activeGroup.label}`}
                     referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
                     className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500"
                   />
 

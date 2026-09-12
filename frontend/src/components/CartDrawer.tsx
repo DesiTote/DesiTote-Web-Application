@@ -5,6 +5,7 @@ import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, Loader2 }
 import { playPop } from '../utils/audio';
 import { useCart } from '../context/CartContext';
 import { authErrorMessage } from '../context/AuthContext';
+import { useCloseOnBack } from '../hooks/useCloseOnBack';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -18,6 +19,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
   const { items, subtotal, isLoading, updateQuantity, removeItem } = useCart();
   const [pendingProductId, setPendingProductId] = useState<string | null>(null);
   const [error, setError] = useState('');
+
+  // Back button closes the bag instead of leaving the shop.
+  useCloseOnBack(isOpen, onClose);
 
   const shippingThreshold = 999;
   const isFreeShipping = subtotal >= shippingThreshold;
@@ -138,6 +142,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
                         src={item.image}
                         alt={item.name}
                         referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
                         className="w-16 h-16 rounded-2xl object-cover border border-[#0B1420]/10 shrink-0"
                       />
 

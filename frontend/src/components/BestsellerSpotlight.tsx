@@ -112,6 +112,8 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
                   src={currentVariant.image}
                   alt={`${spotlightProduct.name} in ${activeGroup.label}`}
                   referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
 
@@ -201,6 +203,8 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
                           src={variant.image}
                           alt={variant.name}
                           referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
                           className="w-12 h-12 rounded-lg object-cover border border-[#0B1420]/10 shrink-0"
                         />
                         <div className="overflow-hidden">

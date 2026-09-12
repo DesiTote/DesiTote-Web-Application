@@ -4,6 +4,7 @@ import { X, ShoppingBag, Check, Ruler, Layers } from 'lucide-react';
 import { Product } from '../types';
 import { playPop, playSnap } from '../utils/audio';
 import { getColorGroups } from '../utils/variants';
+import { useCloseOnBack } from '../hooks/useCloseOnBack';
 
 interface QuickViewModalProps {
   product: Product | null;
@@ -35,6 +36,9 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
     setSelectedColorIdx(0);
     setSelectedOptionIdx(0);
   }, [product?.id]);
+
+  // Back button closes the product instead of leaving the shop.
+  useCloseOnBack(Boolean(product), onClose);
 
   if (!product) return null;
 
@@ -93,6 +97,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               src={activeVariant.image}
               alt={`${product.name} in ${activeGroup.label}`}
               referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover rounded-[20px]"
             />
             {activeVariant.badge && (

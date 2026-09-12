@@ -69,6 +69,8 @@ export const PrintGallery: React.FC<LookbookProps> = ({
                     src={displayVariant.image}
                     alt={product.name}
                     referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
                     className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-700"
                   />
 
