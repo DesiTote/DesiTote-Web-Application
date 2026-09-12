@@ -12,7 +12,7 @@ import { registerSchema } from "./auth.validation.js";
 import { otpEmailTemplate } from "../../email/templates/otp.template.js";
 import { generateOTP } from "../../utils/otp.js";
 import { sha256 } from "../../utils/hash.js";
-import { baseOptions } from "./auth.constant.js";
+import { getBaseOptions } from "./auth.constant.js";
 import { EMAIL_SUBJECTS, OTP_EMAIL_CONTENT, OtpOperationType } from "../../constants/customer/email.js";
 import { welcomeEmailTemplate } from "../../email/templates/welcome.js";
 import { resetPasswordSuccessEmailTemplate } from "../../email/templates/reset-password.js";
@@ -46,11 +46,19 @@ export const registerUser = async (data: RegisterFormData) => {
     });
 
     await redis.del(`verified:register:${data.email}`);
-    await sendEmail({
-        to: data.email,
-        subject: EMAIL_SUBJECTS.welcome,
-        html: welcomeEmailTemplate(data.fullName),
-    });
+
+    // Best-effort: the account already exists, so a failed welcome email must
+    // not fail the request — a retry would hit "email already registered".
+    try {
+        await sendEmail({
+            to: data.email,
+            subject: EMAIL_SUBJECTS.welcome,
+            html: welcomeEmailTemplate(data.fullName),
+        });
+    } catch (err) {
+        console.error(`[auth] welcome email failed for ${data.email}`, err);
+    }
+
     return { success: true, message: "User registered successfully." };
 };
 
@@ -114,6 +122,8 @@ export const loginUser = async (data: any) => {
 
 
 export const logOutUserService = async (res: Response): Promise<void> => {
+    const baseOptions = getBaseOptions();
+
     res.clearCookie("token", baseOptions);
     res.clearCookie("role", baseOptions);
 
@@ -311,11 +321,19 @@ export const forgotPasswordService = async (email: string, password: string) => 
     await user.save();
 
     await redis.del(`verified:forgot:${email}`);
-    await sendEmail({
-        to: email,
-        subject: EMAIL_SUBJECTS.passwordChanged,
-        html: resetPasswordSuccessEmailTemplate(),
-    });
+
+    // Best-effort: the password is already changed; a failed notification
+    // must not report the reset as failed.
+    try {
+        await sendEmail({
+            to: email,
+            subject: EMAIL_SUBJECTS.passwordChanged,
+            html: resetPasswordSuccessEmailTemplate(),
+        });
+    } catch (err) {
+        console.error(`[auth] password-reset notification failed for ${email}`, err);
+    }
+
     return { message: "Password reset successful" };
 };
 
@@ -345,11 +363,16 @@ export const changePasswordService = async (userId: string, currentPassword: str
 
     await user.save();
 
-    await sendEmail({
-        to: user.email,
-        subject: EMAIL_SUBJECTS.passwordChanged,
-        html: resetPasswordSuccessEmailTemplate(),
-    });
+    // Best-effort — see forgotPasswordService.
+    try {
+        await sendEmail({
+            to: user.email,
+            subject: EMAIL_SUBJECTS.passwordChanged,
+            html: resetPasswordSuccessEmailTemplate(),
+        });
+    } catch (err) {
+        console.error(`[auth] password-change notification failed for ${user.email}`, err);
+    }
 
     return true;
 };

@@ -18,7 +18,15 @@ import crypto from "crypto"
 import https from "http" // local dev server is plain http
 
 const WEBHOOK_URL = "http://localhost:5000/api/webhooks/razorpay"; // adjust host/port
-const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || "2cc5d70131031e324d9fd2f0b04e73e03a5e1b322ff9c1ca8bf446ef844bf018";
+
+// Never hardcode this - it must come from the environment. A previous version of
+// this file carried the real secret as a fallback, which is why that secret needs
+// rotating in the Razorpay dashboard.
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
+if (!WEBHOOK_SECRET) {
+    console.error("RAZORPAY_WEBHOOK_SECRET is not set. Run with your .env loaded, e.g. `npx tsx src/scripts/testrazor.js ...`");
+    process.exit(1);
+}
 
 const [, , eventType, razorpayOrderId] = process.argv;
 

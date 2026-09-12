@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "./config/loadEnv.js"; // must stay first — populates process.env before any other module is evaluated
 
 import app from "./app.js";
 import { connectDB } from "./config/db.js";

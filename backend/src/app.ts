@@ -27,9 +27,22 @@ const app = express();
 
 /* ================= MIDDLEWARE ================= */
 app.use(cookieParser());
+// CLIENT_ORIGIN accepts a comma-separated list so the apex domain, the www
+// subdomain and a local dev server can all be allowed at once. Read per
+// request rather than at module load — see config/loadEnv.ts.
+const getAllowedOrigins = () =>
+  (process.env.CLIENT_ORIGIN || "http://localhost:3000")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+    origin: (origin, callback) => {
+      // No Origin header — same-origin navigations, curl, health checks.
+      if (!origin || getAllowedOrigins().includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
     credentials: true,
   })
 );

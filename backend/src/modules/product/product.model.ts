@@ -337,7 +337,7 @@ productSchema.virtual(
 
 // 4. Ensure the Model understands the virtual definitions as well
 const Product: Model<IProduct, {}, {}, IProductVirtuals> =
-    mongoose.models.Product ||
+    (mongoose.models.Product as Model<IProduct, {}, {}, IProductVirtuals> | undefined) ||
     mongoose.model<IProduct, Model<IProduct, {}, {}, IProductVirtuals>>(
         "Product",
         productSchema

@@ -2,7 +2,8 @@
 import { shiprocketClient, ShiprocketCourierOption } from "../lib/shiprocket.js";
 import { ApiError } from "../utils/ApiError.js";
 
-const PUNE_PICKUP_PINCODE = "411027";
+// Read at call time, not module load — see config/loadEnv.ts.
+const getPickupPincode = () => process.env.SHIPROCKET_PICKUP_PINCODE?.trim();
 
 interface GetShippingRateInput {
     deliveryPincode: string;
@@ -38,7 +39,8 @@ export async function getShippingRate({
     isCOD,
     declaredValue,
 }: GetShippingRateInput): Promise<ShippingRateResult> {
-    if (!PUNE_PICKUP_PINCODE) {
+    const pickupPincode = getPickupPincode();
+    if (!pickupPincode) {
         throw new ApiError(500, "SHIPROCKET_PICKUP_PINCODE is not configured");
     }
     if (!deliveryPincode || !/^\d{6}$/.test(deliveryPincode)) {
@@ -46,7 +48,7 @@ export async function getShippingRate({
     }
 
     const response = await shiprocketClient.checkServiceability({
-        pickup_postcode: PUNE_PICKUP_PINCODE,
+        pickup_postcode: pickupPincode,
         delivery_postcode: deliveryPincode,
         weight: weightKg,
         cod: isCOD ? 1 : 0,

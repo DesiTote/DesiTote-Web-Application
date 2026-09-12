@@ -11,7 +11,15 @@
 #   $Awb         -> can be any fake string for testing, doesn't need to be real
 
 $WebhookUrl = "http://localhost:5000/api/webhooks/shiprocket"
-$Token      = "2d764be20eb0d898c2d895713ccc1ef05455f1908ed967fdaf0718b404387dd5"
+
+# Read from the environment - never hardcode. A previous version of this file
+# carried the real token, which is why that token needs rotating.
+$Token = $env:SHIPROCKET_WEBHOOK_TOKEN
+if (-not $Token) {
+    Write-Host "Set SHIPROCKET_WEBHOOK_TOKEN first, e.g. \$env:SHIPROCKET_WEBHOOK_TOKEN = '<token from .env>'" -ForegroundColor Red
+    exit 1
+}
+
 $SrOrderId  = 1536662429   # replace with a real shiprocket.orderId from your DB
 $Awb        = "AWB1234567852"
 

@@ -1,0 +1,6 @@
+{
+  "name": "देसी Totes | Handloom Canvas Goods",
+  "description": "Official interactive storefront for देसी Totes, featuring 3D canvas showcase, bespoke monogram studio, 40kg load anatomy, and sustainable handloom goods.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

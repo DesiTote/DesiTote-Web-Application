@@ -3,6 +3,7 @@ import {
     createCheckoutSession,
     getCheckoutSession,
     updateCheckoutAddressController,
+    updateCheckoutPaymentMethodController,
 } from "./checkout.controller.js";
 
 import {
@@ -36,4 +37,5 @@ router.get(
 
 
 router.patch("/session/:sessionId/address", updateCheckoutAddressController);
+router.patch("/session/:sessionId/payment-method", updateCheckoutPaymentMethodController);
 export default router;

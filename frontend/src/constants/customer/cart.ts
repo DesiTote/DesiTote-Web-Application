@@ -1,1 +1,0 @@
-export const BULK_ORDER_THRESHOLD = 15

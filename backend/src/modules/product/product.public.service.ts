@@ -38,11 +38,16 @@ export interface PublicProductsResult {
         slug: string;
         title: string;
         shortDescription: string;
+        description: string;
         thumbnail: string;
         price: number;
         discountPrice: number;
         discountPercentage: number;
         productCategory: string;
+        tags: string[];
+        color: string;
+        stock: number;
+        isFeatured: boolean;
         createdAt: Date;
     }>;
     pagination: {
@@ -169,10 +174,15 @@ export const getPublicProductsService = async (
                         title: 1,
                         slug: 1,
                         shortDescription: 1,
+                        description: 1,
                         thumbnail: 1,
                         price: 1,
                         discountPrice: 1,
                         productCategory: 1,
+                        tags: 1,
+                        color: 1,
+                        stock: 1,
+                        isFeatured: 1,
                         createdAt: 1,
                     },
                 },
@@ -201,6 +211,7 @@ export const getPublicProductsService = async (
         slug: p.slug,
         title: p.title,
         shortDescription: p.shortDescription,
+        description: p.description,
         thumbnail: p.thumbnail,
         price: p.price,
         discountPrice: p.discountPrice,
@@ -209,6 +220,10 @@ export const getPublicProductsService = async (
             p.discountPrice
         ),
         productCategory: p.productCategory,
+        tags: p.tags ?? [],
+        color: p.color,
+        stock: p.stock,
+        isFeatured: Boolean(p.isFeatured),
         createdAt: p.createdAt,
     }));
 

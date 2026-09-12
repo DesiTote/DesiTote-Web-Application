@@ -9,9 +9,9 @@ export const uploadFileToS3 = async (file: Express.Multer.File, folder: string =
     const BUCKET_NAME = process.env.AWS_S3_BUCKET!;
     const s3Client = getS3Client();
 
-    const fileExtension = path.extname(file.originalname);
+    const fileExtension = path.extname(file.originalname); // already includes the leading dot
     const uniqueIdentifier = crypto.randomUUID();
-    const fileName = `${folder}/${uniqueIdentifier}.${fileExtension}`;
+    const fileName = `${folder}/${uniqueIdentifier}${fileExtension}`;
 
     const command = new PutObjectCommand({
         Bucket: BUCKET_NAME,

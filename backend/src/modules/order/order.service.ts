@@ -15,7 +15,8 @@ import { sendEmail } from "../../email/email.service.js";
 import { orderConfirmedEmailTemplate } from "../../email/templates/order-confirmed.js";
 import { decrementStockForOrder } from "./stock.service.js";
 
-const SHIPROCKET_PICKUP_LOCATION = "work";
+// Read at call time, not module load — see config/loadEnv.ts.
+const getShiprocketPickupLocation = () => process.env.SHIPROCKET_PICKUP_LOCATION?.trim();
 const DEFAULT_PACKAGE_DIMENSIONS_CM = { length: 25, breadth: 20, height: 5 };
 
 
@@ -156,7 +157,7 @@ function buildShiprocketPayload(order: any) {
     return {
         order_id: order._id.toString(),
         order_date: new Date().toISOString().slice(0, 10),
-        pickup_location: SHIPROCKET_PICKUP_LOCATION,
+        pickup_location: getShiprocketPickupLocation(),
 
         billing_customer_name: order.deliveryAddress.fullName,
         billing_last_name: "",
@@ -631,17 +632,30 @@ export async function pushToShiprocket(order: any, sessionId: string) {
             { new: true }
         );
 
-        const redis = getRedis();
-        await redis.del(`checkout:${sessionId}`);
-        await sendEmail({
-            to:  updated!.billingEmail,
-            subject: EMAIL_SUBJECTS.orderConfirmed,
-            html: orderConfirmedEmailTemplate({
-                name: updated!.deliveryAddress?.fullName || "there",
-                orderId: updated!._id.toString(),
-                orderNumber: updated!.orderNumber.toString(),
-            }),
-        });
+        // Everything below is best-effort. By this point payment is taken, stock
+        // is decremented and the shipment exists — letting a failed email or a
+        // Redis blip throw would mark a good order "failed", and the retry path
+        // would create a duplicate shipment and decrement stock a second time.
+        try {
+            await getRedis().del(`checkout:${sessionId}`);
+        } catch (err) {
+            console.error(`[order] could not clear checkout session ${sessionId}`, err);
+        }
+
+        try {
+            await sendEmail({
+                to: updated!.billingEmail,
+                subject: EMAIL_SUBJECTS.orderConfirmed,
+                html: orderConfirmedEmailTemplate({
+                    name: updated!.deliveryAddress?.fullName || "there",
+                    orderId: updated!._id.toString(),
+                    orderNumber: updated!.orderNumber.toString(),
+                }),
+            });
+        } catch (err) {
+            console.error(`[order] confirmation email failed for ${updated!.orderNumber}`, err);
+        }
+
         return buildResponse(updated);
     } catch (err: any) {
         await Order.findByIdAndUpdate(order._id, {

@@ -9,7 +9,7 @@ import Product from "../product/product.model.js";
 const MAX_QUANTITY = 15;
 const MAX_CART_ITEMS = 10;
 
-const PRODUCT_POPULATE_FIELDS = "price discountPrice thumbnail sku title slug";
+const PRODUCT_POPULATE_FIELDS = "price discountPrice thumbnail sku title slug color stock";
 
 function assertValidQuantity(quantity: number): void {
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_QUANTITY) {

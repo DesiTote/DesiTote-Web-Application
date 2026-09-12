@@ -1,0 +1,22 @@
+# Secrets - never commit. Only .env.example belongs in the repo.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependencies / build output
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -28,10 +28,12 @@ export const productZodSchema = z
             .coerce
             .number()
             .min(1, "Price must be a positive number").positive(),
+        // 0 is valid and is the model's default — it means "cost not tracked".
+        // Requiring >= 1 made every seeded product unsaveable from the admin panel.
         costPrice: z
             .coerce
             .number()
-            .min(1, "Cost price must be a positive number").positive(),
+            .min(0, "Cost price cannot be negative"),
         discountPrice: z
             .coerce
             .number()
@@ -56,10 +58,11 @@ export const productZodSchema = z
         ),
 
         /* Inventory */
+        // 0 must be allowed — it's how an item gets marked sold out.
         stock: z
             .coerce
             .number()
-            .min(1, "Stock quantity must be a positive number").positive().int(),
+            .min(0, "Stock quantity cannot be negative").int(),
         sku: z.string().min(3, "SKU must have at least 3 characters"),
 
         existingImages: z

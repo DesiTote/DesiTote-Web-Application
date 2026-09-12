@@ -1,77 +1,86 @@
-"use client";
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { api, ApiError } from '../lib/api';
+import { BackendUser } from '../lib/apiTypes';
 
-import { createContext, useContext, useEffect } from "react";
-import { useLogOut, useMe } from "../hooks/customer/useAuth";
-import { User } from "../types/auth.types";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+interface AuthContextValue {
+  user: BackendUser | null;
+  isLoading: boolean;
+  sendRegisterOtp: (email: string) => Promise<void>;
+  verifyRegisterOtp: (email: string, otp: string) => Promise<void>;
+  register: (data: { fullName: string; email: string; mobileNumber: string; password: string }) => Promise<void>;
+  login: (email: string, password: string) => Promise<BackendUser>;
+  logout: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
+}
 
-type AuthContextType = {
-  user: User | null;
-  isLoggedIn: boolean;
-  loading: boolean;
-  isError: boolean;
-  logout: () => void;
-  isLoggingOut: boolean;
-};
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<BackendUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-export const AuthProvider = ({ children }: any) => {
-  const queryClient = useQueryClient();
-  const { data, isLoading, isError, error } = useMe();
-
-  const { mutate: executeLogout, isPending: isLoggingOut } = useLogOut();
-
-  const user: User | null = data ?? null; // ✅ single source
-
-  // 2. Wrap it in a controller to wipe client state records on completion
-  const logout = () => {
-    executeLogout(undefined, {
-      onSuccess: () => {
-        queryClient.cancelQueries({ queryKey: ["me"] });
-        queryClient.setQueryData(["me"], null);
-        queryClient.removeQueries({
-          predicate: (query) => query.queryKey[0] !== "me",
-        });
-        toast.success("Logged out safely!");
-      },
-      onError: (err: any) => {
-        toast.error(err?.response?.data?.message || "Could not complete logout action");
-      },
-    });
-  };
+  const refreshProfile = useCallback(async () => {
+    try {
+      const res = await api.get<{ user: BackendUser }>('/api/auth/profile');
+      setUser(res.user);
+    } catch {
+      setUser(null);
+    }
+  }, []);
 
   useEffect(() => {
-    if (isError) {
-      const status = (error as any)?.response?.status;
-      // ❌ ignore 401 (not logged in)
-      if (status !== 401) {
-        toast.error(
-          (error as any)?.response?.data?.message || "Something went wrong"
-        );
-      }
+    (async () => {
+      setIsLoading(true);
+      await refreshProfile();
+      setIsLoading(false);
+    })();
+  }, [refreshProfile]);
+
+  const sendRegisterOtp = useCallback(async (email: string) => {
+    await api.post('/api/auth/send-otp', { email, type: 'register' });
+  }, []);
+
+  const verifyRegisterOtp = useCallback(async (email: string, otp: string) => {
+    await api.post('/api/auth/verify-otp', { email, otp, type: 'register' });
+  }, []);
+
+  const register = useCallback(
+    async (data: { fullName: string; email: string; mobileNumber: string; password: string }) => {
+      await api.post('/api/auth/register', data);
+    },
+    []
+  );
+
+  const login = useCallback(async (email: string, password: string) => {
+    const res = await api.post<{ user: BackendUser }>('/api/auth/login', { email, password });
+    setUser(res.user);
+    return res.user;
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await api.post('/api/auth/logout');
+    } finally {
+      setUser(null);
     }
-  }, [isError, error]);
+  }, []);
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        isLoggedIn: !!user,
-        loading: isLoading,
-        isError,
-        logout,
-        isLoggingOut,
-      }}
+      value={{ user, isLoading, sendRegisterOtp, verifyRegisterOtp, register, login, logout, refreshProfile }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("Wrap inside AuthProvider");
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
   return ctx;
-};
+}
+
+export function authErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) return err.message;
+  return 'Something went wrong. Please try again.';
+}

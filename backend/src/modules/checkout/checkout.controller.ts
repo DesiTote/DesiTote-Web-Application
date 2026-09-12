@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { createCheckoutSessionService, getCheckoutSessionService, updateCheckoutAddressService } from "./checkout.service.js";
+import { createCheckoutSessionService, getCheckoutSessionService, updateCheckoutAddressService, updateCheckoutPaymentMethodService } from "./checkout.service.js";
 import { ApiError } from "../../utils/ApiError.js";
 
 export const createCheckoutSession = async (
@@ -66,6 +66,26 @@ export const updateCheckoutAddressController =
             return res
                 .status(200)
                 .json({ session, message: "Delivery address updated" });
+        } catch (error) {
+            next(error)
+        }
+    };
+
+export const updateCheckoutPaymentMethodController =
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.user.userId;
+            const sessionId = req.params.sessionId as string;
+            const { paymentMethod } = req.body;
+
+            if (!sessionId) throw new ApiError(400, "sessionId is required");
+            if (!paymentMethod) throw new ApiError(400, "paymentMethod is required");
+
+            const session = await updateCheckoutPaymentMethodService(sessionId, userId, paymentMethod);
+
+            return res
+                .status(200)
+                .json({ session, message: "Payment method updated" });
         } catch (error) {
             next(error)
         }

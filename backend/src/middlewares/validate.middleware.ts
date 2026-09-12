@@ -19,11 +19,14 @@ export const validate = (
 
       //console.log(flattened)
 
-      const messages = Object.values(flattened.fieldErrors)
-        .flat()
-        .join(", ");
+      const messages = [
+        ...Object.entries(flattened.fieldErrors).map(
+          ([field, errors]) => `${field}: ${(errors as string[]).join(", ")}`
+        ),
+        ...flattened.formErrors,
+      ].join("; ");
 
-      throw new ApiError(400, "Invalid request data");
+      throw new ApiError(400, messages ? `Invalid request data — ${messages}` : "Invalid request data");
     }
 
     // Assign the clean parsed data back to the request object

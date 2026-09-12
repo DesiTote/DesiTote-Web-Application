@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+/* Override Tailwind's own font-family design tokens so the built-in
+   font-sans / font-serif / font-mono utilities (and anything that falls
+   back to the theme default) all resolve to Inter instead of Tailwind's
+   generic stacks — this is what the font-serif utility actually reads
+   from, so overriding it here (rather than re-declaring .font-serif in
+   @layer base) can't be shadowed by Tailwind's own generated utility. */
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root {
+  /* Brand palette — sampled directly from the देसी totes logo mark */
+  --color-cream: #F7F2E8;   /* logo background / medallion fill */
+  --color-ink: #0B1420;     /* logo outline, script & scalloped ring */
+  --color-maroon: #340E09;  /* logo petal fill & inner ring line */
+  --color-gold: #B87D00;    /* logo mandala dots */
+  --color-ink-hover: #05090F;
+}
+
+@layer base {
+  * {
+    border-color: rgba(11, 20, 32, 0.1);
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #0B1420;
+    background-color: #F7F2E8;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Kept for existing classNames across components — now renders in the same
+     clean sans as everything else instead of a decorative serif. */
+  .font-serif, .font-serif-accent {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* Immersive UI Ambient Background Blurs & Radial Gradients */
+.ambient-glow-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient-glow-espresso {
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  width: 650px;
+  height: 650px;
+  background-color: #B87D00;
+  border-radius: 9999px;
+  filter: blur(140px);
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.ambient-glow-slate {
+  position: absolute;
+  bottom: -100px;
+  right: -100px;
+  width: 550px;
+  height: 550px;
+  background-color: #340E09;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.ambient-radial-gold {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(184, 125, 0, 0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Immersive Frosted Glass & Border Curves */
+.glass-immersive {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(11, 20, 32, 0.12);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 36px;
+  box-shadow: 0 25px 60px -15px rgba(11, 20, 32, 0.18);
+}
+
+.glass-immersive-card {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(11, 20, 32, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 28px;
+}
+
+.glass-immersive-card:hover {
+  border-color: rgba(11, 20, 32, 0.4);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Subtle Hairline Dividers */
+.divider-subtle {
+  background: linear-gradient(to right, transparent, rgba(11, 20, 32, 0.15), transparent);
+  height: 1px;
+}
+
+.divider-gold {
+  background: linear-gradient(to right, transparent, rgba(184, 125, 0, 0.45), transparent);
+  height: 1px;
+}
+
+/* Custom Smooth Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 36s linear infinite;
+}
+
+.animate-marquee:hover,
+.animate-marquee-reverse:hover {
+  animation-play-state: paused;
+}
+
+/* Hide scrollbar for internally-scrollable nav (safety net so nav never overflows the header) */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Refined Light Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #F7F2E8;
+}
+::-webkit-scrollbar-thumb {
+  background: #0B1420;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #05090F;
+}
+
+/* 3D perspective wrapper */
+.perspective-1000 {
+  perspective: 1000px;
+}
