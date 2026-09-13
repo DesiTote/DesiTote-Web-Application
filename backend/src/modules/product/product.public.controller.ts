@@ -10,10 +10,29 @@ export const getPublicProducts = async (req: Request, res: Response, next: NextF
         // Guest — req.user was never set by optionalAuth, skip the wishlist join entirely
         if (!req.user) {
             const products = result.products.map((p) => ({ ...p, isWishlisted: false }));
+
+            // A guest catalogue is identical for everyone, so it can be cached
+            // and shared. stale-while-revalidate is the part that matters: once
+            // a copy exists, a visitor is handed it immediately and the refresh
+            // happens behind them, so nobody waits on the API even if it is
+            // cold. Vary: Cookie keeps this copy away from signed-in visitors,
+            // whose responses carry their own wishlist state and are never
+            // cached (see below).
+            res.setHeader(
+                "Cache-Control",
+                "public, max-age=30, s-maxage=60, stale-while-revalidate=86400"
+            );
+            res.setHeader("Vary", "Cookie");
+
             return res
                 .status(200)
                 .json({ success: true, message: "Products fetched successfully", data: { ...result, products } });
         }
+
+        // Signed in: the response carries this person's wishlist flags, so it
+        // must never land in a shared cache.
+        res.setHeader("Cache-Control", "private, no-store");
+        res.setHeader("Vary", "Cookie");
 
         const productIds = result.products.map((p) => p._id.toString());
         const wishlistedSet = await getWishlistedProductIds(req.user.userId, productIds);
