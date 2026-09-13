@@ -10,6 +10,10 @@ node_modules/
 dist/
 build/
 
+# Rollback record written by optimizeProductImages.ts — the previous S3 URLs
+# for a specific run against a specific database, not shared state.
+image-rollback.json
+
 # Logs
 *.log
 npm-debug.log*
