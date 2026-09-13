@@ -32,6 +32,16 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const allItems = [...first.data.products];
         const totalPages = first.data.pagination.totalPages;
 
+        // Show the first page as soon as it lands. The hero renders nothing
+        // until it has a product, and waiting for all three pages of the
+        // catalogue meant the bag on the homepage appeared two round trips
+        // later than it needed to.
+        if (!cancelled) {
+          setProducts(adaptProducts(allItems));
+          setError(null);
+          setIsLoading(false);
+        }
+
         const rest = await Promise.all(
           Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) =>
             api.get<{ data: BackendProductsPage }>(`/api/products?limit=${PAGE_LIMIT}&page=${i + 2}`)
@@ -39,9 +49,8 @@ export const ProductsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         );
         for (const page of rest) allItems.push(...page.data.products);
 
-        if (!cancelled) {
+        if (!cancelled && rest.length) {
           setProducts(adaptProducts(allItems));
-          setError(null);
         }
       } catch (err) {
         if (!cancelled) setError('Could not load the catalog. Please refresh the page.');

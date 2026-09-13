@@ -71,3 +71,10 @@ services:
       # address can never be.
       - key: EMAIL_REPLY_TO
         sync: false
+      # "resend" or "gmail" — see backend/.env.example.
+      - key: EMAIL_TRANSPORT
+        sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false

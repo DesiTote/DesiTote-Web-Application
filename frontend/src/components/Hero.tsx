@@ -215,6 +215,13 @@ export const Hero: React.FC<HeroProps> = ({
                       src={currentVariant.image}
                       alt={`${heroProduct.name} — ${currentVariant.name}`}
                       referrerPolicy="no-referrer"
+                      /* The largest thing on the first screen, and it cannot
+                         start downloading until the catalogue call returns -
+                         so once we do have it, ask for it ahead of everything
+                         else on the page. */
+                      loading="eager"
+                      fetchPriority="high"
+                      decoding="async"
                       className="w-full h-full object-cover rounded-2xl shadow-2xl transition-transform duration-500 group-hover:scale-105"
                     />
                   </motion.div>
