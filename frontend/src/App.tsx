@@ -151,7 +151,13 @@ function AppShell() {
 
   const addToCartNow = async (item: AddToCartItem) => {
     try {
-      await addItem(item.variantId, 1);
+      await addItem(item.variantId, 1, {
+        name: item.name,
+        image: item.image,
+        price: item.price,
+        colorHex: item.colorHex,
+        colorLabel: item.variantName,
+      });
       showToast({
         title: `${item.name} added to cart`,
         subtitle: `${item.variantName} • ${formatPrice(item.price)}`,

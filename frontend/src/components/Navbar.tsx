@@ -75,7 +75,11 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Main Sticky Navbar */}
-      <header className="sticky top-0 z-40 bg-[#F7F2E8]/98 backdrop-blur-2xl border-b border-[#0B1420]/15 shadow-[0_1px_0_rgba(11,20,32,0.04)] transition-all duration-300">
+      {/* No backdrop-blur here. The fill is opaque, so the blur was invisible -
+          but the browser still re-rasterised a full-width backdrop layer on
+          every scroll frame, on the one element that is on screen the whole
+          time. */}
+      <header className="sticky top-0 z-40 bg-[#F7F2E8] border-b border-[#0B1420]/15 shadow-[0_1px_0_rgba(11,20,32,0.04)] transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center gap-3 xl:gap-6">
           
           {/* Logo & Brand Identity (Client Official Brandmark).
@@ -260,14 +264,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Mobile Slide-down Menu */}
+        {/* Mobile Slide-down Menu.
+            Animating height from 0 to auto re-runs layout for the whole
+            document on every frame, and everything below it is product cards
+            and blurred glows - which is why opening the menu made the phone
+            crawl. It now overlays instead of pushing the page down, and
+            animates only opacity and transform, which the compositor can do
+            without touching layout. */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-[#F7F2E8] border-b border-[#0B1420]/15 px-6 py-5 space-y-1 overflow-hidden shadow-lg"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="lg:hidden absolute top-full left-0 right-0 bg-[#F7F2E8] border-b border-[#0B1420]/15 px-6 py-5 space-y-1 overflow-hidden shadow-lg"
             >
               {navItems.map((item) => (
                 <button
