@@ -39,8 +39,19 @@ const getGmailTransporter = () => {
     }
 
     gmailTransporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
         auth: { user, pass },
+        // Render's instances have no outbound IPv6 route, and smtp.gmail.com
+        // resolves to an IPv6 address first, so the connection died with
+        // ENETUNREACH before it left the box. Pin the lookup to IPv4.
+        family: 4,
+        // Don't let a hung connection hold an OTP request open indefinitely;
+        // failing fast lets the caller show a real error instead.
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 20000,
     });
     return gmailTransporter;
 };
