@@ -72,7 +72,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+            className="absolute inset-0 bg-black/85 transition-opacity"
           />
 
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
@@ -81,7 +81,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="w-screen max-w-md bg-[#F7F2E8] border-l border-[#0B1420]/10 shadow-2xl flex flex-col justify-between backdrop-blur-2xl"
+              className="w-screen max-w-md bg-[#F7F2E8] border-l border-[#0B1420]/10 shadow-2xl flex flex-col justify-between"
             >
               <div className="p-6 border-b border-[#0B1420]/10 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">

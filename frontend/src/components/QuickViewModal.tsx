@@ -75,12 +75,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+    // No backdrop-blur on this overlay. A backdrop-filter has to rasterise
+    // everything behind it every frame, and behind it sits the whole catalogue:
+    // ~150 cards that each carry their own backdrop-blur plus the ambient
+    // blur(140px) glows. That is what made opening a tote crawl on a phone.
+    // At 80% black the blur was barely visible anyway.
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 overflow-y-auto">
+      {/* The card carries no backdrop-blur: bg-[#F7F2E8] is fully opaque, so a
+          blur behind it was never visible — it only bought a second
+          full-viewport compositing pass on every frame. */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-3xl rounded-[32px] sm:rounded-[36px] bg-[#F7F2E8] border border-[#0B1420]/10 p-6 sm:p-8 shadow-2xl shadow-[#0B1420]/20 relative my-8 backdrop-blur-2xl"
+        className="w-full max-w-3xl rounded-[32px] sm:rounded-[36px] bg-[#F7F2E8] border border-[#0B1420]/10 p-6 sm:p-8 shadow-2xl shadow-[#0B1420]/20 relative my-8"
       >
         <button
           onClick={onClose}
@@ -97,7 +105,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               src={activeVariant.image}
               alt={`${product.name} in ${activeGroup.label}`}
               referrerPolicy="no-referrer"
-              loading="lazy"
+              /* Eager, unlike the grid thumbnails: this is the one image the
+                 shopper just asked to see, so deferring it only delays it. */
+              loading="eager"
+              fetchPriority="high"
               decoding="async"
               className="w-full h-full object-cover rounded-[20px]"
             />
