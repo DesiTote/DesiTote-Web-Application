@@ -56,6 +56,68 @@ npx tsx src/scripts/checkSetup.ts
 
 Then seed the catalog once (see below), and create an admin with `createUser.ts`.
 
+## Pointing a GoDaddy domain at the site
+
+GoDaddy is only the registrar and DNS host — it does not decide where the site
+runs. There are two ways to use it, and they differ a lot in effort.
+
+**Option A — point the domain at the Render + Vercel setup that is already
+running.** Roughly fifteen minutes of DNS, no server to build, and it is the
+same deployment the client has been testing on, so nothing new can break. In
+Vercel: Project > Settings > Domains > add the domain, and Vercel shows the
+exact records to create. In GoDaddy: My Products > DNS > Add record.
+
+Two GoDaddy specifics catch people out:
+
+- GoDaddy does not allow a CNAME on the bare domain, so the apex needs the
+  **A record** Vercel gives you, with `www` as a **CNAME** to the value Vercel
+  shows. Use whatever is on the Vercel Domains page, not values copied from
+  elsewhere; they change.
+- The **Name** field is relative. For the apex enter `@`, for the subdomain
+  enter `www` — never the full `www.yourdomain.com`, or you end up with
+  `www.yourdomain.com.yourdomain.com`.
+
+One thing to fix before launch on this path: `render.yaml` sets `plan: free`,
+and a free Render service sleeps after inactivity. The first customer to arrive
+after a quiet spell waits about thirty seconds for the API to wake, which on a
+shop reads as broken. Move the service to a paid instance, or use Option B.
+
+**Option B — the Hostinger VPS below.** More work and more moving parts (Node,
+PM2, Nginx, Certbot), but nothing sleeps and the API sits on the same machine
+as the site, so the round trip is local. If you take this path, point the
+GoDaddy records at the VPS IP instead: an **A record** on `@` and on `www`.
+
+Either way, after the domain is live:
+
+- Add the domain to `CLIENT_ORIGIN` on the API.
+- Re-register the Razorpay webhook against the new domain.
+- Verify the domain in Resend (below) — this is the one that blocks signups.
+
+## Email: verifying the domain in Resend (GoDaddy DNS)
+
+Until this is done, OTP email reaches only the Resend account owner's address,
+so no customer can finish signing up — and an account is required to buy.
+
+1. Resend > Domains > Add Domain, enter the domain.
+2. Resend lists a DKIM `TXT` record, an SPF `TXT` (or `MX`) record, and
+   optionally a DMARC `TXT`. Add each in GoDaddy under DNS > Add record.
+   Remember the Name field is relative: enter `resend._domainkey`, not
+   `resend._domainkey.yourdomain.com`.
+3. Wait for Resend to show Verified. Usually minutes; GoDaddy's default TTL is
+   an hour, so allow for that.
+4. Set on the API:
+   - `EMAIL_FROM=Desi Totes <orders@yourdomain.com>`
+   - `EMAIL_REPLY_TO=` the shop's own mailbox
+
+`EMAIL_FROM` must be on the verified domain. A Gmail, Yahoo or Outlook address
+cannot be a sender — those providers do not authorise anyone else to send as
+them — so the shop's everyday mailbox goes in `EMAIL_REPLY_TO`, which is what
+customers reach when they reply or complain. The API refuses to send with a
+free-mail `EMAIL_FROM` and says why, rather than failing silently.
+
+Check it with `npx tsx src/scripts/checkSetup.ts` from `backend/`: it reports
+which domains Resend has verified and whether `EMAIL_FROM` is one of them.
+
 ## 1. Choose a Hostinger plan
 
 This backend needs a real, persistent Node.js process (it talks to Mongo,

@@ -66,3 +66,8 @@ services:
         sync: false
       - key: EMAIL_FROM
         sync: false
+      # The shop's own mailbox. Customer replies and complaints go here;
+      # EMAIL_FROM has to be on a domain verified in Resend, which a Gmail
+      # address can never be.
+      - key: EMAIL_REPLY_TO
+        sync: false
