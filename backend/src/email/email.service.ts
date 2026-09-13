@@ -1,5 +1,7 @@
 import { Resend } from "resend";
 import nodemailer, { Transporter } from "nodemailer";
+import type SMTPTransport from "nodemailer/lib/smtp-transport/index.js";
+import dns from "dns";
 
 // Two ways to send, chosen by EMAIL_TRANSPORT:
 //
@@ -38,21 +40,26 @@ const getGmailTransporter = () => {
         );
     }
 
-    gmailTransporter = nodemailer.createTransport({
+    // Render's instances have no outbound IPv6 route, but smtp.gmail.com
+    // resolves to IPv6 first, so the connection died with ENETUNREACH before it
+    // ever left the box. nodemailer's own `family` option is not in its types,
+    // so prefer IPv4 at the resolver instead - which is what we want for every
+    // outbound connection on this host anyway.
+    dns.setDefaultResultOrder("ipv4first");
+
+    const smtpOptions: SMTPTransport.Options = {
         host: "smtp.gmail.com",
         port: 465,
         secure: true,
         auth: { user, pass },
-        // Render's instances have no outbound IPv6 route, and smtp.gmail.com
-        // resolves to an IPv6 address first, so the connection died with
-        // ENETUNREACH before it left the box. Pin the lookup to IPv4.
-        family: 4,
         // Don't let a hung connection hold an OTP request open indefinitely;
         // failing fast lets the caller show a real error instead.
         connectionTimeout: 15000,
         greetingTimeout: 15000,
         socketTimeout: 20000,
-    });
+    };
+
+    gmailTransporter = nodemailer.createTransport(smtpOptions);
     return gmailTransporter;
 };
 
