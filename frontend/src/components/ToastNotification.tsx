@@ -32,7 +32,7 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-            className="pointer-events-auto w-full p-3.5 pl-4 rounded-full bg-[#0c0c0f]/95 border border-[#0B1420]/40 shadow-2xl shadow-black/80 backdrop-blur-2xl flex items-center justify-between gap-3 text-white"
+            className="pointer-events-auto w-full p-3.5 pl-4 rounded-full bg-[#0c0c0f]/95 border border-[#0B1420]/40 shadow-2xl shadow-black/80 flex items-center justify-between gap-3 text-white"
           >
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-[#B87D00]/15 border border-[#B87D00]/40 flex items-center justify-center text-[#B87D00] shrink-0">

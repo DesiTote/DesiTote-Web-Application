@@ -136,7 +136,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
                   items.map((item) => (
                     <div
                       key={item.productId}
-                      className="p-4 rounded-[24px] bg-white/60 border border-[#0B1420]/10 flex gap-3.5 items-start backdrop-blur-sm"
+                      className="p-4 rounded-[24px] bg-white/60 border border-[#0B1420]/10 flex gap-3.5 items-start"
                     >
                       <img
                         src={item.image}

@@ -101,7 +101,7 @@ export const Hero: React.FC<HeroProps> = ({
           <div className="order-3 lg:order-2 lg:col-start-1 lg:row-start-2 lg:col-span-6 space-y-6 sm:space-y-8 text-center lg:text-left">
 
             {/* Selected Colour & Swatches in Frosted Glass */}
-            <div className="space-y-2.5 p-4 rounded-[22px] bg-white/50 border border-[#0B1420]/10 max-w-md mx-auto lg:mx-0 backdrop-blur-md">
+            <div className="space-y-2.5 p-4 rounded-[22px] bg-white/50 border border-[#0B1420]/10 max-w-md mx-auto lg:mx-0">
               <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.15em] font-mono">
                 <span className="text-[#0B1420]/50">{heroProduct.name.toUpperCase()}:</span>
                 <span className="font-semibold text-[#0B1420]">{currentVariant.name}</span>
@@ -180,7 +180,7 @@ export const Hero: React.FC<HeroProps> = ({
 
           {/* Right Column: Immersive Glass Canvas Showcase */}
           <div className="order-2 lg:order-3 lg:col-start-7 lg:row-start-1 lg:row-span-2 lg:col-span-6 relative">
-            <div className="relative mx-auto max-w-lg rounded-[36px] sm:rounded-[40px] bg-white/50 p-3 border border-[#0B1420]/10 shadow-2xl backdrop-blur-2xl">
+            <div className="relative mx-auto max-w-lg rounded-[36px] sm:rounded-[40px] bg-white/50 p-3 border border-[#0B1420]/10 shadow-2xl">
 
               {/* Top Card Controls Bar */}
               <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#0B1420]/10 text-xs">

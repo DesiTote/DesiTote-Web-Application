@@ -96,7 +96,7 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
         </div>
 
         {/* Spotlight Showcase Card */}
-        <div className="rounded-[32px] sm:rounded-[40px] bg-white/60 border border-[#0B1420]/10 shadow-xl shadow-[#0B1420]/5 backdrop-blur-xl p-4 sm:p-6 lg:p-8">
+        <div className="rounded-[32px] sm:rounded-[40px] bg-white/60 border border-[#0B1420]/10 shadow-xl shadow-[#0B1420]/5 p-4 sm:p-6 lg:p-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
             {/* Visual Showcase (Left 7 Cols) */}

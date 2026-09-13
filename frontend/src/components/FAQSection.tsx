@@ -71,7 +71,7 @@ export const FAQSection: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="rounded-[24px] sm:rounded-[28px] bg-[#0B1420]/[0.03] border border-[#0B1420]/10 hover:border-[#B87D00]/40 backdrop-blur-xl overflow-hidden transition-all duration-200"
+                className="rounded-[24px] sm:rounded-[28px] bg-[#0B1420]/[0.03] border border-[#0B1420]/10 hover:border-[#B87D00]/40 overflow-hidden transition-all duration-200"
               >
                 <button
                   onClick={() => toggle(idx)}

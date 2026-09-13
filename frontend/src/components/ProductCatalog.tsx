@@ -160,7 +160,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="group rounded-[32px] sm:rounded-[36px] bg-[#0B1420]/[0.03] border border-[#0B1420]/10 hover:border-[#B87D00]/50 backdrop-blur-xl transition-all duration-300 overflow-hidden flex flex-col justify-between shadow-2xl"
+                className="group rounded-[32px] sm:rounded-[36px] bg-[#0B1420]/[0.03] border border-[#0B1420]/10 hover:border-[#B87D00]/50 transition-all duration-300 overflow-hidden flex flex-col justify-between shadow-2xl"
               >
                 {/* Image Showcase Container — object-contain + a fixed neutral backdrop so the
                     whole tote (handles to base) always stays in frame, never cropped. */}

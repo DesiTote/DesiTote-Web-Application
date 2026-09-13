@@ -27,7 +27,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 relative z-10">
         
         {/* Newsletter & Brand Highlight Banner */}
-        <div className="rounded-[36px] bg-white/[0.02] p-8 sm:p-12 border border-white/10 flex flex-col lg:flex-row items-center justify-between gap-8 backdrop-blur-2xl shadow-2xl">
+        <div className="rounded-[36px] bg-white/[0.02] p-8 sm:p-12 border border-white/10 flex flex-col lg:flex-row items-center justify-between gap-8 shadow-2xl">
           <div className="space-y-2.5 text-center lg:text-left max-w-md">
             <div className="flex items-center justify-center lg:justify-start gap-2.5">
               <div className="w-6 h-[1px] bg-[#0B1420]" />

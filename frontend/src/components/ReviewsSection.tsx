@@ -90,7 +90,7 @@ export const ReviewsSection: React.FC<ReviewsProps> = ({
         </div>
 
         {/* Rating Header Summary */}
-        <div className="rounded-[36px] bg-[#0B1420]/[0.03] p-8 sm:p-10 border border-[#0B1420]/10 shadow-2xl backdrop-blur-2xl mb-12">
+        <div className="rounded-[36px] bg-[#0B1420]/[0.03] p-8 sm:p-10 border border-[#0B1420]/10 shadow-2xl mb-12">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
 
             {/* Big Score */}
@@ -151,7 +151,7 @@ export const ReviewsSection: React.FC<ReviewsProps> = ({
           {reviews.map((rev) => (
             <div
               key={rev.id}
-              className="p-6 rounded-[28px] sm:rounded-[32px] bg-[#0B1420]/[0.03] border border-[#0B1420]/10 hover:border-[#B87D00]/40 transition-all space-y-4 shadow-xl flex flex-col justify-between backdrop-blur-xl"
+              className="p-6 rounded-[28px] sm:rounded-[32px] bg-[#0B1420]/[0.03] border border-[#0B1420]/10 hover:border-[#B87D00]/40 transition-all space-y-4 shadow-xl flex flex-col justify-between"
             >
               <div className="space-y-3">
                 {/* Header */}
@@ -218,7 +218,7 @@ export const ReviewsSection: React.FC<ReviewsProps> = ({
       {/* Write a review modal */}
       <AnimatePresence>
         {modalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

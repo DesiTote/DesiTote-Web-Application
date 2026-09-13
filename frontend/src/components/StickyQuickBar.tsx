@@ -64,7 +64,7 @@ export const StickyQuickBar: React.FC<StickyQuickBarProps> = ({
         exit={{ y: 80, opacity: 0 }}
         className="fixed bottom-5 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-lg"
       >
-        <div className="p-2 sm:p-2.5 pl-3 rounded-full bg-[#0a0b0e]/95 backdrop-blur-2xl border border-[#0B1420]/30 shadow-2xl shadow-black/90 flex items-center justify-between gap-3">
+        <div className="p-2 sm:p-2.5 pl-3 rounded-full bg-[#0a0b0e]/95 border border-[#0B1420]/30 shadow-2xl shadow-black/90 flex items-center justify-between gap-3">
 
           {/* Mini info */}
           <div className="flex items-center gap-2.5">
