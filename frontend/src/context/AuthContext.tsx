@@ -52,9 +52,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await api.post<{ user: BackendUser }>('/api/auth/login', { email, password });
-    setUser(res.user);
-    return res.user;
+    await api.post<{ user: BackendUser }>('/api/auth/login', { email, password });
+
+    // The login response body is not proof of a working session. If the browser
+    // refused the auth cookie, trusting it would show a signed-in header over a
+    // session the server never sees, and the first sign of trouble would be
+    // "Not authorized" on add-to-cart. Read the profile back instead: that only
+    // succeeds if the cookie was stored and returned.
+    try {
+      const profile = await api.get<{ user: BackendUser }>('/api/auth/profile');
+      setUser(profile.user);
+      return profile.user;
+    } catch {
+      setUser(null);
+      throw new ApiError(
+        401,
+        'Your details were correct, but this browser did not keep you signed in. Allow cookies for this site (or leave private browsing) and try again.'
+      );
+    }
   }, []);
 
   const logout = useCallback(async () => {

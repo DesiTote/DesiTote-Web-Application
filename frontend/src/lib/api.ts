@@ -1,12 +1,20 @@
-// Must be VITE_API_URL - Vite only exposes VITE_-prefixed variables, so the
-// older NEXT_PUBLIC_API_URL from the Next.js days is ignored. Baked in at
-// build time, so changing it on the host requires a redeploy.
-// The trailing slash is stripped so `${API_BASE_URL}/api/...` can't produce a
-// double slash, which some hosts 404 on.
-const API_BASE_URL = ((import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:5000').replace(
-  /\/+$/,
-  ''
-);
+// In production the API is served from this same origin (Vercel rewrites
+// /api/* to Render; Nginx proxies /api/ to the Node process on the VPS), so the
+// base is empty and requests go to /api/... on whatever host the site is on.
+//
+// This is deliberate. Pointing the browser straight at the API's own domain
+// made the auth cookie a third-party cookie, and iOS Safari blocks those by
+// default: login looked like it worked, then every request after it arrived
+// with no cookie and the site behaved as though you were signed out. Same
+// origin also means no CORS and no SameSite=None dependency.
+//
+// VITE_API_URL stays as an override for local dev, where the API is on its own
+// port. The trailing slash is stripped so `${API_BASE_URL}/api/...` can't
+// produce a double slash, which some hosts 404 on.
+const configuredApiUrl = import.meta.env.VITE_API_URL as string | undefined;
+const API_BASE_URL = (
+  import.meta.env.DEV ? configuredApiUrl || 'http://localhost:5000' : ''
+).replace(/\/+$/, '');
 
 export class ApiError extends Error {
   status: number;

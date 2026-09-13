@@ -29,13 +29,23 @@ request after idle takes ~30s.
 
 **Storefront on Vercel.** In Project Settings:
 - **Root Directory:** `frontend`
-- Framework preset **Vite** (`frontend/vercel.json` sets the build and the SPA
-  rewrites — without those, loading `/checkout` or `/orders` directly 404s)
-- Environment variable **`VITE_API_URL`** = your Render URL, no trailing slash
+- Framework preset **Vite** (`frontend/vercel.json` sets the build, the SPA
+  rewrites — without those, loading `/checkout` or `/orders` directly 404s —
+  and the `/api/*` proxy described below)
+- **No `VITE_API_URL`.** A production build always calls `/api/...` on its own
+  origin. If the variable is still set from an earlier deploy, delete it; it is
+  ignored in production builds and only applies to local dev.
 
-**Both must be HTTPS.** In production the auth cookie is `Secure` + `SameSite=None`
-because the API and the site are on different domains. Over plain HTTP, or with
-`NODE_ENV` unset, the browser silently drops it and nobody can stay logged in.
+**The browser must never talk to the API's own domain.** `vercel.app` and
+`onrender.com` are separate sites, so the auth cookie was a third-party cookie —
+and iOS Safari blocks those by default. Login looked like it worked and then
+every request arrived signed out, which showed up as "Not authorized" when
+adding to the cart. `frontend/vercel.json` therefore rewrites `/api/*` to the
+Render service so the cookie is first-party. Change the Render URL there, not in
+an environment variable.
+
+**Both must still be HTTPS**, and `NODE_ENV=production` must be set on the API —
+otherwise the cookie is not marked `Secure` and the browser drops it.
 
 After both are up, run the checks against the live API:
 
@@ -127,10 +137,12 @@ Build locally or on the VPS:
 
 ```bash
 cd frontend
-cp .env.example .env
-# set VITE_API_URL=https://api.yourdomain.com
 npm install
 npm run build       # outputs dist/
+
+# No VITE_API_URL needed: the build calls /api/... on its own origin, and
+# deploy/nginx-frontend.conf proxies /api/ to the Node process on port 5000.
+# That keeps the auth cookie first-party, which is what iOS Safari requires.
 ```
 
 Upload the `dist/` folder to `/var/www/desitotes-frontend/dist` on the VPS
