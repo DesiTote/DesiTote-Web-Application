@@ -14,12 +14,14 @@ import { QuickViewModal } from './components/QuickViewModal';
 import { StickyQuickBar } from './components/StickyQuickBar';
 import { ToastNotification, ToastMessage } from './components/ToastNotification';
 import { AuthModal } from './components/AuthModal';
+import { AdminShoppingNotice } from './components/AdminShoppingNotice';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProductsProvider, useProducts } from './context/ProductsContext';
 import { CartProvider, useCart } from './context/CartContext';
 import { AuthModalProvider, useAuthModal } from './context/AuthModalContext';
 import { authErrorMessage } from './context/AuthContext';
+import { ApiError } from './lib/api';
 
 import { REVIEWS } from './data/totes';
 import { Product, Review } from './types';
@@ -129,6 +131,24 @@ function AppShell() {
     });
   };
 
+  // Admin accounts are blocked from the customer side by the API. Offer the way
+  // out rather than the rejection.
+  const isAdmin = user?.role === 'ADMIN';
+
+  const switchToCustomerAccount = async () => {
+    await logout();
+    openAuthModal();
+  };
+
+  const showAdminCannotShopToast = () => {
+    showToast({
+      title: "Admin accounts can't place orders",
+      subtitle: 'Sign in with a customer account to shop',
+      type: 'notice',
+      action: { label: 'Switch account', onClick: switchToCustomerAccount },
+    });
+  };
+
   const addToCartNow = async (item: AddToCartItem) => {
     try {
       await addItem(item.variantId, 1);
@@ -138,6 +158,13 @@ function AppShell() {
         type: 'cart',
       });
     } catch (err) {
+      // 403 here means the role guard turned it down, which for a signed-in
+      // user only happens on an admin account. "Access denied" tells them
+      // nothing they can act on.
+      if (err instanceof ApiError && err.status === 403) {
+        showAdminCannotShopToast();
+        return;
+      }
       showToast({
         title: 'Could not add to cart',
         subtitle: authErrorMessage(err),
@@ -149,6 +176,10 @@ function AppShell() {
   const handleAddToCart = (item: AddToCartItem) => {
     if (!user) {
       openAuthModal(() => addToCartNow(item));
+      return;
+    }
+    if (isAdmin) {
+      showAdminCannotShopToast();
       return;
     }
     addToCartNow(item);
@@ -171,6 +202,8 @@ function AppShell() {
   return (
     <div className="min-h-screen bg-[#F7F2E8] text-[#0B1420] selection:bg-[#0B1420] selection:text-[#F7F2E8]">
       <ToastNotification toasts={toasts} onDismiss={dismissToast} onOpenCart={() => setIsCartOpen(true)} />
+
+      {isAdmin && <AdminShoppingNotice onSwitchAccount={switchToCustomerAccount} />}
 
       <Navbar
         cartCount={itemCount}

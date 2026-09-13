@@ -1,12 +1,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle2, ShoppingBag, Sparkles, X } from 'lucide-react';
+import { CheckCircle2, ShieldAlert, ShoppingBag, Sparkles, X } from 'lucide-react';
 
 export interface ToastMessage {
   id: string;
   title: string;
   subtitle?: string;
-  type?: 'cart' | 'success' | 'info';
+  type?: 'cart' | 'success' | 'info' | 'notice';
+  /** Optional button rendered beside the message, e.g. "Switch account". */
+  action?: { label: string; onClick: () => void };
 }
 
 interface ToastNotificationProps {
@@ -36,6 +38,8 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
               <div className="w-8 h-8 rounded-full bg-[#B87D00]/15 border border-[#B87D00]/40 flex items-center justify-center text-[#B87D00] shrink-0">
                 {toast.type === 'cart' ? (
                   <ShoppingBag className="w-4 h-4" />
+                ) : toast.type === 'notice' ? (
+                  <ShieldAlert className="w-4 h-4 text-[#B87D00]" />
                 ) : (
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 )}
@@ -53,6 +57,17 @@ export const ToastNotification: React.FC<ToastNotificationProps> = ({
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">
+              {toast.action && (
+                <button
+                  onClick={() => {
+                    toast.action!.onClick();
+                    onDismiss(toast.id);
+                  }}
+                  className="px-3 py-1 rounded-full bg-gradient-to-r from-[#0B1420] to-[#340E09] hover:from-[#05090F] hover:to-[#4a1a10] text-[#F7F2E8] font-semibold text-[9px] uppercase tracking-widest transition-all cursor-pointer whitespace-nowrap"
+                >
+                  {toast.action.label}
+                </button>
+              )}
               {toast.type === 'cart' && onOpenCart && (
                 <button
                   onClick={() => {
