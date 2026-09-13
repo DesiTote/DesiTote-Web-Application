@@ -55,6 +55,27 @@ const formatCartItems = (cart: any) => {
   return cart;
 };
 
+// Re-reads the cart with its products populated.
+//
+// Every mutating service returns this, so add / update / remove hand back the
+// same shape as GET /cart. They used to return the raw result of the write,
+// whose items carry productId as a bare id string — so a client that reads the
+// title, price and image off each cart item saw nothing it could render and
+// showed an empty basket right after "added to cart".
+const readPopulatedCart = async (userId: string) => {
+  const cart = await Cart.findOne({ userId })
+    .populate({
+      path: "items.productId",
+      select: PRODUCT_POPULATE_FIELDS,
+    })
+    .lean();
+
+  // No cart document yet — hand back an empty one rather than throwing.
+  if (!cart) return { userId, items: [] };
+
+  return formatCartItems(cart);
+};
+
 // ─── Services ───────────────────────────────────────────────────────────────
 
 // ➕ ADD TO CART (Fixed Quantity Overflow & Pre-validation)
@@ -130,7 +151,7 @@ export const addToCartService = async (
 
   const interactedProduct = await fetchAndFormatInteractedProduct(productId);
 
-  return { ...cartDoc, interactedProduct };
+  return { ...(await readPopulatedCart(userId)), interactedProduct };
 };
 
 // ❌ REMOVE ITEM
@@ -149,7 +170,7 @@ export const removeFromCartService = async (
 
   if (!cart) throw new ApiError(404, "Cart not found");
 
-  return cart;
+  return readPopulatedCart(userId);
 };
 
 // 🔄 UPDATE QUANTITY
@@ -188,7 +209,7 @@ export const updateCartItemService = async (
 
   const interactedProduct = quantity === 0 ? null : await fetchAndFormatInteractedProduct(productId);
 
-  return { ...cart, interactedProduct };
+  return { ...(await readPopulatedCart(userId)), interactedProduct };
 };
 
 // 🧹 CLEAR CART
@@ -203,27 +224,12 @@ export const clearCartService = async (userId: string) => {
 
   if (!cart) throw new ApiError(404, "Cart not found");
 
-  return cart;
+  return readPopulatedCart(userId);
 };
 
 // 📦 GET CART (Returns graceful empty cart on 404)
 export const getCartService = async (userId: string) => {
   validateObjectId(userId, "userId");
 
-  const cart = await Cart.findOne({ userId })
-    .populate({
-      path: "items.productId",
-      select: PRODUCT_POPULATE_FIELDS,
-    })
-    .lean();
-
-  // If user has no cart document yet, return an empty cart object instead of throwing 404
-  if (!cart) {
-    return {
-      userId,
-      items: [],
-    };
-  }
-
-  return formatCartItems(cart);
+  return readPopulatedCart(userId);
 };

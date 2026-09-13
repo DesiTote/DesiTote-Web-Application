@@ -78,25 +78,51 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refresh();
   }, [refresh]);
 
-  const addItem = useCallback(async (productId: string, quantity = 1) => {
-    const res = await api.post<{ cart: BackendCart }>('/api/cart/add', { productId, quantity });
-    setItems(toDisplayItems(res.cart));
-  }, []);
+  // toDisplayItems drops any item whose productId came back as a bare id string
+  // instead of the populated product, because such an item has no title, price
+  // or image to show. If that silently emptied the list we would tell the
+  // shopper their tote was added and then show them an empty bag, so fall back
+  // to re-reading the cart instead of trusting the mapped result.
+  const applyCart = useCallback(
+    async (cart: BackendCart) => {
+      const mapped = toDisplayItems(cart);
+      if (cart.items.length > 0 && mapped.length === 0) {
+        await refresh();
+        return;
+      }
+      setItems(mapped);
+    },
+    [refresh]
+  );
 
-  const updateQuantity = useCallback(async (productId: string, quantity: number) => {
-    const res = await api.patch<{ data: BackendCart }>(`/api/cart/update-quantity/${productId}`, { quantity });
-    setItems(toDisplayItems(res.data));
-  }, []);
+  const addItem = useCallback(
+    async (productId: string, quantity = 1) => {
+      const res = await api.post<{ cart: BackendCart }>('/api/cart/add', { productId, quantity });
+      await applyCart(res.cart);
+    },
+    [applyCart]
+  );
 
-  const removeItem = useCallback(async (productId: string) => {
-    const res = await api.delete<{ data: BackendCart }>(`/api/cart/remove-item/${productId}`);
-    setItems(toDisplayItems(res.data));
-  }, []);
+  const updateQuantity = useCallback(
+    async (productId: string, quantity: number) => {
+      const res = await api.patch<{ data: BackendCart }>(`/api/cart/update-quantity/${productId}`, { quantity });
+      await applyCart(res.data);
+    },
+    [applyCart]
+  );
+
+  const removeItem = useCallback(
+    async (productId: string) => {
+      const res = await api.delete<{ data: BackendCart }>(`/api/cart/remove-item/${productId}`);
+      await applyCart(res.data);
+    },
+    [applyCart]
+  );
 
   const clearCart = useCallback(async () => {
     const res = await api.delete<{ cart: BackendCart }>('/api/cart/clear');
-    setItems(toDisplayItems(res.cart));
-  }, []);
+    await applyCart(res.cart);
+  }, [applyCart]);
 
   const itemCount = items.reduce((acc, i) => acc + i.quantity, 0);
   const subtotal = items.reduce((acc, i) => acc + i.price * i.quantity, 0);
