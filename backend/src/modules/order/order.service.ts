@@ -13,7 +13,8 @@ import crypto from "crypto"
 import { EMAIL_SUBJECTS } from "../../constants/customer/email.js";
 import { sendEmail } from "../../email/email.service.js";
 import { orderConfirmedEmailTemplate } from "../../email/templates/order-confirmed.js";
-import { decrementStockForOrder } from "./stock.service.js";
+import { orderCancelledEmailTemplate } from "../../email/templates/order-cancelled.js";
+import { decrementStockForOrder, restoreStockForOrder } from "./stock.service.js";
 
 // Read at call time, not module load — see config/loadEnv.ts.
 const getShiprocketPickupLocation = () => process.env.SHIPROCKET_PICKUP_LOCATION?.trim();
@@ -358,6 +359,38 @@ export async function cancelOrderService(input: CancelOrderInput) {
         },
         { new: true }
     );
+
+    // Same two gaps the admin path had: the units the order took were never
+    // given back, and the customer was told nothing. stockRestored is what
+    // stops a retried cancel handing the same units out twice.
+    if (updated && !updated.stockRestored) {
+        await restoreStockForOrder(
+            updated.items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                name: item.name || "item",
+            }))
+        );
+        updated.stockRestored = true;
+        await updated.save();
+    }
+
+    if (updated?.billingEmail) {
+        // Best effort: the order is cancelled and the stock is back by now.
+        try {
+            await sendEmail({
+                to: updated.billingEmail,
+                subject: EMAIL_SUBJECTS.orderCancelled,
+                html: orderCancelledEmailTemplate({
+                    name: updated.deliveryAddress?.fullName || "there",
+                    orderNumber: updated.orderNumber.toString(),
+                    paymentMethod: updated.payment?.method,
+                }),
+            });
+        } catch (err) {
+            console.error(`[order] cancellation email failed for ${updated.orderNumber}`, err);
+        }
+    }
 
     return {
         ...buildResponse(updated),

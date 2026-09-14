@@ -12,6 +12,10 @@ router.post("/:sessionId/place-order", validateCheckoutSession, placeOrderContro
 router.get("/recent", getRecentOrdersController);
 router.get("/:orderId", getOrderController);
 
+// The service, controller and validation for this were all written and then
+// never routed, so customers had no way to cancel their own order at all.
+router.post("/:orderId/cancel", cancelOrderController);
+
 router.post("/:sessionId/razorpay/create", validateCheckoutSession, createRazorpayOrderController);
 router.post("/:orderId/razorpay/verify", verifyRazorpayPaymentController);
 
