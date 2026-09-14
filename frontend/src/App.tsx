@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { MarqueeTicker } from './components/MarqueeTicker';
@@ -97,6 +97,9 @@ function AppShell() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [reviewsList, setReviewsList] = useState<Review[]>(REVIEWS);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [pendingSection, setPendingSection] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const showToast = (toast: Omit<ToastMessage, 'id'>) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
@@ -191,10 +194,29 @@ function AppShell() {
     addToCartNow(item);
   };
 
+  // The logo and every nav link point at a section of the home page. Scrolling
+  // to an id only works while that page is mounted, so on /checkout, /orders or
+  // /admin they silently did nothing - including the logo, leaving no way back
+  // to the shop but the browser's back button. Go home first when we are not
+  // already there, then scroll once it has rendered.
   const handleNavigate = (sectionId: string) => {
-    const el = document.getElementById(sectionId);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (location.pathname !== '/') {
+      setPendingSection(sectionId);
+      navigate('/');
+      return;
+    }
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    if (!pendingSection || location.pathname !== '/') return;
+    // One frame after the route renders, so the target exists to scroll to.
+    const id = requestAnimationFrame(() => {
+      document.getElementById(pendingSection)?.scrollIntoView({ behavior: 'smooth' });
+      setPendingSection(null);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [pendingSection, location.pathname]);
 
   const handleAddReview = (newReview: Review) => {
     setReviewsList([newReview, ...reviewsList]);
