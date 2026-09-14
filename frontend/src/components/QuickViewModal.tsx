@@ -80,7 +80,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
     // ~150 cards that each carry their own backdrop-blur plus the ambient
     // blur(140px) glows. That is what made opening a tote crawl on a phone.
     // At 80% black the blur was barely visible anyway.
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85">
       {/* The card carries no backdrop-blur: bg-[#F7F2E8] is fully opaque, so a
           blur behind it was never visible — it only bought a second
           full-viewport compositing pass on every frame. */}
@@ -88,15 +88,21 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full max-w-3xl rounded-[32px] sm:rounded-[36px] bg-[#F7F2E8] border border-[#0B1420]/10 p-6 sm:p-8 shadow-2xl shadow-[#0B1420]/20 relative my-8"
+        className="w-full max-w-3xl max-h-full rounded-[32px] sm:rounded-[36px] bg-[#F7F2E8] border border-[#0B1420]/10 shadow-2xl shadow-[#0B1420]/20 relative flex flex-col overflow-hidden"
       >
+        {/* Sits on the card, not inside the scrolling area, so it stays put.
+            It used to scroll away with the content, leaving no way out of the
+            product on a phone but the browser's back button. Opaque fill so
+            content passing underneath stays legible. */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-[#0B1420]/5 hover:bg-[#0B1420]/10 text-[#0B1420]/60 hover:text-[#0B1420] transition-colors cursor-pointer"
+          aria-label="Close"
+          className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-[#F7F2E8] border border-[#0B1420]/15 shadow-md text-[#0B1420]/70 hover:text-[#0B1420] hover:bg-[#0B1420]/5 transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
 
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
           {/* Left: Big Preview Image */}
@@ -201,17 +207,35 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               <span className="flex items-center gap-1.5"><Layers className="w-3.5 h-3.5 text-[#B87D00]" /> {product.fabric}</span>
             </div>
 
-            {/* Add to Bag CTA */}
+            {/* Add to Bag CTA — on phones this is replaced by the pinned bar
+                at the bottom of the card, so the price and the buy button are
+                reachable without scrolling to the end of the description. */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={handleAdd}
-              className="w-full py-4 rounded-full bg-gradient-to-r from-[#0B1420] to-[#340E09] hover:from-[#05090F] hover:to-[#4a1a10] text-[#F7F2E8] font-semibold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-[#B87D00]/20 cursor-pointer transition-all"
+              className="hidden sm:flex w-full py-4 rounded-full bg-gradient-to-r from-[#0B1420] to-[#340E09] hover:from-[#05090F] hover:to-[#4a1a10] text-[#F7F2E8] font-semibold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-[#B87D00]/20 cursor-pointer transition-all"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               <span>Add to Bag — {formatPrice(activeVariant.price)}</span>
             </motion.button>
           </div>
 
+        </div>
+        </div>
+
+        {/* Pinned buy bar, phones only. The card is a tall scroll on a narrow
+            screen, and with the button at the end of it the shopper had to
+            scroll past the whole description to reach the thing they came for.
+            Kept out of the scrolling area so it is always on screen. */}
+        <div className="sm:hidden shrink-0 border-t border-[#0B1420]/10 bg-[#F7F2E8] px-5 py-4">
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={handleAdd}
+            className="w-full py-4 rounded-full bg-gradient-to-r from-[#0B1420] to-[#340E09] text-[#F7F2E8] font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-[#B87D00]/20 cursor-pointer transition-all"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Add to Bag — {formatPrice(activeVariant.price)}</span>
+          </motion.button>
         </div>
       </motion.div>
     </div>
