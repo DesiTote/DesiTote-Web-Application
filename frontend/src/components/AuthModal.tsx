@@ -94,14 +94,26 @@ export const AuthModal: React.FC = () => {
     setResendNote('');
     setIsSubmitting(true);
     try {
-      const wait = await sendRegisterOtp(regEmail);
-      setResendIn(wait);
+      const { resendAvailableIn, alreadyVerified } = await sendRegisterOtp(regEmail);
+      if (alreadyVerified) {
+        await completeRegistration();
+        return;
+      }
+      setResendIn(resendAvailableIn);
       setResendNote('A new code is on its way.');
     } catch (err) {
       setError(authErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Used when the API says this address is already past the code step. Nothing
+  // will be emailed, so waiting for a code is a dead end - create the account.
+  const completeRegistration = async () => {
+    await register({ fullName, email: regEmail, mobileNumber, password: regPassword });
+    await login(regEmail, regPassword);
+    handleSuccess();
   };
 
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -121,8 +133,12 @@ export const AuthModal: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const wait = await sendRegisterOtp(regEmail);
-      setResendIn(wait);
+      const { resendAvailableIn, alreadyVerified } = await sendRegisterOtp(regEmail);
+      if (alreadyVerified) {
+        await completeRegistration();
+        return;
+      }
+      setResendIn(resendAvailableIn);
       setResendNote('');
       setMode('register-otp');
     } catch (err) {

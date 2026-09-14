@@ -5,8 +5,10 @@ import { BackendUser } from '../lib/apiTypes';
 interface AuthContextValue {
   user: BackendUser | null;
   isLoading: boolean;
-  /** Resolves with the seconds the API wants us to wait before offering a resend. */
-  sendRegisterOtp: (email: string) => Promise<number>;
+  /** `alreadyVerified` means this address cleared the code step on an earlier
+   *  attempt: the API sends nothing and no code will ever arrive, so the caller
+   *  must go straight to creating the account instead of waiting for one. */
+  sendRegisterOtp: (email: string) => Promise<{ resendAvailableIn: number; alreadyVerified: boolean }>;
   verifyRegisterOtp: (email: string, otp: string) => Promise<void>;
   register: (data: { fullName: string; email: string; mobileNumber: string; password: string }) => Promise<void>;
   login: (email: string, password: string) => Promise<BackendUser>;
@@ -38,11 +40,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [refreshProfile]);
 
   const sendRegisterOtp = useCallback(async (email: string) => {
-    const res = await api.post<{ resendAvailableIn?: number }>('/api/auth/send-otp', {
-      email,
-      type: 'register',
-    });
-    return res?.resendAvailableIn ?? 30;
+    const res = await api.post<{ resendAvailableIn?: number; alreadyVerified?: boolean }>(
+      '/api/auth/send-otp',
+      { email, type: 'register' }
+    );
+    return {
+      resendAvailableIn: res?.resendAvailableIn ?? 30,
+      alreadyVerified: Boolean(res?.alreadyVerified),
+    };
   }, []);
 
   const verifyRegisterOtp = useCallback(async (email: string, otp: string) => {
