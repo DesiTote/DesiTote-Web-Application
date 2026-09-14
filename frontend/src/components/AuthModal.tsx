@@ -31,6 +31,22 @@ export const AuthModal: React.FC = () => {
   const [regPassword, setRegPassword] = useState('');
   const [otp, setOtp] = useState('');
 
+  // Seconds until a new code can be requested. The API rate-limits resends and
+  // tells us how long it wants; counting down is what makes the wait legible
+  // instead of the button just refusing.
+  //
+  // Must stay above the `if (!isOpen) return null` below: hooks declared after
+  // an early return only run on some renders, which is exactly what React
+  // error #310 is.
+  const [resendIn, setResendIn] = useState(0);
+  const [resendNote, setResendNote] = useState('');
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((n) => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
   if (!isOpen) return null;
 
   const resetAndClose = () => {
@@ -72,18 +88,6 @@ export const AuthModal: React.FC = () => {
     }
     return null;
   };
-
-  // Seconds until a new code can be requested. The API rate-limits resends and
-  // tells us how long it wants; counting down is what makes the wait legible
-  // instead of the button just refusing.
-  const [resendIn, setResendIn] = useState(0);
-  const [resendNote, setResendNote] = useState('');
-
-  useEffect(() => {
-    if (resendIn <= 0) return;
-    const t = setTimeout(() => setResendIn((n) => n - 1), 1000);
-    return () => clearTimeout(t);
-  }, [resendIn]);
 
   const handleResendOtp = async () => {
     setError('');
