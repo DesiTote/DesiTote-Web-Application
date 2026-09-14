@@ -5,7 +5,8 @@ import { BackendUser } from '../lib/apiTypes';
 interface AuthContextValue {
   user: BackendUser | null;
   isLoading: boolean;
-  sendRegisterOtp: (email: string) => Promise<void>;
+  /** Resolves with the seconds the API wants us to wait before offering a resend. */
+  sendRegisterOtp: (email: string) => Promise<number>;
   verifyRegisterOtp: (email: string, otp: string) => Promise<void>;
   register: (data: { fullName: string; email: string; mobileNumber: string; password: string }) => Promise<void>;
   login: (email: string, password: string) => Promise<BackendUser>;
@@ -37,7 +38,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [refreshProfile]);
 
   const sendRegisterOtp = useCallback(async (email: string) => {
-    await api.post('/api/auth/send-otp', { email, type: 'register' });
+    const res = await api.post<{ resendAvailableIn?: number }>('/api/auth/send-otp', {
+      email,
+      type: 'register',
+    });
+    return res?.resendAvailableIn ?? 30;
   }, []);
 
   const verifyRegisterOtp = useCallback(async (email: string, otp: string) => {

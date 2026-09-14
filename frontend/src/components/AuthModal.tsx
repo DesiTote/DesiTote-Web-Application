@@ -73,6 +73,33 @@ export const AuthModal: React.FC = () => {
     return null;
   };
 
+  // Seconds until a new code can be requested. The API rate-limits resends and
+  // tells us how long it wants; counting down is what makes the wait legible
+  // instead of the button just refusing.
+  const [resendIn, setResendIn] = useState(0);
+  const [resendNote, setResendNote] = useState('');
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((n) => n - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
+
+  const handleResendOtp = async () => {
+    setError('');
+    setResendNote('');
+    setIsSubmitting(true);
+    try {
+      const wait = await sendRegisterOtp(regEmail);
+      setResendIn(wait);
+      setResendNote('A new code is on its way.');
+    } catch (err) {
+      setError(authErrorMessage(err));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -90,7 +117,9 @@ export const AuthModal: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      await sendRegisterOtp(regEmail);
+      const wait = await sendRegisterOtp(regEmail);
+      setResendIn(wait);
+      setResendNote('');
       setMode('register-otp');
     } catch (err) {
       setError(authErrorMessage(err));
@@ -253,6 +282,7 @@ export const AuthModal: React.FC = () => {
                 className={`${inputClass} text-center tracking-[0.5em] font-mono text-lg`}
               />
               {error && <p className="text-xs text-rose-500">{error}</p>}
+              {resendNote && !error && <p className="text-xs text-emerald-600">{resendNote}</p>}
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -261,6 +291,27 @@ export const AuthModal: React.FC = () => {
                 {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 <span>Verify &amp; Create Account</span>
               </button>
+
+              {/* Codes go astray - spam folders, slow mail, a mistyped address.
+                  Without this the only way out was to abandon the signup. */}
+              <div className="text-center text-xs text-[#0B1420]/60 pt-0.5">
+                {resendIn > 0 ? (
+                  <span>Didn&apos;t get the code? You can ask for a new one in {resendIn}s</span>
+                ) : (
+                  <>
+                    Didn&apos;t get the code?{' '}
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={isSubmitting}
+                      className="font-semibold text-[#B87D00] hover:text-[#0B1420] underline underline-offset-2 disabled:opacity-50 cursor-pointer"
+                    >
+                      Send it again
+                    </button>
+                  </>
+                )}
+                <span className="block text-[#0B1420]/40 mt-1">Check your spam folder too.</span>
+              </div>
               <button
                 type="button"
                 onClick={() => {
