@@ -47,4 +47,12 @@ export async function restoreStockForOrder(items: StockItem[]) {
             console.error(`[stock-restore] Failed to restore stock for product ${item.productId}`, err);
         }
     }
+
+    // The storefront serves a cached catalogue, so without this the returned
+    // units stay invisible to shoppers until the cache ages out.
+    try {
+        await invalidateProductsCache();
+    } catch (err) {
+        console.error("[stock-restore] Failed to invalidate the products cache", err);
+    }
 }

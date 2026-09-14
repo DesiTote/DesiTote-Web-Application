@@ -48,7 +48,7 @@ export const orderConfirmedEmailTemplate = ({
 
       <div style="text-align:center;margin:32px 0;">
         <a
-          href="https://desitotes.com/orders/${orderId}/confirmation"
+          href="https://desitotes.com/orders/${orderId}"
           style="
             display:inline-block;
             background:#C6941E;

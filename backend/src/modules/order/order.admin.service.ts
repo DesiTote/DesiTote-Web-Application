@@ -2,6 +2,10 @@
 import mongoose, { QueryFilter } from "mongoose";
 import { Order, IOrder, OrderStatus, PaymentMethod } from "./order.model.js";
 import { OrderStatusBucket, getStatusesForBucket, ORDER_STATUS_BUCKET_MAP, ALL_ORDER_STATUSES } from "./order.constants.js";
+import { restoreStockForOrder } from "./stock.service.js";
+import { sendEmail } from "../../email/email.service.js";
+import { EMAIL_SUBJECTS } from "../../constants/customer/email.js";
+import { orderCancelledEmailTemplate } from "../../email/templates/order-cancelled.js";
 import { validateObjectId } from "../../utils/mongoIDValidator.js";
 import { ApiError } from "../../utils/ApiError.js";
 
@@ -161,7 +165,47 @@ export async function updateOrderStatusManually(
         source: "admin",
     });
 
+    // Cancelling used to change the status and nothing else: the units the
+    // order had taken were never given back, so every cancellation quietly ate
+    // stock, and the customer was told nothing at all.
+    const isCancelling = newStatus === "cancelled" && previousStatus !== "cancelled";
+
+    if (isCancelling) {
+        order.cancelledAt = new Date();
+
+        // stockRestored is what keeps this from paying out twice if an order is
+        // moved through "cancelled" again later.
+        if (!order.stockRestored) {
+            await restoreStockForOrder(
+                order.items.map((item) => ({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    name: item.name || "item",
+                }))
+            );
+            order.stockRestored = true;
+        }
+    }
+
     await order.save();
+
+    if (isCancelling && order.billingEmail) {
+        // Best effort: the order is already cancelled and the stock already
+        // back. A mail failure must not undo either or fail the request.
+        try {
+            await sendEmail({
+                to: order.billingEmail,
+                subject: EMAIL_SUBJECTS.orderCancelled,
+                html: orderCancelledEmailTemplate({
+                    name: order.deliveryAddress?.fullName || "there",
+                    orderNumber: order.orderNumber.toString(),
+                    paymentMethod: order.payment?.method,
+                }),
+            });
+        } catch (err) {
+            console.error(`[order] cancellation email failed for ${order.orderNumber}`, err);
+        }
+    }
 
     return order;
 }

@@ -139,6 +139,9 @@ export interface IOrder extends Document {
 
     cancelReason?: string;
     cancelledAt?: Date;
+    /** Guards against giving the same units back twice if an order is moved
+     *  into "cancelled" more than once. */
+    stockRestored?: boolean;
     notes?: string;
 
     createdAt: Date;
@@ -311,6 +314,7 @@ const OrderSchema = new Schema<IOrder>(
         },
         cancelReason: { type: String },
         cancelledAt: { type: Date },
+        stockRestored: { type: Boolean, default: false },
         notes: { type: String },
     },
     { timestamps: true }

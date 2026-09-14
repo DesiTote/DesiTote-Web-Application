@@ -10,6 +10,7 @@ export const EMAIL_SUBJECTS = {
     welcome: "Welcome to the DesiTotes Family 🎉",
     passwordChanged: "Your password has been updated",
     orderConfirmed:"Your DesiTotes order is confirmed",
+    orderCancelled: "Your DesiTotes order has been cancelled",
     orderDelivered: "Your DesiTotes order has been delivered 🎉",
     newsletter: "New arrivals are here ✨",
 } as const;
