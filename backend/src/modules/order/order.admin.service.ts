@@ -3,6 +3,7 @@ import mongoose, { QueryFilter } from "mongoose";
 import { Order, IOrder, OrderStatus, PaymentMethod } from "./order.model.js";
 import { OrderStatusBucket, getStatusesForBucket, ORDER_STATUS_BUCKET_MAP, ALL_ORDER_STATUSES } from "./order.constants.js";
 import { restoreStockForOrder } from "./stock.service.js";
+import { shiprocketClient } from "../../lib/shiprocket.js";
 import { sendEmail } from "../../email/email.service.js";
 import { EMAIL_SUBJECTS } from "../../constants/customer/email.js";
 import { orderCancelledEmailTemplate } from "../../email/templates/order-cancelled.js";
@@ -172,6 +173,22 @@ export async function updateOrderStatusManually(
 
     if (isCancelling) {
         order.cancelledAt = new Date();
+
+        // Cancel with the courier too, as the customer-facing path already
+        // does. Without this an admin cancellation left a live shipment behind
+        // and someone had to remember to cancel it in Shiprocket by hand.
+        // Best effort: the cancellation stands either way, and the failure is
+        // recorded on the order so it can be chased.
+        if (order.shiprocket?.orderId) {
+            try {
+                await shiprocketClient.cancelOrder(order.shiprocket.orderId);
+                order.shiprocket.status = "cancelled";
+            } catch (err: any) {
+                const message = err?.message || "Shiprocket cancellation failed";
+                order.shiprocket.status = `cancel_failed: ${message}`;
+                console.error(`[order] Shiprocket cancel failed for ${order.orderNumber}`, err);
+            }
+        }
 
         // stockRestored is what keeps this from paying out twice if an order is
         // moved through "cancelled" again later.

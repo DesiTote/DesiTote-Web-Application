@@ -54,11 +54,17 @@ export function OrderDetailPage({ formatPrice }: { formatPrice: (inr: number) =>
     }
     setCancelling(true);
     try {
-      const res = await api.post<{ data: BackendOrderDetail }>(`/api/order/${orderId}/cancel`, {
+      await api.post(`/api/order/${orderId}/cancel`, {
         reason: cancelReason,
         ...(cancelNote.trim() ? { note: cancelNote.trim() } : {}),
       });
-      setOrder(res.data);
+
+      // Re-read the order rather than trusting what cancel hands back: that
+      // response is a four-field acknowledgement (id, number, status,
+      // shiprocket), not a whole order. Putting it into state blanked the
+      // items and the address and took the page down with it.
+      const fresh = await api.get<{ data: BackendOrderDetail }>(`/api/order/${orderId}`);
+      setOrder(fresh.data);
       setShowCancel(false);
     } catch (err) {
       setCancelError(err instanceof Error ? err.message : 'Could not cancel this order.');
