@@ -239,11 +239,18 @@ export function CheckoutPage({ formatPrice }: CheckoutPageProps) {
                 <span className="font-mono">{formatPrice(shippingQuote.charge)}</span>
               </div>
             )}
-            <div className="flex justify-between text-base font-serif text-[#0B1420] pt-1.5">
+            <div className="flex justify-between items-baseline text-base font-serif text-[#0B1420] pt-1.5">
               <span>Total</span>
-              <span className="font-mono font-bold text-[#B87D00]">
-                {session.total != null ? formatPrice(session.total) : '—'}
-              </span>
+              {session.total != null ? (
+                <span className="font-mono font-bold text-[#B87D00]">{formatPrice(session.total)}</span>
+              ) : (
+                // No address yet, so shipping is genuinely unknown and so is the
+                // total. A bare dash beside a greyed-out Place Order reads as a
+                // broken page rather than a step still to do.
+                <span className="text-xs font-sans font-normal text-[#0B1420]/50 text-right">
+                  Add a delivery address to see your total
+                </span>
+              )}
             </div>
           </div>
         )}
