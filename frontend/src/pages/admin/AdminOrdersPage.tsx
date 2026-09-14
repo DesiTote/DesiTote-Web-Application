@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { BackendAdminOrderListResult, BackendAdminOrderRow } from '../../lib/apiTypes';
+import { AdminOrderDetail } from './AdminOrderDetail';
 
 const ALL_STATUSES = [
   'pending_payment',
@@ -25,6 +26,7 @@ export function AdminOrdersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [bucket, setBucket] = useState('All');
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [openOrderId, setOpenOrderId] = useState<string | null>(null);
 
   const load = async (statusBucket: string) => {
     setIsLoading(true);
@@ -86,7 +88,11 @@ export function AdminOrdersPage() {
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order._id} className="border-b border-[#0B1420]/5 last:border-0">
+                <tr
+                  key={order._id}
+                  onClick={() => setOpenOrderId(order._id)}
+                  className="border-b border-[#0B1420]/5 last:border-0 cursor-pointer hover:bg-[#0B1420]/[0.03]"
+                >
                   <td className="p-3 font-mono text-xs">{order.orderNumber}</td>
                   <td className="p-3">
                     <p className="text-xs text-[#0B1420]">{order.customerName}</p>
@@ -96,7 +102,7 @@ export function AdminOrdersPage() {
                     {order.paymentMethod} • {order.paymentStatus}
                   </td>
                   <td className="p-3 font-mono text-xs">₹{order.grandTotal.toLocaleString('en-IN')}</td>
-                  <td className="p-3">
+                  <td className="p-3" onClick={(e) => e.stopPropagation()}>
                     <select
                       value={order.status}
                       disabled={savingId === order._id}
@@ -122,6 +128,18 @@ export function AdminOrdersPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {openOrderId && (
+        <AdminOrderDetail
+          orderId={openOrderId}
+          onClose={() => {
+            setOpenOrderId(null);
+            // A status changed inside the panel would otherwise leave the table
+            // showing the old one.
+            load(bucket);
+          }}
+        />
       )}
     </div>
   );

@@ -206,3 +206,43 @@ export interface BackendDashboardStats {
   totalUsers: number;
   totalProducts: number;
 }
+
+/** Full order as the admin detail endpoint returns it (the whole document). */
+export interface BackendAdminOrderDetail {
+  _id: string;
+  orderNumber: string;
+  status: string;
+  createdAt: string;
+  cancelledAt?: string;
+  billingEmail?: string;
+  currency?: string;
+  subtotal: number;
+  discount: number;
+  gstAmount: number;
+  shippingCharge: number;
+  grandTotal: number;
+  packageWeight?: number;
+  items: {
+    productId: string;
+    name: string;
+    sku?: string;
+    image?: string;
+    quantity: number;
+    unitPrice: number;
+    originalPrice?: number;
+    lineTotal: number;
+  }[];
+  deliveryAddress?: {
+    fullName?: string;
+    mobileNumber?: string;
+    addressLine1?: string;
+    addressLine2?: string;
+    district?: string;
+    state?: string;
+    pincode?: string;
+    country?: string;
+  };
+  payment?: { method?: string; status?: string; refundStatus?: string };
+  shiprocket?: { orderId?: string; shipmentId?: string; status?: string; awb?: string; courierName?: string };
+  statusHistory?: { status: string; timestamp: string; note?: string; source?: string }[];
+}
