@@ -60,9 +60,34 @@ export const AuthModal: React.FC = () => {
     }
   };
 
+  // Kept in step with the API's own rules — auth.validation.ts. If these ever
+  // drift, the symptom is a rejection on the code screen rather than here.
+  const validateRegistration = (): string | null => {
+    if (!fullName.trim()) return 'Please enter your name.';
+    if (!/^[6-9]\d{9}$/.test(mobileNumber.trim())) {
+      return 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.';
+    }
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{6,}$/.test(regPassword)) {
+      return 'Password needs at least 6 characters, including a lowercase letter, an uppercase letter, a number and a special character (for example: Totes@2026).';
+    }
+    return null;
+  };
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Checked here, not left to the API. The API only sees these when the
+    // account is actually created, which happens after the emailed code has
+    // been verified and spent - so a weak password surfaced as an error on the
+    // code screen, where there is no password field to correct and no code left
+    // to reuse. Dead end for the shopper.
+    const invalid = validateRegistration();
+    if (invalid) {
+      setError(invalid);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await sendRegisterOtp(regEmail);
@@ -188,7 +213,8 @@ export const AuthModal: React.FC = () => {
                 className={inputClass}
               />
               <p className="text-[10px] text-[#0B1420]/40 px-1">
-                At least 6 characters, with an uppercase letter, a number, and a special character.
+                At least 6 characters, with a lowercase and an uppercase letter, a number,
+                and a special character. For example: Totes@2026
               </p>
               {error && <p className="text-xs text-rose-500">{error}</p>}
               <button
