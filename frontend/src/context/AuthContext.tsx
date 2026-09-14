@@ -10,6 +10,10 @@ interface AuthContextValue {
    *  must go straight to creating the account instead of waiting for one. */
   sendRegisterOtp: (email: string) => Promise<{ resendAvailableIn: number; alreadyVerified: boolean }>;
   verifyRegisterOtp: (email: string, otp: string) => Promise<void>;
+  /** Password reset: email a code, verify it, then set the new password. */
+  sendForgotOtp: (email: string) => Promise<number>;
+  verifyForgotOtp: (email: string, otp: string) => Promise<void>;
+  resetPassword: (email: string, password: string) => Promise<void>;
   register: (data: { fullName: string; email: string; mobileNumber: string; password: string }) => Promise<void>;
   login: (email: string, password: string) => Promise<BackendUser>;
   logout: () => Promise<void>;
@@ -54,6 +58,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await api.post('/api/auth/verify-otp', { email, otp, type: 'register' });
   }, []);
 
+  const sendForgotOtp = useCallback(async (email: string) => {
+    const res = await api.post<{ resendAvailableIn?: number }>('/api/auth/send-otp', {
+      email,
+      type: 'forgot',
+    });
+    return res?.resendAvailableIn ?? 30;
+  }, []);
+
+  const verifyForgotOtp = useCallback(async (email: string, otp: string) => {
+    await api.post('/api/auth/verify-otp', { email, otp, type: 'forgot' });
+  }, []);
+
+  const resetPassword = useCallback(async (email: string, password: string) => {
+    await api.post('/api/auth/forgot-password', { email, password });
+  }, []);
+
   const register = useCallback(
     async (data: { fullName: string; email: string; mobileNumber: string; password: string }) => {
       await api.post('/api/auth/register', data);
@@ -92,7 +112,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, sendRegisterOtp, verifyRegisterOtp, register, login, logout, refreshProfile }}
+      value={{
+        user,
+        isLoading,
+        sendRegisterOtp,
+        verifyRegisterOtp,
+        sendForgotOtp,
+        verifyForgotOtp,
+        resetPassword,
+        register,
+        login,
+        logout,
+        refreshProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>

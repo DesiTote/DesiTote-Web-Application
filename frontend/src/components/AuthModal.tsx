@@ -5,14 +5,20 @@ import { useAuth, authErrorMessage } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
 import { DesiLogo } from './DesiLogo';
 
-type Mode = 'login' | 'register-details' | 'register-otp';
+// Mirrors the API's rule in auth.validation.ts.
+const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{6,}$/;
+const PASSWORD_HELP =
+  'Password needs at least 6 characters, including a lowercase letter, an uppercase letter, a number and a special character (for example: Totes@2026).';
+
+type Mode = 'login' | 'register-details' | 'register-otp' | 'forgot-email' | 'forgot-reset';
 
 const inputClass =
   'w-full px-4 py-3 rounded-2xl bg-white border border-[#0B1420]/15 text-sm text-[#0B1420] focus:outline-none focus:border-[#B87D00] placeholder-[#0B1420]/30';
 
 export const AuthModal: React.FC = () => {
   const { isOpen, initialMode, closeAuthModal, handleSuccess } = useAuthModal();
-  const { login, sendRegisterOtp, verifyRegisterOtp, register } = useAuth();
+  const { login, sendRegisterOtp, verifyRegisterOtp, register, sendForgotOtp, verifyForgotOtp, resetPassword } =
+    useAuth();
 
   const [mode, setMode] = useState<Mode>('login');
 
@@ -38,6 +44,10 @@ export const AuthModal: React.FC = () => {
   // Must stay above the `if (!isOpen) return null` below: hooks declared after
   // an early return only run on some renders, which is exactly what React
   // error #310 is.
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotOtp, setForgotOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+
   const [resendIn, setResendIn] = useState(0);
   const [resendNote, setResendNote] = useState('');
 
@@ -83,8 +93,8 @@ export const AuthModal: React.FC = () => {
     if (!/^[6-9]\d{9}$/.test(mobileNumber.trim())) {
       return 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.';
     }
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{6,}$/.test(regPassword)) {
-      return 'Password needs at least 6 characters, including a lowercase letter, an uppercase letter, a number and a special character (for example: Totes@2026).';
+    if (!PASSWORD_RULE.test(regPassword)) {
+      return PASSWORD_HELP;
     }
     return null;
   };
@@ -114,6 +124,43 @@ export const AuthModal: React.FC = () => {
     await register({ fullName, email: regEmail, mobileNumber, password: regPassword });
     await login(regEmail, regPassword);
     handleSuccess();
+  };
+
+  const handleForgotSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+    try {
+      const wait = await sendForgotOtp(forgotEmail);
+      setResendIn(wait);
+      setResendNote('');
+      setMode('forgot-reset');
+    } catch (err) {
+      setError(authErrorMessage(err));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (!PASSWORD_RULE.test(newPassword)) {
+      setError(PASSWORD_HELP);
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      // The API only accepts the new password once the code has been verified.
+      await verifyForgotOtp(forgotEmail, forgotOtp);
+      await resetPassword(forgotEmail, newPassword);
+      await login(forgotEmail, newPassword);
+      handleSuccess();
+    } catch (err) {
+      setError(authErrorMessage(err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -219,6 +266,17 @@ export const AuthModal: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setError('');
+                  setForgotEmail(loginEmail);
+                  setMode('forgot-email');
+                }}
+                className="w-full text-center text-xs text-[#0B1420]/60 hover:text-[#0B1420]"
+              >
+                Forgotten your password?
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setError('');
                   setMode('register-details');
                 }}
                 className="w-full text-center text-xs text-[#0B1420]/60 hover:text-[#0B1420] pt-1"
@@ -284,6 +342,111 @@ export const AuthModal: React.FC = () => {
               >
                 Already have an account? <span className="text-[#B87D00] font-semibold">Log in</span>
               </button>
+            </form>
+          )}
+
+          {mode === 'forgot-email' && (
+            <form onSubmit={handleForgotSendOtp} className="space-y-3.5">
+              <h3 className="text-xl font-serif text-center text-[#0B1420] mb-1">Reset your password</h3>
+              <p className="text-xs text-center text-[#0B1420]/50 mb-3">
+                Tell us the email on your account and we&apos;ll send a 6-digit code.
+              </p>
+              <input
+                type="email"
+                required
+                placeholder="Email address"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                className={inputClass}
+              />
+              {error && <p className="text-xs text-rose-500">{error}</p>}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#0B1420] to-[#340E09] text-[#F7F2E8] font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>Send Code</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setError('');
+                  setMode('login');
+                }}
+                className="w-full text-center text-xs text-[#0B1420]/60 hover:text-[#0B1420] pt-1"
+              >
+                Back to log in
+              </button>
+            </form>
+          )}
+
+          {mode === 'forgot-reset' && (
+            <form onSubmit={handleResetPassword} className="space-y-3.5">
+              <h3 className="text-xl font-serif text-center text-[#0B1420] mb-1">Choose a new password</h3>
+              <p className="text-xs text-center text-[#0B1420]/50 mb-3">
+                We sent a 6-digit code to <span className="font-semibold text-[#0B1420]">{forgotEmail}</span>
+              </p>
+              <input
+                required
+                maxLength={6}
+                placeholder="6-digit code"
+                value={forgotOtp}
+                onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
+                className={`${inputClass} text-center tracking-[0.5em] font-mono text-lg`}
+              />
+              <input
+                type="password"
+                required
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className={inputClass}
+              />
+              <p className="text-[10px] text-[#0B1420]/40 px-1">
+                At least 6 characters, with a lowercase and an uppercase letter, a number,
+                and a special character. For example: Totes@2026
+              </p>
+              {error && <p className="text-xs text-rose-500">{error}</p>}
+              {resendNote && !error && <p className="text-xs text-emerald-600">{resendNote}</p>}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3.5 rounded-full bg-gradient-to-r from-[#0B1420] to-[#340E09] text-[#F7F2E8] font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>Set New Password</span>
+              </button>
+              <div className="text-center text-xs text-[#0B1420]/60 pt-0.5">
+                {resendIn > 0 ? (
+                  <span>Didn&apos;t get the code? You can ask for a new one in {resendIn}s</span>
+                ) : (
+                  <>
+                    Didn&apos;t get the code?{' '}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setError('');
+                        setResendNote('');
+                        setIsSubmitting(true);
+                        try {
+                          setResendIn(await sendForgotOtp(forgotEmail));
+                          setResendNote('A new code is on its way.');
+                        } catch (err) {
+                          setError(authErrorMessage(err));
+                        } finally {
+                          setIsSubmitting(false);
+                        }
+                      }}
+                      disabled={isSubmitting}
+                      className="font-semibold text-[#B87D00] hover:text-[#0B1420] underline underline-offset-2 disabled:opacity-50 cursor-pointer"
+                    >
+                      Send it again
+                    </button>
+                  </>
+                )}
+                <span className="block text-[#0B1420]/40 mt-1">Check your spam folder too.</span>
+              </div>
             </form>
           )}
 
