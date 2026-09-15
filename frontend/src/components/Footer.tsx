@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Send, CheckCircle2, MessageCircle, Heart, Shield, Sparkles } from 'lucide-react';
 import { playPop } from '../utils/audio';
@@ -125,10 +126,15 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h4 className="text-[10px] font-mono font-medium uppercase tracking-[0.2em] text-[#B87D00]">Support</h4>
             <ul className="space-y-2.5 text-white/50 font-light">
-              <li><span className="hover:text-white cursor-pointer">Order Tracking</span></li>
-              <li><span className="hover:text-white cursor-pointer">Washing &amp; Care</span></li>
-              <li><span className="hover:text-white cursor-pointer">Bulk &amp; Custom Orders</span></li>
-              <li><span className="hover:text-white cursor-pointer">contact@desitotes.example</span></li>
+              <li><Link to="/orders" className="hover:text-white">Order Tracking</Link></li>
+              <li><Link to="/shipping-policy" className="hover:text-white">Shipping &amp; Delivery</Link></li>
+              <li><Link to="/refund-policy" className="hover:text-white">Returns &amp; Refunds</Link></li>
+              <li><Link to="/contact" className="hover:text-white">Bulk &amp; Custom Orders</Link></li>
+              <li>
+                <a href="mailto:desitotes0401@gmail.com" className="hover:text-white">
+                  desitotes0401@gmail.com
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -140,9 +146,13 @@ export const Footer: React.FC = () => {
             <span>Handmade with pride in India.</span>
           </div>
           <div className="flex gap-4">
-            <span className="hover:text-white cursor-pointer">Privacy Protocol</span>
+            <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
             <span>•</span>
-            <span className="hover:text-white cursor-pointer">Terms of Service</span>
+            <Link to="/terms" className="hover:text-white">Terms &amp; Conditions</Link>
+            <span>•</span>
+            <Link to="/refund-policy" className="hover:text-white">Refunds</Link>
+            <span>•</span>
+            <Link to="/shipping-policy" className="hover:text-white">Shipping</Link>
             <span>•</span>
             <span>© {new Date().getFullYear()} Desi Totes.</span>
           </div>

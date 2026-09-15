@@ -31,6 +31,7 @@ import { OrdersPage } from './pages/OrdersPage';
 import { OrderDetailPage } from './pages/OrderDetailPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { TermsPage, PrivacyPage, RefundPage, ShippingPage, ContactPage } from './pages/LegalPages';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
@@ -258,6 +259,14 @@ function AppShell() {
             />
           }
         />
+        {/* Payment providers check for these before approving a business, and
+            shoppers look for them before trusting one. */}
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/refund-policy" element={<RefundPage />} />
+        <Route path="/shipping-policy" element={<ShippingPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/checkout" element={<CheckoutPage formatPrice={formatPrice} />} />
