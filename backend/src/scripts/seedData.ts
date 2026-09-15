@@ -38,8 +38,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         category: "plain",
         isBestSeller: true,
         variants: [
-            { id: "hobo-black", name: "Black", colorLabel: "Black", colorHex: "#17181a", imageFile: "hobo_black.jpg", price: 250, badge: "With Zip" },
-            { id: "hobo-white", name: "Off White", colorLabel: "Off White", colorHex: "#efe9dd", imageFile: "hobo_white.jpg", price: 250, badge: "With Zip" },
+            { id: "hobo-black", name: "Black", colorLabel: "Black", colorHex: "#17181a", imageFile: "hobo_black.jpg", price: 249, badge: "With Zip" },
+            { id: "hobo-white", name: "Off White", colorLabel: "Off White", colorHex: "#efe9dd", imageFile: "hobo_white.jpg", price: 249, badge: "With Zip" },
         ],
     },
     {
@@ -50,8 +50,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
             "A single wide flap covers the top of this canvas tote for a neater, more secured carry. Same durable 320 GSM cotton canvas construction, finished with cotton webbing straps.",
         category: "plain",
         variants: [
-            { id: "single-flap-black", name: "Black", colorLabel: "Black", colorHex: "#17181a", imageFile: "single_flap_black.jpg", price: 300 },
-            { id: "single-flap-white", name: "Off White", colorLabel: "Off White", colorHex: "#efe9dd", imageFile: "single_flap_white.jpg", price: 300 },
+            { id: "single-flap-black", name: "Black", colorLabel: "Black", colorHex: "#17181a", imageFile: "single_flap_black.jpg", price: 299 },
+            { id: "single-flap-white", name: "Off White", colorLabel: "Off White", colorHex: "#efe9dd", imageFile: "single_flap_white.jpg", price: 299 },
         ],
     },
     {
@@ -74,8 +74,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
             "Our hobo shape gets an upgrade with a zippered front pocket plus a flap pocket, so the small things stay sorted instead of sinking to the bottom of the bag.",
         category: "plain",
         variants: [
-            { id: "hobo-fp-black", name: "Black", colorLabel: "Black", colorHex: "#17181a", imageFile: "hobo_frontpocket_black.jpg", price: 300, badge: "With Zip" },
-            { id: "hobo-fp-white", name: "Off White", colorLabel: "Off White", colorHex: "#efe9dd", imageFile: "hobo_frontpocket_white.jpg", price: 300, badge: "With Zip" },
+            { id: "hobo-fp-black", name: "Black", colorLabel: "Black", colorHex: "#17181a", imageFile: "hobo_frontpocket_black.jpg", price: 299, badge: "With Zip" },
+            { id: "hobo-fp-white", name: "Off White", colorLabel: "Off White", colorHex: "#efe9dd", imageFile: "hobo_frontpocket_white.jpg", price: 299, badge: "With Zip" },
         ],
     },
     {
@@ -87,10 +87,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         category: "printed",
         isBestSeller: true,
         variants: [
-            { id: "mushroom-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_mushroom.jpg", price: 300, badge: "With Zip" },
-            { id: "mushroom-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_mushroom.jpg", price: 250, badge: "Without Zip" },
-            { id: "mushroom-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_mushroom_black.jpg", price: 350, badge: "With Zip" },
-            { id: "mushroom-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_mushroom_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "mushroom-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_mushroom.jpg", price: 299, badge: "With Zip" },
+            { id: "mushroom-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_mushroom.jpg", price: 249, badge: "Without Zip" },
+            { id: "mushroom-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_mushroom_black.jpg", price: 349, badge: "With Zip" },
+            { id: "mushroom-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_mushroom_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -101,10 +101,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
             'A retro rainbow-lettering print of the classic Hindi phrase "keep kaam se kaam" (mind your own business) — available on natural or black cotton canvas.',
         category: "printed",
         variants: [
-            { id: "keepkaam-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_keepkaam_natural_v2.jpg", price: 300, badge: "With Zip" },
-            { id: "keepkaam-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_keepkaam_natural_v2.jpg", price: 250, badge: "Without Zip" },
-            { id: "keepkaam-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_keepkaam_black_v2.jpg", price: 350, badge: "With Zip" },
-            { id: "keepkaam-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_keepkaam_black_v2.jpg", price: 300, badge: "Without Zip" },
+            { id: "keepkaam-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_keepkaam_natural_v2.jpg", price: 299, badge: "With Zip" },
+            { id: "keepkaam-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_keepkaam_natural_v2.jpg", price: 249, badge: "Without Zip" },
+            { id: "keepkaam-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_keepkaam_black_v2.jpg", price: 349, badge: "With Zip" },
+            { id: "keepkaam-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_keepkaam_black_v2.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -115,8 +115,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
             "A hand-lettered sunflower illustration paired with an uplifting quote, screen-printed on black cotton canvas. A feel-good everyday carry.",
         category: "printed",
         variants: [
-            { id: "sunquote-blk-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_sunflower_quote_black.jpg", price: 350, badge: "With Zip" },
-            { id: "sunquote-blk-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_sunflower_quote_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "sunquote-blk-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_sunflower_quote_black.jpg", price: 349, badge: "With Zip" },
+            { id: "sunquote-blk-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_sunflower_quote_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -127,8 +127,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
             'A bold, hand-drawn "praying hands with bangles" illustration and playful, cheeky lettering on natural cotton canvas. Not for the faint of heart — please preview the artwork before gifting.',
         category: "printed",
         variants: [
-            { id: "namaste-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_namaste_natural_v2.jpg", price: 300, badge: "With Zip" },
-            { id: "namaste-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_namaste_natural_v2.jpg", price: 250, badge: "Without Zip" },
+            { id: "namaste-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_namaste_natural_v2.jpg", price: 299, badge: "With Zip" },
+            { id: "namaste-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_namaste_natural_v2.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -140,8 +140,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         category: "printed",
         isBestSeller: true,
         variants: [
-            { id: "kaleshi-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_kaleshiaurat_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "kaleshi-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_kaleshiaurat_natural.jpg", price: 250, badge: "Without Zip" },
+            { id: "kaleshi-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_kaleshiaurat_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "kaleshi-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_kaleshiaurat_natural.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -152,10 +152,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
             '"Book Girl Summer" lettering on natural or black cotton canvas — an easy carry for stacked paperbacks, a water bottle and a cardigan.',
         category: "printed",
         variants: [
-            { id: "bookgirl-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_bookgirl_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "bookgirl-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_bookgirl_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "bookgirl-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_bookgirl_black.jpg", price: 350, badge: "With Zip" },
-            { id: "bookgirl-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_bookgirl_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "bookgirl-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_bookgirl_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "bookgirl-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_bookgirl_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "bookgirl-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_bookgirl_black.jpg", price: 349, badge: "With Zip" },
+            { id: "bookgirl-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_bookgirl_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -166,8 +166,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
             'The classic Hindi evil-eye saying "buri nazar wale tera muh" in fluorescent pink lettering on black cotton canvas — loud, funny, and a little bit superstitious.',
         category: "printed",
         variants: [
-            { id: "burinazar-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_burinazar_black.jpg", price: 350, badge: "With Zip" },
-            { id: "burinazar-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_burinazar_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "burinazar-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_burinazar_black.jpg", price: 349, badge: "With Zip" },
+            { id: "burinazar-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_burinazar_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -178,8 +178,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
             'A cheeky "Emotional Baggage" typographic print on natural cotton canvas — a fun pun tote that doubles as very practical, very real baggage.',
         category: "printed",
         variants: [
-            { id: "embaggage-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_emotionalbaggage_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "embaggage-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_emotionalbaggage_natural.jpg", price: 250, badge: "Without Zip" },
+            { id: "embaggage-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_emotionalbaggage_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "embaggage-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_emotionalbaggage_natural.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -189,8 +189,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: 'A clean "Good Vibes Only" script print on black cotton canvas — an easy, upbeat everyday carry.',
         category: "printed",
         variants: [
-            { id: "goodvibes-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_goodvibes_black.jpg", price: 350, badge: "With Zip" },
-            { id: "goodvibes-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_goodvibes_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "goodvibes-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_goodvibes_black.jpg", price: 349, badge: "With Zip" },
+            { id: "goodvibes-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_goodvibes_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -201,8 +201,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
             'A bold purple-on-black graphic print built around the phrase "karma is a mirror," with Hindi lettering woven through the design.',
         category: "printed",
         variants: [
-            { id: "karma-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_karma_black.jpg", price: 350, badge: "With Zip" },
-            { id: "karma-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_karma_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "karma-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_karma_black.jpg", price: 349, badge: "With Zip" },
+            { id: "karma-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_karma_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -212,10 +212,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: 'A playful "Moneyfesting" typographic print on natural or black cotton canvas, for anyone manifesting their next big win.',
         category: "printed",
         variants: [
-            { id: "moneyfest-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_moneyfesting_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "moneyfest-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_moneyfesting_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "moneyfest-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_moneyfesting_black.jpg", price: 350, badge: "With Zip" },
-            { id: "moneyfest-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_moneyfesting_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "moneyfest-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_moneyfesting_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "moneyfest-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_moneyfesting_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "moneyfest-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_moneyfesting_black.jpg", price: 349, badge: "With Zip" },
+            { id: "moneyfest-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_moneyfesting_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -225,8 +225,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: 'A fun "Spill the Chai Sis" illustration with a steaming chai glass, printed on black cotton canvas — for the friend who always has the tea.',
         category: "printed",
         variants: [
-            { id: "spillchai-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_spillchai_black.jpg", price: 350, badge: "With Zip" },
-            { id: "spillchai-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_spillchai_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "spillchai-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_spillchai_black.jpg", price: 349, badge: "With Zip" },
+            { id: "spillchai-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_spillchai_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -236,10 +236,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A scattered daisy print in warm yellow and white, on soft natural or moody black cotton canvas. Light, breezy, and easy to pair with anything.",
         category: "printed",
         variants: [
-            { id: "daisy-ow-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_daisy_offwhite.jpg", price: 300, badge: "With Zip" },
-            { id: "daisy-ow-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_daisy_offwhite.jpg", price: 250, badge: "Without Zip" },
-            { id: "daisy-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_daisy_black.jpg", price: 350, badge: "With Zip" },
-            { id: "daisy-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_daisy_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "daisy-ow-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_daisy_offwhite.jpg", price: 299, badge: "With Zip" },
+            { id: "daisy-ow-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_daisy_offwhite.jpg", price: 249, badge: "Without Zip" },
+            { id: "daisy-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_daisy_black.jpg", price: 349, badge: "With Zip" },
+            { id: "daisy-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_daisy_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -249,8 +249,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A minimal, single-stem sunflower illustration placed along the bottom corner of a natural cotton canvas tote — for anyone who prefers a quieter print.",
         category: "printed",
         variants: [
-            { id: "sunmotif-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_sunflower_motif.jpg", price: 300, badge: "With Zip" },
-            { id: "sunmotif-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_sunflower_motif.jpg", price: 250, badge: "Without Zip" },
+            { id: "sunmotif-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_sunflower_motif.jpg", price: 299, badge: "With Zip" },
+            { id: "sunmotif-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_sunflower_motif.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -260,10 +260,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: 'A red fingerprint-textured heart with the line "sometimes all you need is love," on natural or black cotton canvas. Simple, sweet, and giftable.',
         category: "printed",
         variants: [
-            { id: "fpheart-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_fingerprint_heart_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "fpheart-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_fingerprint_heart_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "fpheart-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_fingerprint_heart_black.jpg", price: 350, badge: "With Zip" },
-            { id: "fpheart-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_fingerprint_heart_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "fpheart-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_fingerprint_heart_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "fpheart-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_fingerprint_heart_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "fpheart-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_fingerprint_heart_black.jpg", price: 349, badge: "With Zip" },
+            { id: "fpheart-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_fingerprint_heart_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -273,8 +273,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A gently painted purple and yellow clematis stem on a soft lavender wash, printed on black cotton canvas — quiet and floral with a bit of contrast.",
         category: "printed",
         variants: [
-            { id: "purplefloral-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_purple_floral_black.jpg", price: 350, badge: "With Zip" },
-            { id: "purplefloral-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_purple_floral_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "purplefloral-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_purple_floral_black.jpg", price: 349, badge: "With Zip" },
+            { id: "purplefloral-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_purple_floral_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -284,10 +284,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A watercolor-style blue evil eye charm surrounded by pink and blue flowers, a butterfly and a ribbon bow — on natural or black cotton canvas.",
         category: "printed",
         variants: [
-            { id: "evileyegarden-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_evil_eye_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "evileyegarden-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_evil_eye_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "evileyegarden-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_evil_eye_black.jpg", price: 350, badge: "With Zip" },
-            { id: "evileyegarden-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_evil_eye_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "evileyegarden-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_evil_eye_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "evileyegarden-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_evil_eye_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "evileyegarden-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_evil_eye_black.jpg", price: 349, badge: "With Zip" },
+            { id: "evileyegarden-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_evil_eye_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -297,8 +297,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A delicate hand-drawn bouquet of blue and white wildflowers on black cotton canvas — botanical, understated, and easy to dress up or down.",
         category: "printed",
         variants: [
-            { id: "bluewildflower-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_blue_floral_black.jpg", price: 350, badge: "With Zip" },
-            { id: "bluewildflower-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_blue_floral_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "bluewildflower-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_blue_floral_black.jpg", price: 349, badge: "With Zip" },
+            { id: "bluewildflower-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_blue_floral_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -308,10 +308,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A striking painted portrait of Hanuman in red and gold, crowned with a sunburst halo, on natural or black cotton canvas — for a devotional, statement carry.",
         category: "printed",
         variants: [
-            { id: "hanuman-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_hanuman_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "hanuman-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_hanuman_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "hanuman-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_hanuman_black.jpg", price: 350, badge: "With Zip" },
-            { id: "hanuman-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_hanuman_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "hanuman-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_hanuman_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "hanuman-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_hanuman_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "hanuman-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_hanuman_black.jpg", price: 349, badge: "With Zip" },
+            { id: "hanuman-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_hanuman_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -321,10 +321,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: '"हर हर महादेव" in bold brush lettering over a golden paint-splash, with a trishul accent — on natural or black cotton canvas.',
         category: "printed",
         variants: [
-            { id: "harharmahadev-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_har_har_mahadev_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "harharmahadev-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_har_har_mahadev_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "harharmahadev-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_har_har_mahadev_black.jpg", price: 350, badge: "With Zip" },
-            { id: "harharmahadev-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_har_har_mahadev_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "harharmahadev-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_har_har_mahadev_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "harharmahadev-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_har_har_mahadev_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "harharmahadev-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_har_har_mahadev_black.jpg", price: 349, badge: "With Zip" },
+            { id: "harharmahadev-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_har_har_mahadev_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -334,10 +334,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A friendly, leaping dolphin illustrated in soft blues, on natural or black cotton canvas — a simple, cheerful everyday print.",
         category: "printed",
         variants: [
-            { id: "dolphin-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_dolphin_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "dolphin-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_dolphin_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "dolphin-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_dolphin_black.jpg", price: 350, badge: "With Zip" },
-            { id: "dolphin-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_dolphin_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "dolphin-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_dolphin_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "dolphin-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_dolphin_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "dolphin-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_dolphin_black.jpg", price: 349, badge: "With Zip" },
+            { id: "dolphin-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_dolphin_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -347,10 +347,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A sleepy ginger kitten curled up inside a plush red heart, on natural or black cotton canvas — sweet, cozy, and easy to gift.",
         category: "printed",
         variants: [
-            { id: "catheart-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_heart_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "catheart-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_heart_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "catheart-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_cat_heart_black.jpg", price: 350, badge: "With Zip" },
-            { id: "catheart-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_cat_heart_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "catheart-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_heart_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "catheart-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_heart_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "catheart-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_cat_heart_black.jpg", price: 349, badge: "With Zip" },
+            { id: "catheart-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_cat_heart_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -360,8 +360,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: 'A hand-painted illustration of a bridal foot in a green-and-gold lehenga, with the caption "Male Ego? Naah, She Is My Queen" — on natural cotton canvas.',
         category: "printed",
         variants: [
-            { id: "queen-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_queen_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "queen-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_queen_natural.jpg", price: 250, badge: "Without Zip" },
+            { id: "queen-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_queen_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "queen-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_queen_natural.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -371,8 +371,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A hand-illustrated stem of orange poppies and pale blue wildflowers on black cotton canvas — a vintage botanical-print feel.",
         category: "printed",
         variants: [
-            { id: "poppy-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_poppy_black.jpg", price: 350, badge: "With Zip" },
-            { id: "poppy-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_poppy_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "poppy-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_poppy_black.jpg", price: 349, badge: "With Zip" },
+            { id: "poppy-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_poppy_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -382,8 +382,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A round-eyed orange kitten with a daisy behind its ear, peeking out of a woven peach basket — printed on black cotton canvas.",
         category: "printed",
         variants: [
-            { id: "catbasket-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_cat_basket_black.jpg", price: 350, badge: "With Zip" },
-            { id: "catbasket-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_cat_basket_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "catbasket-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_cat_basket_black.jpg", price: 349, badge: "With Zip" },
+            { id: "catbasket-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_cat_basket_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -393,10 +393,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A cuddly, content bear cub hugging a big red heart with little sparkle hearts floating by — on natural or black cotton canvas.",
         category: "printed",
         variants: [
-            { id: "bearheart-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_bear_heart_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "bearheart-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_bear_heart_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "bearheart-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_bear_heart_black.jpg", price: 350, badge: "With Zip" },
-            { id: "bearheart-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_bear_heart_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "bearheart-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_bear_heart_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "bearheart-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_bear_heart_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "bearheart-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_bear_heart_black.jpg", price: 349, badge: "With Zip" },
+            { id: "bearheart-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_bear_heart_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -406,8 +406,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A painterly bouquet of white peonies, wildflowers and sage-green leaves on black cotton canvas — soft and romantic against the dark ground.",
         category: "printed",
         variants: [
-            { id: "whitefloral-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_white_floral_black.jpg", price: 350, badge: "With Zip" },
-            { id: "whitefloral-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_white_floral_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "whitefloral-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_white_floral_black.jpg", price: 349, badge: "With Zip" },
+            { id: "whitefloral-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_white_floral_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -417,8 +417,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A round-eyed tabby kitten peeking out of an open cardboard box — a playful illustration on natural cotton canvas.",
         category: "printed",
         variants: [
-            { id: "catbox-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_box_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "catbox-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_box_natural.jpg", price: 250, badge: "Without Zip" },
+            { id: "catbox-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_box_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "catbox-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_box_natural.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -428,8 +428,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: 'The Marathi phrase "दवा काळजी" in hand-painted lettering, wrapped in florals, leaves and dragonflies — printed on black cotton canvas.',
         category: "printed",
         variants: [
-            { id: "dawakaalji-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_dawa_kaalji_black.jpg", price: 350, badge: "With Zip" },
-            { id: "dawakaalji-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_dawa_kaalji_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "dawakaalji-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_dawa_kaalji_black.jpg", price: 349, badge: "With Zip" },
+            { id: "dawakaalji-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_dawa_kaalji_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -439,8 +439,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A minimalist, silhouette-style black cat peeking around the bottom corner of a natural cotton canvas tote — simple and a little mischievous.",
         category: "printed",
         variants: [
-            { id: "catpeek-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_peek_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "catpeek-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_peek_natural.jpg", price: 250, badge: "Without Zip" },
+            { id: "catpeek-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_peek_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "catpeek-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_cat_peek_natural.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -450,10 +450,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A watercolor baby elephant wearing a bright tropical flower crown, on natural or black cotton canvas — soft, colorful and a little whimsical.",
         category: "printed",
         variants: [
-            { id: "elephant-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_elephant_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "elephant-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_elephant_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "elephant-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_elephant_black.jpg", price: 350, badge: "With Zip" },
-            { id: "elephant-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_elephant_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "elephant-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_elephant_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "elephant-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_elephant_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "elephant-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_elephant_black.jpg", price: 349, badge: "With Zip" },
+            { id: "elephant-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_elephant_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -463,10 +463,10 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A big-eyed baby giraffe peeking around the bottom corner of the bag, on natural or black cotton canvas — sweet and simple.",
         category: "printed",
         variants: [
-            { id: "giraffepeek-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_giraffe_peek_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "giraffepeek-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_giraffe_peek_natural.jpg", price: 250, badge: "Without Zip" },
-            { id: "giraffepeek-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_giraffe_peek_black.jpg", price: 350, badge: "With Zip" },
-            { id: "giraffepeek-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_giraffe_peek_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "giraffepeek-nat-zip", name: "Natural — With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_giraffe_peek_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "giraffepeek-nat-nozip", name: "Natural — Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_giraffe_peek_natural.jpg", price: 249, badge: "Without Zip" },
+            { id: "giraffepeek-blk-zip", name: "Black — With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_giraffe_peek_black.jpg", price: 349, badge: "With Zip" },
+            { id: "giraffepeek-blk-nozip", name: "Black — Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_giraffe_peek_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -476,8 +476,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A wide-eyed baby giraffe face illustration, printed bold and centered on natural cotton canvas.",
         category: "printed",
         variants: [
-            { id: "giraffebigeyes-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_giraffe_bigeyes_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "giraffebigeyes-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_giraffe_bigeyes_natural.jpg", price: 250, badge: "Without Zip" },
+            { id: "giraffebigeyes-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_giraffe_bigeyes_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "giraffebigeyes-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_giraffe_bigeyes_natural.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -487,8 +487,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: 'A giraffe in pink glasses with the message "Make Today Amazing!" on a soft pastel patch — printed on black cotton canvas.',
         category: "printed",
         variants: [
-            { id: "giraffeamazing-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_giraffe_amazing_black.jpg", price: 350, badge: "With Zip" },
-            { id: "giraffeamazing-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_giraffe_amazing_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "giraffeamazing-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_giraffe_amazing_black.jpg", price: 349, badge: "With Zip" },
+            { id: "giraffeamazing-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_giraffe_amazing_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -498,8 +498,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "Simple red hearts scattered across soft natural cotton canvas — minimal, cheerful, and easy to wear with anything.",
         category: "printed",
         variants: [
-            { id: "scatteredhearts-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_scattered_hearts_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "scatteredhearts-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_scattered_hearts_natural.jpg", price: 250, badge: "Without Zip" },
+            { id: "scatteredhearts-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_scattered_hearts_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "scatteredhearts-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_scattered_hearts_natural.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -509,8 +509,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A bold, graphic illustration of a hand delicately holding an evil eye charm, in deep indigo and navy — a striking, artful statement print on natural cotton canvas.",
         category: "printed",
         variants: [
-            { id: "handeye-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_hand_eye_natural.jpg", price: 300, badge: "With Zip" },
-            { id: "handeye-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_hand_eye_natural.jpg", price: 250, badge: "Without Zip" },
+            { id: "handeye-zip", name: "With Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_hand_eye_natural.jpg", price: 299, badge: "With Zip" },
+            { id: "handeye-nozip", name: "Without Zip", colorLabel: "Natural", colorHex: "#efe9dd", imageFile: "print_hand_eye_natural.jpg", price: 249, badge: "Without Zip" },
         ],
     },
     {
@@ -520,8 +520,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A bold, modern flat-illustration flower bouquet in teal, coral and gold, printed on black cotton canvas — a graphic pop of color.",
         category: "printed",
         variants: [
-            { id: "modernfloral-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_modern_floral_black.jpg", price: 350, badge: "With Zip" },
-            { id: "modernfloral-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_modern_floral_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "modernfloral-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_modern_floral_black.jpg", price: 349, badge: "With Zip" },
+            { id: "modernfloral-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_modern_floral_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -531,8 +531,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A groovy, retro 70s-style cluster of orange, yellow and red daisies, printed on black cotton canvas — a warm, nostalgic pop of color.",
         category: "printed",
         variants: [
-            { id: "retroflower-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_retro_flower_black.jpg", price: 350, badge: "With Zip" },
-            { id: "retroflower-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_retro_flower_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "retroflower-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_retro_flower_black.jpg", price: 349, badge: "With Zip" },
+            { id: "retroflower-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_retro_flower_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -542,8 +542,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: "A cozy, cottagecore-style wooden birdhouse with a little bird perched on top, surrounded by wildflowers — printed on black cotton canvas.",
         category: "printed",
         variants: [
-            { id: "birdhouse-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_birdhouse_black.jpg", price: 350, badge: "With Zip" },
-            { id: "birdhouse-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_birdhouse_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "birdhouse-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_birdhouse_black.jpg", price: 349, badge: "With Zip" },
+            { id: "birdhouse-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_birdhouse_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
@@ -553,8 +553,8 @@ export const SEED_PRODUCTS: SeedFamily[] = [
         description: 'A sweet sloth in a floppy sunhat and sunglasses, with the message "Be the Sunshine" on a soft pink patch — printed on black cotton canvas.',
         category: "printed",
         variants: [
-            { id: "sunshine-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_sunshine_black.jpg", price: 350, badge: "With Zip" },
-            { id: "sunshine-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_sunshine_black.jpg", price: 300, badge: "Without Zip" },
+            { id: "sunshine-zip", name: "With Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_sunshine_black.jpg", price: 349, badge: "With Zip" },
+            { id: "sunshine-nozip", name: "Without Zip", colorLabel: "Black", colorHex: "#17181a", imageFile: "print_sunshine_black.jpg", price: 299, badge: "Without Zip" },
         ],
     },
     {
