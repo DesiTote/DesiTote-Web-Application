@@ -18,7 +18,17 @@ export function verifyShiprocketToken(receivedToken: string | undefined): boolea
 }
 
 export async function processShiprocketWebhookEvent(payload: any) {
-    const srOrderId: number | undefined = payload.order_id ?? payload.sr_order_id;
+    // shiprocket.orderId is a Number in the schema, so handing Mongoose a
+    // non-numeric order_id throws a CastError -> 500 -> Shiprocket retries the
+    // same doomed payload forever. Their "Test Webhook" button sends exactly
+    // such a sample payload. Anything we cannot read as a number is treated as
+    // "no order reference" and we fall through to the AWB lookup instead.
+    const rawOrderId = payload.order_id ?? payload.sr_order_id;
+    const parsedOrderId = Number(rawOrderId);
+    const srOrderId: number | undefined =
+        rawOrderId === undefined || rawOrderId === null || rawOrderId === "" || !Number.isFinite(parsedOrderId)
+            ? undefined
+            : parsedOrderId;
     const awb: string | undefined = payload.awb;
     const shipmentId: number | undefined = payload.shipment_id;
     const currentStatus: string | undefined = payload.current_status ?? payload.shipment_status;
