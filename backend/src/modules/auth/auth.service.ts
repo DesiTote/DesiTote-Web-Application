@@ -201,6 +201,19 @@ export const requestActionOtp = async (email: string, type: OtpOperationType) =>
         }
     }
 
+    // Hard ceiling on OTP emails per address per hour. The 30s cooldown above
+    // only PACES sends; on its own it still lets a script mail a victim roughly
+    // 120 times an hour. This caps the real damage of that flow to a handful,
+    // and is keyed on the address so it can never lock out an innocent user
+    // elsewhere.
+    const OTP_MAX_SENDS_PER_HOUR = 6;
+    const sendCountKey = `auth:sendcount:${type}:${email}`;
+    const sendCount = await redis.incr(sendCountKey);
+    if (sendCount === 1) await redis.expire(sendCountKey, 3600);
+    if (sendCount > OTP_MAX_SENDS_PER_HOUR) {
+        throw new ApiError(429, "Too many verification emails were requested for this address. Please try again later.");
+    }
+
     const otp = generateOTP();
 
     const emailContent = OTP_EMAIL_CONTENT[type];

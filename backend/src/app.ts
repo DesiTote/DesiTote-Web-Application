@@ -26,6 +26,10 @@ import returnRoutes from "./modules/return/return.route.js"
 
 const app = express();
 
+// Behind Cloudflare/Render (and Vercel for proxied calls), so the client
+// address lives in forwarding headers, not the socket. Lets req.ip resolve it.
+app.set("trust proxy", true);
+
 // Stop advertising the framework, and send the standard hardening headers on
 // every response. Content-Security-Policy is left off here on purpose: this
 // process only ever serves JSON, so a CSP does nothing for it — the CSP that
