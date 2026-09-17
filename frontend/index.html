@@ -19,8 +19,114 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      /* Opening animation. Inline and dependency-free so it paints on the
+         first frame, long before the bundle or Tailwind have loaded — the
+         wait it covers is mostly the download it would otherwise be part of.
+         src/lib/boot.ts removes it once the catalogue is ready. */
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 26px;
+        background: #F7F2E8;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        transition: opacity 450ms ease;
+        /* Failsafe: if the bundle never executes, CSS alone still clears the
+           splash rather than hiding the shop behind it forever. */
+        animation: bootFailsafe 450ms 8s forwards;
+      }
+      #boot.boot-done { opacity: 0; pointer-events: none; }
+
+      .boot-mark { width: 166px; height: 176px; overflow: visible; }
+      .boot-path {
+        fill: none;
+        stroke: #0B1420;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: bootDraw 1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+      }
+      .boot-handle-right { animation-delay: 140ms; }
+      .boot-body { animation-delay: 260ms; }
+
+      .boot-fade { opacity: 0; animation: bootFade 520ms ease forwards; }
+      .boot-devanagari { animation-delay: 900ms; }
+      .boot-word { animation-delay: 960ms; }
+      .boot-tag { animation-delay: 1060ms; }
+
+      .boot-wordmark {
+        font-size: 16px;
+        letter-spacing: 0.42em;
+        text-indent: 0.42em;
+        text-transform: uppercase;
+        color: #0B1420;
+        font-weight: 600;
+      }
+      .boot-tagline {
+        font-size: 10px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: rgba(11, 20, 32, 0.45);
+      }
+
+      /* Indeterminate, because we genuinely do not know how far along the
+         catalogue call is — a bar that filled to 100% would be a guess. */
+      .boot-track {
+        width: 124px;
+        height: 2px;
+        border-radius: 2px;
+        background: rgba(11, 20, 32, 0.1);
+        overflow: hidden;
+      }
+      .boot-track span {
+        display: block;
+        width: 36%;
+        height: 100%;
+        border-radius: 2px;
+        background: #B87D00;
+        animation: bootSlide 1.15s ease-in-out infinite;
+      }
+
+      @keyframes bootDraw { to { stroke-dashoffset: 0; } }
+      @keyframes bootFade { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+      @keyframes bootSlide { 0% { transform: translateX(-110%); } 100% { transform: translateX(310%); } }
+      @keyframes bootFailsafe { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        #boot .boot-path { animation: none; stroke-dashoffset: 0; }
+        #boot .boot-fade { animation: none; opacity: 1; transform: none; }
+        #boot .boot-track span { animation: none; width: 100%; opacity: 0.5; }
+      }
+    </style>
   </head>
   <body class="bg-[#050505] text-white antialiased selection:bg-[#C8A27B] selection:text-black min-h-screen overflow-x-hidden">
+    <!-- Removed by src/lib/boot.ts once there are products to show. -->
+    <div id="boot" role="status" aria-label="Loading देसी Totes">
+      <svg class="boot-mark" viewBox="0 0 160 170" aria-hidden="true">
+        <path class="boot-path" pathLength="1" d="M 48 64 C 48 2 72 2 72 64" />
+        <path class="boot-path boot-handle-right" pathLength="1" d="M 88 64 C 88 2 112 2 112 64" />
+        <path class="boot-path boot-body" pathLength="1"
+              d="M 24 64 H 136 L 129 150 A 6 6 0 0 1 123 156 H 37 A 6 6 0 0 1 31 150 Z" />
+        <text class="boot-fade boot-devanagari" x="80" y="122" text-anchor="middle"
+              font-size="31" font-weight="700" fill="#B87D00"
+              font-family="'Inter', sans-serif">देसी</text>
+      </svg>
+
+      <div style="display:flex; flex-direction:column; align-items:center; gap:7px;">
+        <div class="boot-wordmark boot-fade boot-word">Totes</div>
+        <div class="boot-tagline boot-fade boot-tag">Handmade cotton canvas</div>
+      </div>
+
+      <div class="boot-track boot-fade boot-tag"><span></span></div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

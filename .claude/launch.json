@@ -4,9 +4,26 @@
     {
       "name": "storefront",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "3010", "--strictPort"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3010",
+        "--strictPort"
+      ],
       "cwd": "frontend",
       "port": 3010
+    },
+    {
+      "name": "api",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "cwd": "backend",
+      "port": 5000
     }
   ]
 }

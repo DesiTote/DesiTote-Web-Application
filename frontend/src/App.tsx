@@ -22,6 +22,7 @@ import { CartProvider, useCart } from './context/CartContext';
 import { AuthModalProvider, useAuthModal } from './context/AuthModalContext';
 import { authErrorMessage } from './context/AuthContext';
 import { ApiError } from './lib/api';
+import { dismissBoot } from './lib/boot';
 
 import { REVIEWS } from './data/totes';
 import { Product, Review } from './types';
@@ -297,10 +298,28 @@ function AppShell() {
   );
 }
 
+/**
+ * Clears the opening animation once the catalogue has landed. Lives inside
+ * ProductsProvider so it applies to every route, not just the homepage —
+ * someone opening a link straight to /checkout sees the same intro end at
+ * the same moment. An error dismisses it too: the page can explain a failure,
+ * the splash cannot.
+ */
+function BootGate() {
+  const { isLoading, error } = useProducts();
+
+  useEffect(() => {
+    if (!isLoading || error) dismissBoot();
+  }, [isLoading, error]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <ProductsProvider>
+        <BootGate />
         <AuthModalProvider>
           <CartProvider>
             <AppShell />
