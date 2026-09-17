@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import cookieParser from "cookie-parser"
 import { Response, Request, NextFunction } from "express";
 
@@ -24,6 +25,21 @@ import returnRoutes from "./modules/return/return.route.js"
 
 
 const app = express();
+
+// Stop advertising the framework, and send the standard hardening headers on
+// every response. Content-Security-Policy is left off here on purpose: this
+// process only ever serves JSON, so a CSP does nothing for it — the CSP that
+// matters guards the HTML pages and is set on Vercel, next to the app itself.
+app.disable("x-powered-by");
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    // The browser reaches this API as desitotes.com/api/* through Vercel, so
+    // HSTS for the customer-facing origin is set there; a second copy here is
+    // harmless defence in depth for anything hitting the Render URL directly.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 /* ================= MIDDLEWARE ================= */
 app.use(cookieParser());
