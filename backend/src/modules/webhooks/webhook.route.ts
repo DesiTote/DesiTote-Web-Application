@@ -8,6 +8,12 @@ const router = Router();
 
 
 router.post("/razorpay", handleRazorpayWebhook);
+
+// Shiprocket refuses to save a webhook URL containing "shiprocket",
+// "kartrocket", "sr" or "kr", so the path it is actually configured with is
+// /delivery. The original path stays as an alias — same handler, same token
+// check — so nothing that already points at it breaks.
+router.post("/delivery", handleShiprocketWebhook);
 router.post("/shiprocket", handleShiprocketWebhook);
 
 export default router;
@@ -23,7 +29,8 @@ export default router;
  *     refund.processed, refund.failed (add more as you need them)
  *
  * Shiprocket Dashboard → Settings → API → Webhooks:
- *   URL: https://yourdomain.com/api/webhooks/shiprocket
+ *   URL: https://yourdomain.com/api/webhooks/delivery
+ *   (NOT .../shiprocket — their form rejects that word in the URL)
  *   Custom header + token: set a header name (e.g. "x-api-key") and
  *   a token value, put the SAME token in SHIPROCKET_WEBHOOK_TOKEN
  *
