@@ -59,7 +59,7 @@ export function adaptProducts(items: BackendProductListItem[]): Product[] {
         return {
           id: m._id,
           slug: m.slug,
-          name: badge ? `${m.color} — ${badge}` : m.color,
+          name: badge ? `${m.color} ${badge}` : m.color,
           colorLabel: m.color,
           colorHex: undefined as unknown as string, // filled below
           image: m.thumbnail,
