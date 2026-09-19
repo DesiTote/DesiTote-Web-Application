@@ -116,7 +116,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               loading="eager"
               fetchPriority="high"
               decoding="async"
-              className="w-full h-full object-cover rounded-[20px]"
+              /* object-contain, not cover: the whole tote — text and print to
+                 the base — must stay in frame. object-cover cropped the bottom
+                 off tall designs like the Kaleshi Aurat print. The neutral
+                 backdrop and padding below make the letterboxing intentional. */
+              className="w-full h-full object-contain rounded-[20px]"
             />
             {activeVariant.badge && (
               <span className="absolute top-6 left-6 px-3 py-1 rounded-full bg-[#0B1420] text-[#F7F2E8] text-[9px] font-mono font-bold uppercase tracking-widest shadow-md">
