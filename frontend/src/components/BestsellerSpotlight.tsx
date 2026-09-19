@@ -217,18 +217,28 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
 
             {/* Product Specifications & Fast Checkout (Right 5 Cols) */}
             <div className="lg:col-span-5 space-y-6 sm:space-y-7">
-              <div className="space-y-3">
-                {/* Product name — the card jumped straight to the price before,
-                    which read as a missing title. */}
-                <h3 className="text-2xl sm:text-3xl font-serif font-medium text-[#0B1420] leading-tight">
+              <div className="space-y-4">
+                {/* Eyebrow + hairline: marks this as the one spotlighted design
+                    and gives the title an edge to sit against, so the column
+                    reads as a hierarchy instead of a flat stack. */}
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#B87D00] font-semibold whitespace-nowrap">
+                    Design Spotlight
+                  </span>
+                  <span className="h-px flex-1 bg-gradient-to-r from-[#B87D00]/40 to-transparent" />
+                </div>
+
+                {/* The name is the hero here; the price sits beneath it in the
+                    brand ochre, clearly secondary. */}
+                <h3 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-light text-[#0B1420] leading-[1.05] tracking-tight">
                   {spotlightProduct.name}
                 </h3>
-                <div className="flex items-baseline gap-3">
-                  <span className="font-display tabular-nums text-3xl sm:text-4xl font-semibold tracking-tight text-[#0B1420]">
-                    {formatPrice(currentVariant.price)}
-                  </span>
-                </div>
-                <p className="text-sm text-[#0B1420]/70 leading-relaxed font-light">
+
+                <span className="block font-display tabular-nums text-2xl sm:text-3xl font-semibold tracking-tight text-[#B87D00]">
+                  {formatPrice(currentVariant.price)}
+                </span>
+
+                <p className="text-sm sm:text-[15px] text-[#0B1420]/70 leading-relaxed font-light max-w-md">
                   {spotlightProduct.description}
                 </p>
               </div>
