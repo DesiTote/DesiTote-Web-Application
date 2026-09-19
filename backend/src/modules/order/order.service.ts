@@ -14,6 +14,7 @@ import { EMAIL_SUBJECTS } from "../../constants/customer/email.js";
 import { sendEmail } from "../../email/email.service.js";
 import { orderConfirmedEmailTemplate } from "../../email/templates/order-confirmed.js";
 import { orderCancelledEmailTemplate } from "../../email/templates/order-cancelled.js";
+import { orderAdminAlertTemplate } from "../../email/templates/order-admin-alert.js";
 import { decrementStockForOrder, restoreStockForOrder } from "./stock.service.js";
 
 // Read at call time, not module load — see config/loadEnv.ts.
@@ -687,6 +688,42 @@ export async function pushToShiprocket(order: any, sessionId: string) {
             });
         } catch (err) {
             console.error(`[order] confirmation email failed for ${updated!.orderNumber}`, err);
+        }
+
+        // Tell the shop owner a new order landed. Best-effort and separate from
+        // the customer email: a missing ORDER_NOTIFY_EMAIL, or a send failure,
+        // must never mark a good, paid, shipment-created order as failed.
+        const notifyTo = process.env.ORDER_NOTIFY_EMAIL?.trim() || process.env.EMAIL_REPLY_TO?.trim();
+        if (notifyTo) {
+            try {
+                await sendEmail({
+                    to: notifyTo,
+                    subject: `New order ${updated!.orderNumber} — ${updated!.payment.method}`,
+                    html: orderAdminAlertTemplate({
+                        orderNumber: updated!.orderNumber.toString(),
+                        paymentMethod: updated!.payment.method,
+                        grandTotal: updated!.grandTotal,
+                        items: updated!.items.map((it: any) => ({
+                            name: it.name,
+                            sku: it.sku,
+                            quantity: it.quantity,
+                            unitPrice: it.unitPrice,
+                        })),
+                        customerName: updated!.deliveryAddress?.fullName || "Customer",
+                        customerPhone: updated!.deliveryAddress?.mobileNumber || "",
+                        customerEmail: updated!.billingEmail || "",
+                        address: {
+                            addressLine1: updated!.deliveryAddress?.addressLine1 || "",
+                            addressLine2: updated!.deliveryAddress?.addressLine2,
+                            district: updated!.deliveryAddress?.district || "",
+                            state: updated!.deliveryAddress?.state || "",
+                            pincode: updated!.deliveryAddress?.pincode || "",
+                        },
+                    }),
+                });
+            } catch (err) {
+                console.error(`[order] seller alert email failed for ${updated!.orderNumber}`, err);
+            }
         }
 
         return buildResponse(updated);
