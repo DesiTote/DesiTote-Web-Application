@@ -101,7 +101,7 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
 
             {/* Visual Showcase (Left 7 Cols) */}
             <div className="lg:col-span-7 space-y-4">
-              <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-[#0B1420]/10 bg-[#efe9dd] shadow-lg group aspect-[4/3] sm:aspect-[16/11]">
+              <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-[#0B1420]/10 bg-[#efe9dd] shadow-lg group aspect-square sm:aspect-[4/5]">
 
                 {/* Main Display Image */}
                 <motion.img
@@ -114,7 +114,11 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
                   referrerPolicy="no-referrer"
               loading="lazy"
               decoding="async"
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                  /* object-contain on a portrait-shaped box: the whole tote —
+                     handles to base — stays in frame. object-cover in the old
+                     wide box cropped the top and bottom off tall prints like
+                     Kaleshi Aurat. Padding gives the bag margin like the cards. */
+                  className="w-full h-full object-contain p-4 sm:p-6 group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
 
                 {/* Floating Ribbon */}
@@ -143,17 +147,10 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
                   <Heart className={`w-4 h-4 ${isLiked ? 'fill-white' : ''}`} />
                 </button>
 
-                {/* Bottom Details Bar inside Image */}
-                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex items-center justify-between">
-                  <div className="bg-white/85 backdrop-blur-md px-4 py-2 rounded-xl border border-[#0B1420]/10 shadow-sm">
-                    <p className="text-[11px] font-mono text-[#0B1420]/50 uppercase">Size</p>
-                    <p className="text-xs sm:text-sm font-semibold text-[#0B1420]">{spotlightProduct.size}</p>
-                  </div>
-                  <div className="bg-white/85 backdrop-blur-md px-4 py-2 rounded-xl border border-[#0B1420]/10 text-right shadow-sm">
-                    <p className="text-[11px] font-mono text-[#0B1420]/50 uppercase">Option</p>
-                    <p className="text-xs sm:text-sm font-bold text-[#B87D00]">{currentVariant.badge || currentVariant.name}</p>
-                  </div>
-                </div>
+                {/* The Size/Option bar that used to sit here was removed: it
+                    covered the base of the tote, and both facts are shown
+                    already — the size in Details on the right, the option in
+                    the selectable strip below the image. */}
               </div>
 
               {/* Color Swatches (only shown when the design comes in more than one color) */}
