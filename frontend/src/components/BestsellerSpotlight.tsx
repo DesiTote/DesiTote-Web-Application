@@ -218,6 +218,11 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
             {/* Product Specifications & Fast Checkout (Right 5 Cols) */}
             <div className="lg:col-span-5 space-y-6 sm:space-y-7">
               <div className="space-y-3">
+                {/* Product name — the card jumped straight to the price before,
+                    which read as a missing title. */}
+                <h3 className="text-2xl sm:text-3xl font-serif font-medium text-[#0B1420] leading-tight">
+                  {spotlightProduct.name}
+                </h3>
                 <div className="flex items-baseline gap-3">
                   <span className="font-display tabular-nums text-3xl sm:text-4xl font-semibold tracking-tight text-[#0B1420]">
                     {formatPrice(currentVariant.price)}
