@@ -229,9 +229,13 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     </p>
                   </div>
 
-                  {/* Color Swatches Row */}
+                  {/* Color Swatches Row — swatch(es) and the colour name sit as
+                      one left-aligned group. Pushed apart with justify-between,
+                      a single-colour tote left one lone swatch on the left and
+                      the label stranded on the right, which read as misaligned
+                      against the option pills and price stacked below. */}
                   <div className="pt-3 border-t border-white/5 space-y-2.5">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
                         {colorGroups.map((group, gIdx) => {
                           const isChosen = activeColorIdx === gIdx;
