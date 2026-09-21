@@ -117,7 +117,7 @@ async function recalculateShipping(session: CheckoutSession) {
         // rate estimate here comes back a few rupees under what the actual
         // "Ship Now" screen bills the seller, so without this the seller loses
         // that gap on each order. Tune with SHIPPING_BUFFER; 0 disables it.
-        const shippingBuffer = Number(process.env.SHIPPING_BUFFER ?? 15);
+        const shippingBuffer = Number(process.env.SHIPPING_BUFFER ?? 8);
         const qualifiesForFreeShipping = freeShippingThreshold > 0 && declaredValue >= freeShippingThreshold;
 
         const toQuote = (result: PromiseSettledResult<Awaited<ReturnType<typeof getShippingRate>>>): ShippingQuote | null => {
