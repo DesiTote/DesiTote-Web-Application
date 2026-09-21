@@ -190,7 +190,7 @@ function buildShiprocketPayload(order: any) {
             selling_price: Number((item.unitPrice * (1 + item.gstPercentage / 100)).toFixed(2)),
             discount: "",
             tax: String(item.gstPercentage),
-            hsn: "",
+            hsn: "4202", // cotton tote bags — same for the whole catalogue
         })),
     };
 }
