@@ -113,6 +113,11 @@ async function recalculateShipping(session: CheckoutSession) {
         // sent to Shiprocket) reads from it. Set FREE_SHIPPING_THRESHOLD to 0 to
         // charge shipping on every order.
         const freeShippingThreshold = Number(process.env.FREE_SHIPPING_THRESHOLD ?? 999);
+        // A flat cushion added to every charged shipping quote. Shiprocket's
+        // rate estimate here comes back a few rupees under what the actual
+        // "Ship Now" screen bills the seller, so without this the seller loses
+        // that gap on each order. Tune with SHIPPING_BUFFER; 0 disables it.
+        const shippingBuffer = Number(process.env.SHIPPING_BUFFER ?? 15);
         const qualifiesForFreeShipping = freeShippingThreshold > 0 && declaredValue >= freeShippingThreshold;
 
         const toQuote = (result: PromiseSettledResult<Awaited<ReturnType<typeof getShippingRate>>>): ShippingQuote | null => {
@@ -124,7 +129,7 @@ async function recalculateShipping(session: CheckoutSession) {
                 // Zeroed when the order qualifies. The courier and the chargeable
                 // weight below are kept intact — the shipment still has to be
                 // booked and paid for, the customer just isn't billed for it.
-                charge: qualifiesForFreeShipping ? 0 : rate.totalCharge,
+                charge: qualifiesForFreeShipping ? 0 : rate.totalCharge + shippingBuffer,
                 chargeableWeight,
                 packagingBreakdown,
                 calculatedAt: Date.now(),
