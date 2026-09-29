@@ -4,6 +4,7 @@ import { ShoppingBag, Eye, Check, Flame } from 'lucide-react';
 import { Product } from '../types';
 import { playPop, playSnap } from '../utils/audio';
 import { getColorGroups } from '../utils/variants';
+import { useProducts } from '../context/ProductsContext';
 
 interface ProductCatalogProps {
   products: Product[];
@@ -27,6 +28,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   formatPrice,
 }) => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'bestseller' | 'plain' | 'printed'>('all');
+  const { isLoading, error } = useProducts();
 
   // Two-step picker per product card, like a clothing site: color swatch first, then option (zip/no zip).
   const [selectedColorIdx, setSelectedColorIdx] = useState<Record<string, number>>({});
@@ -145,7 +147,20 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         </div>
 
         {/* Product Cards Grid */}
+        {error && products.length === 0 && (
+          <p className="text-center text-sm text-[#0B1420]/60 py-12">{error}</p>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* A sleeping API can take ~25s to answer; placeholders say "loading" instead of "empty". */}
+          {isLoading && products.length === 0 && Array.from({ length: 3 }, (_, i) => (
+            <div key={i} className="rounded-[32px] sm:rounded-[36px] border border-[#0B1420]/10 overflow-hidden animate-pulse">
+              <div className="aspect-[4/5] bg-[#efe9dd]" />
+              <div className="p-6 space-y-3">
+                <div className="h-4 w-2/3 rounded-full bg-[#0B1420]/10" />
+                <div className="h-4 w-1/3 rounded-full bg-[#0B1420]/10" />
+              </div>
+            </div>
+          ))}
           {filteredProducts.map((product) => {
             const colorGroups = getColorGroups(product);
             const activeColorIdx = selectedColorIdx[product.id] || 0;
