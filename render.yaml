@@ -6,9 +6,12 @@
 
 services:
   - type: web
-    name: desitotes-api
+    name: desitotes-api-sg
     runtime: node
     plan: free
+    # Next to MongoDB, Redis and S3 in Mumbai. Render cannot change a service's
+    # region; the original Oregon service was replaced on 2026-09-29.
+    region: singapore
     rootDir: backend
     # --include=dev is required: NODE_ENV=production (needed at runtime for
     # Secure cookies) makes npm skip devDependencies, but typescript and
@@ -78,134 +81,3 @@ services:
         sync: false
       - key: GMAIL_APP_PASSWORD
         sync: false
-
-  # Same API in Singapore, next to the Mumbai database. Every value is copied
-  # from desitotes-api on Render's side, so no secret is re-typed. Once the site
-  # is switched over and Oregon is removed, these become `sync: false`.
-  - type: web
-    name: desitotes-api-sg
-    runtime: node
-    plan: free
-    region: singapore
-    rootDir: backend
-    buildCommand: npm install --include=dev && npm run build
-    startCommand: npm start
-    healthCheckPath: /
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: CLIENT_ORIGIN
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: CLIENT_ORIGIN
-      - key: MONGO_URI
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: MONGO_URI
-      - key: JWT_SECRET
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: JWT_SECRET
-      - key: UPSTASH_REDIS_REST_URL
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: UPSTASH_REDIS_REST_URL
-      - key: UPSTASH_REDIS_REST_TOKEN
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: UPSTASH_REDIS_REST_TOKEN
-      - key: RAZORPAY_KEY_ID
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: RAZORPAY_KEY_ID
-      - key: RAZORPAY_KEY_SECRET
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: RAZORPAY_KEY_SECRET
-      - key: RAZORPAY_WEBHOOK_SECRET
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: RAZORPAY_WEBHOOK_SECRET
-      - key: SHIPROCKET_EMAIL
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: SHIPROCKET_EMAIL
-      - key: SHIPROCKET_PASSWORD
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: SHIPROCKET_PASSWORD
-      - key: SHIPROCKET_PICKUP_PINCODE
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: SHIPROCKET_PICKUP_PINCODE
-      - key: SHIPROCKET_PICKUP_LOCATION
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: SHIPROCKET_PICKUP_LOCATION
-      - key: SHIPROCKET_WEBHOOK_TOKEN
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: SHIPROCKET_WEBHOOK_TOKEN
-      - key: AWS_REGION
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: AWS_REGION
-      - key: AWS_ACCESS_KEY_ID
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: AWS_ACCESS_KEY_ID
-      - key: AWS_SECRET_ACCESS_KEY
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: AWS_SECRET_ACCESS_KEY
-      - key: AWS_S3_BUCKET
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: AWS_S3_BUCKET
-      - key: RESEND_API_KEY
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: RESEND_API_KEY
-      - key: EMAIL_FROM
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: EMAIL_FROM
-      - key: EMAIL_REPLY_TO
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: EMAIL_REPLY_TO
-      - key: EMAIL_TRANSPORT
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: EMAIL_TRANSPORT
-      - key: GMAIL_USER
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: GMAIL_USER
-      - key: GMAIL_APP_PASSWORD
-        fromService:
-          name: desitotes-api
-          type: web
-          envVarKey: GMAIL_APP_PASSWORD
