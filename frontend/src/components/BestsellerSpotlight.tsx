@@ -36,7 +36,12 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
   const [isLiked, setIsLiked] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
 
-  const spotlightProduct = products.find((p) => p.id === 'desi-print-kaleshi-aurat') || products[0];
+  // No fallback to another tote: this section's heading and ribbon say
+  // "Kaleshi Aurat", so showing any other bag under them mislabels it. The
+  // catalogue arrives newest-first in pages and Kaleshi Aurat is on a later
+  // page, so the section appears once that page lands.
+  // ponytail: pops in after the first page; reserve its height if the jump is noticed.
+  const spotlightProduct = products.find((p) => p.id === 'desi-print-kaleshi-aurat');
   if (!spotlightProduct) return null;
   const colorGroups = getColorGroups(spotlightProduct);
 
