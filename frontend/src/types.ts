@@ -5,6 +5,8 @@ export interface ProductVariant {
   name: string;
   colorHex: string;
   image: string;
+  /** Every photo of this exact option (fabric, zip, side view...), main photo first. */
+  images: string[];
   price: number;
   badge?: string;
   stock: number;

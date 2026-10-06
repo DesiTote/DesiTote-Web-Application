@@ -5,6 +5,7 @@ import { Product } from '../types';
 import { playPop, playSnap } from '../utils/audio';
 import { getColorGroups } from '../utils/variants';
 import { useCloseOnBack } from '../hooks/useCloseOnBack';
+import { PhotoGallery } from './PhotoGallery';
 
 interface QuickViewModalProps {
   product: Product | null;
@@ -105,29 +106,14 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
         <div className="flex-1 overflow-y-auto p-6 sm:p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
-          {/* Left: Big Preview Image */}
-          <div className="relative aspect-square rounded-[24px] sm:rounded-[28px] overflow-hidden bg-[#efe9dd] border border-[#0B1420]/10 p-3">
-            <img
-              src={activeVariant.image}
-              alt={`${product.name} in ${activeGroup.label}`}
-              referrerPolicy="no-referrer"
-              /* Eager, unlike the grid thumbnails: this is the one image the
-                 shopper just asked to see, so deferring it only delays it. */
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              /* object-contain, not cover: the whole tote — text and print to
-                 the base — must stay in frame. object-cover cropped the bottom
-                 off tall designs like the Kaleshi Aurat print. The neutral
-                 backdrop and padding below make the letterboxing intentional. */
-              className="w-full h-full object-contain rounded-[20px]"
-            />
-            {activeVariant.badge && (
-              <span className="absolute top-6 left-6 px-3 py-1 rounded-full bg-[#0B1420] text-[#F7F2E8] text-[9px] font-mono font-bold uppercase tracking-widest shadow-md">
-                {activeVariant.badge}
-              </span>
-            )}
-          </div>
+          {/* Left: photos of the selected option. Keyed on the option so
+              switching colour or zip starts again from its main photo. */}
+          <PhotoGallery
+            key={activeVariant.id}
+            photos={activeVariant.images}
+            alt={`${product.name} in ${activeGroup.label}`}
+            badge={activeVariant.badge}
+          />
 
           {/* Right: Product specs and checkout */}
           <div className="space-y-4">

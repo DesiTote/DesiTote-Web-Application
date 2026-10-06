@@ -5,6 +5,7 @@ import { invalidateProductsCache } from "../../utils/productCache.js";
 import slugify from "slugify";
 import { IGetAdminProductsQuery } from "../../types/product.js";
 import { validateObjectId } from "../../utils/mongoIDValidator.js";
+import { Order } from "../order/order.model.js";
 import _ from "lodash";
 
 export const createProductService = async (payload: any, files: Express.Multer.File[]) => {
@@ -142,9 +143,17 @@ export const updateProductByIdService = async (
             : [body.existingImages];
     }
 
-    const targetsForS3Deletion = currentProduct.images.filter(
+    const removedUrls = currentProduct.images.filter(
         (oldUrl: string) => !retainedS3Urls.includes(oldUrl)
     );
+
+    // Orders keep the photo URL the shopper bought from, so a photo still
+    // shown in someone's order history stays in S3 even after it is taken
+    // off the product. Only photos no order points at are deleted.
+    const stillInOrders = await Promise.all(
+        removedUrls.map((url: string) => Order.exists({ "items.image": url }))
+    );
+    const targetsForS3Deletion = removedUrls.filter((_url: string, i: number) => !stillInOrders[i]);
 
     if (targetsForS3Deletion.length > 0) {
         Promise.all(targetsForS3Deletion.map(deleteFileFromS3)).catch((err) =>

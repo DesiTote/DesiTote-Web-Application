@@ -63,6 +63,7 @@ export function adaptProducts(items: BackendProductListItem[]): Product[] {
           colorLabel: m.color,
           colorHex: undefined as unknown as string, // filled below
           image: m.thumbnail,
+          images: [...new Set([m.thumbnail, ...(m.images ?? [])])],
           price: m.discountPrice,
           badge,
           stock: m.stock,

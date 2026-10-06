@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Loader2, Save, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Save, Plus, Trash2, Images } from 'lucide-react';
 import { api, apiUpload } from '../../lib/api';
 import { BackendAdminProduct } from '../../lib/apiTypes';
 import { buildProductFormData, BackendFullProduct } from '../../lib/adminProduct';
 import { AddProductModal } from './AddProductModal';
+import { ProductPhotosModal } from './ProductPhotosModal';
 
 /** A row's unsaved edits. Absent keys mean "unchanged from the server value". */
 interface Draft {
@@ -20,6 +21,7 @@ export function AdminProductsPage() {
   const [archivingId, setArchivingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+  const [photosFor, setPhotosFor] = useState<BackendAdminProduct | null>(null);
 
   const load = async (q: string) => {
     setIsLoading(true);
@@ -192,6 +194,14 @@ export function AdminProductsPage() {
                         </button>
                         <button
                           disabled={busy}
+                          onClick={() => setPhotosFor(p)}
+                          title="Photos"
+                          className="p-2 rounded-lg border border-[#0B1420]/15 text-[#0B1420]/70 hover:bg-[#0B1420]/5 disabled:opacity-30"
+                        >
+                          <Images className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          disabled={busy}
                           onClick={() => archive(p)}
                           title="Remove from shop"
                           className="p-2 rounded-lg border border-rose-200 text-rose-500 hover:bg-rose-50 disabled:opacity-30"
@@ -213,6 +223,15 @@ export function AdminProductsPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {photosFor && (
+        <ProductPhotosModal
+          productId={photosFor._id}
+          title={photosFor.title}
+          onClose={() => setPhotosFor(null)}
+          onChanged={() => load(search)}
+        />
       )}
 
       {showAdd && (
