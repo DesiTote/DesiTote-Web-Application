@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { stepPhoto, swipeStep } from '../utils/gallery';
+import { keyStep, stepPhoto, swipeStep } from '../utils/gallery';
 
 interface PhotoGalleryProps {
   /** Main photo first. Remount (via `key`) to start again from it. */
@@ -24,8 +24,8 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
   useEffect(() => {
     if (count < 2) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') step(1);
-      if (e.key === 'ArrowLeft') step(-1);
+      const delta = keyStep(e);
+      if (delta) step(delta);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);

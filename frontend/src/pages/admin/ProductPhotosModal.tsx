@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { X, Loader2, UploadCloud, Star, Trash2 } from 'lucide-react';
 import { api, apiUpload } from '../../lib/api';
+import { useCloseOnBack } from '../../hooks/useCloseOnBack';
 import { BackendFullProduct, PhotoChange, photoUpdateFormData } from '../../lib/adminProduct';
 
 interface ProductPhotosModalProps {
@@ -20,6 +21,9 @@ export function ProductPhotosModal({ productId, title, onClose, onChanged }: Pro
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  // Back on a phone closes the panel instead of leaving the admin page.
+  useCloseOnBack(true, onClose);
+
   const fetchProduct = async () => {
     const res = await api.get<{ data: BackendFullProduct }>(`/api/product/${productId}`);
     setProduct(res.data);
@@ -30,11 +34,14 @@ export function ProductPhotosModal({ productId, title, onClose, onChanged }: Pro
   }, [productId]);
 
   const apply = async (change: PhotoChange) => {
-    if (!product) return;
     setError('');
     setBusy(true);
     try {
-      await apiUpload(`/api/product/${productId}`, 'PATCH', photoUpdateFormData(product, change));
+      // The PATCH resends the whole product, so build it from a fresh copy:
+      // one fetched when the panel opened could carry stale stock or price
+      // and quietly overwrite them (stock going back up means overselling).
+      const fresh = await api.get<{ data: BackendFullProduct }>(`/api/product/${productId}`);
+      await apiUpload(`/api/product/${productId}`, 'PATCH', photoUpdateFormData(fresh.data, change));
       await fetchProduct();
       onChanged();
     } catch (err) {
@@ -133,11 +140,11 @@ export function ProductPhotosModal({ productId, title, onClose, onChanged }: Pro
               multiple
               className="hidden"
               onChange={(e) => {
-                const list = e.target.files;
-                // The upload route takes at most 10 files per request.
-                const files = list ? Array.from(list as ArrayLike<File>).slice(0, 10) : [];
+                const files = e.target.files ? Array.from(e.target.files as ArrayLike<File>) : [];
                 e.target.value = '';
-                if (files.length) apply({ add: files });
+                // The upload route takes at most 10 files per request.
+                if (files.length > 10) setError(`You picked ${files.length} photos. Add up to 10 at a time.`);
+                else if (files.length) apply({ add: files });
               }}
             />
           </label>
