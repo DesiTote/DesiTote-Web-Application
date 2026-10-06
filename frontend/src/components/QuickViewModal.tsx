@@ -3,12 +3,14 @@ import { motion } from 'motion/react';
 import { X, ShoppingBag, Check, Ruler, Layers } from 'lucide-react';
 import { Product } from '../types';
 import { playPop, playSnap } from '../utils/audio';
-import { getColorGroups } from '../utils/variants';
+import { getColorGroups, variantPosition } from '../utils/variants';
 import { useCloseOnBack } from '../hooks/useCloseOnBack';
 import { PhotoGallery } from './PhotoGallery';
 
 interface QuickViewModalProps {
   product: Product | null;
+  /** Open on this colour and zip option instead of the first. */
+  initialVariantId?: string;
   onClose: () => void;
   onAddToCart: (item: {
     id: string;
@@ -24,6 +26,7 @@ interface QuickViewModalProps {
 
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   product,
+  initialVariantId,
   onClose,
   onAddToCart,
   formatPrice,
@@ -32,11 +35,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const [selectedColorIdx, setSelectedColorIdx] = useState(0);
   const [selectedOptionIdx, setSelectedOptionIdx] = useState(0);
 
-  // Reset the picker whenever a different product is opened.
+  // Reset the picker whenever a different product is opened, landing on the
+  // colour the shopper clicked (e.g. the black hobo in the hero).
   useEffect(() => {
-    setSelectedColorIdx(0);
-    setSelectedOptionIdx(0);
-  }, [product?.id]);
+    const pos = product ? variantPosition(getColorGroups(product), initialVariantId) : { colorIdx: 0, optionIdx: 0 };
+    setSelectedColorIdx(pos.colorIdx);
+    setSelectedOptionIdx(pos.optionIdx);
+  }, [product?.id, initialVariantId]);
 
   // Back button closes the product instead of leaving the shop.
   useCloseOnBack(Boolean(product), onClose);

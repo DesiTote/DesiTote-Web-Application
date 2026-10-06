@@ -25,3 +25,12 @@ export function getColorGroups(product: Product): ColorGroup[] {
     variants,
   }));
 }
+
+/** Where a variant sits in the swatch/option grid, so a popup can open on it. */
+export function variantPosition(groups: ColorGroup[], variantId?: string) {
+  for (let colorIdx = 0; colorIdx < groups.length; colorIdx++) {
+    const optionIdx = groups[colorIdx].variants.findIndex((v) => v.id === variantId);
+    if (optionIdx >= 0) return { colorIdx, optionIdx };
+  }
+  return { colorIdx: 0, optionIdx: 0 };
+}

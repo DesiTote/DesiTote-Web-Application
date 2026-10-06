@@ -57,7 +57,7 @@ function HomePage({
   onAddReview,
 }: {
   onAddToCart: (item: AddToCartItem) => void;
-  onQuickView: (product: Product) => void;
+  onQuickView: (product: Product, variantId?: string) => void;
   currency: 'INR' | 'USD';
   formatPrice: (inr: number) => string;
   reviewsList: Review[];
@@ -67,9 +67,9 @@ function HomePage({
 
   return (
     <main>
-      <Hero onAddToCart={onAddToCart} currency={currency} formatPrice={formatPrice} />
+      <Hero onAddToCart={onAddToCart} onQuickView={onQuickView} currency={currency} formatPrice={formatPrice} />
       <MarqueeTicker />
-      <BestsellerSpotlight onAddToCart={onAddToCart} formatPrice={formatPrice} />
+      <BestsellerSpotlight onAddToCart={onAddToCart} onQuickView={onQuickView} formatPrice={formatPrice} />
       <ProductCatalog
         products={products}
         onAddToCart={onAddToCart}
@@ -96,7 +96,7 @@ function AppShell() {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [currency, setCurrency] = useState<'INR' | 'USD'>('INR');
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [quickView, setQuickView] = useState<{ product: Product; variantId?: string } | null>(null);
   const [reviewsList, setReviewsList] = useState<Review[]>(REVIEWS);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [pendingSection, setPendingSection] = useState<string | null>(null);
@@ -252,7 +252,7 @@ function AppShell() {
           element={
             <HomePage
               onAddToCart={handleAddToCart}
-              onQuickView={setQuickViewProduct}
+              onQuickView={(product, variantId) => setQuickView({ product, variantId })}
               currency={currency}
               formatPrice={formatPrice}
               reviewsList={reviewsList}
@@ -287,8 +287,9 @@ function AppShell() {
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} currency={currency} formatPrice={formatPrice} />
 
       <QuickViewModal
-        product={quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
+        product={quickView?.product ?? null}
+        initialVariantId={quickView?.variantId}
+        onClose={() => setQuickView(null)}
         onAddToCart={handleAddToCart}
         formatPrice={formatPrice}
       />

@@ -9,6 +9,7 @@ import {
   Recycle
 } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
+import { Product } from '../types';
 import { playPop, playSnap } from '../utils/audio';
 import { getColorGroups } from '../utils/variants';
 
@@ -22,11 +23,13 @@ interface BestsellerSpotlightProps {
     image: string;
     price: number;
   }) => void;
+  onQuickView: (product: Product, variantId: string) => void;
   formatPrice: (inr: number) => string;
 }
 
 export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
   onAddToCart,
+  onQuickView,
   formatPrice,
 }) => {
   const { products } = useProducts();
@@ -108,23 +111,30 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
             <div className="lg:col-span-7 space-y-4">
               <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-[#0B1420]/10 bg-[#efe9dd] shadow-lg group aspect-square sm:aspect-[4/5]">
 
-                {/* Main Display Image */}
-                <motion.img
-                  key={currentVariant.id}
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4 }}
-                  src={currentVariant.image}
-                  alt={`${spotlightProduct.name} in ${activeGroup.label}`}
-                  referrerPolicy="no-referrer"
-              loading="lazy"
-              decoding="async"
-                  /* object-contain on a portrait-shaped box: the whole tote —
-                     handles to base — stays in frame. object-cover in the old
-                     wide box cropped the top and bottom off tall prints like
-                     Kaleshi Aurat. Padding gives the bag margin like the cards. */
-                  className="w-full h-full object-contain p-4 sm:p-6 group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
+                {/* Main Display Image - opens the popup with every photo */}
+                <button
+                  type="button"
+                  onClick={() => onQuickView(spotlightProduct, currentVariant.id)}
+                  aria-label={`View ${spotlightProduct.name} in ${activeGroup.label}`}
+                  className="w-full h-full cursor-pointer"
+                >
+                  <motion.img
+                    key={currentVariant.id}
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                    src={currentVariant.image}
+                    alt={`${spotlightProduct.name} in ${activeGroup.label}`}
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
+                    /* object-contain on a portrait-shaped box: the whole tote —
+                       handles to base — stays in frame. object-cover in the old
+                       wide box cropped the top and bottom off tall prints like
+                       Kaleshi Aurat. Padding gives the bag margin like the cards. */
+                    className="w-full h-full object-contain p-4 sm:p-6 group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                </button>
 
                 {/* Floating Ribbon */}
                 <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-wrap gap-2">

@@ -4,6 +4,7 @@ import { ShoppingBag, ArrowUpRight, RotateCw, Leaf } from 'lucide-react';
 import { playPop, playSnap } from '../utils/audio';
 import { useProducts } from '../context/ProductsContext';
 import { DesiLogo } from './DesiLogo';
+import { Product } from '../types';
 
 interface HeroProps {
   onAddToCart: (product: {
@@ -15,12 +16,14 @@ interface HeroProps {
     image: string;
     price: number;
   }) => void;
+  onQuickView: (product: Product, variantId: string) => void;
   currency: 'INR' | 'USD';
   formatPrice: (inr: number) => string;
 }
 
 export const Hero: React.FC<HeroProps> = ({
   onAddToCart,
+  onQuickView,
   currency,
   formatPrice,
 }) => {
@@ -211,19 +214,26 @@ export const Hero: React.FC<HeroProps> = ({
                     transition={{ duration: 0.4 }}
                     className="relative w-full h-full flex items-center justify-center"
                   >
-                    <img
-                      src={currentVariant.image}
-                      alt={`${heroProduct.name} — ${currentVariant.name}`}
-                      referrerPolicy="no-referrer"
-                      /* The largest thing on the first screen, and it cannot
-                         start downloading until the catalogue call returns -
-                         so once we do have it, ask for it ahead of everything
-                         else on the page. */
-                      loading="eager"
-                      fetchPriority="high"
-                      decoding="async"
-                      className="w-full h-full object-cover rounded-2xl shadow-2xl transition-transform duration-500 group-hover:scale-105"
-                    />
+                    <button
+                      type="button"
+                      onClick={() => onQuickView(heroProduct, currentVariant.id)}
+                      aria-label={`View ${heroProduct.name} in ${currentVariant.name}`}
+                      className="w-full h-full cursor-pointer rounded-2xl"
+                    >
+                      <img
+                        src={currentVariant.image}
+                        alt={`${heroProduct.name} — ${currentVariant.name}`}
+                        referrerPolicy="no-referrer"
+                        /* The largest thing on the first screen, and it cannot
+                           start downloading until the catalogue call returns -
+                           so once we do have it, ask for it ahead of everything
+                           else on the page. */
+                        loading="eager"
+                        fetchPriority="high"
+                        decoding="async"
+                        className="w-full h-full object-cover rounded-2xl shadow-2xl transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </button>
                   </motion.div>
                 </AnimatePresence>
 
