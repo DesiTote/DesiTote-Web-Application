@@ -14,6 +14,8 @@ export interface BackendProductListItem {
   shortDescription: string;
   description: string;
   thumbnail: string;
+  /** Every photo of this product; older cached responses may omit it. */
+  images?: string[];
   price: number;
   discountPrice: number;
   discountPercentage: number;

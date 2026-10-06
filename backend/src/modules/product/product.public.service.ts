@@ -180,6 +180,7 @@ export const getPublicProductsService = async (
                         shortDescription: 1,
                         description: 1,
                         thumbnail: 1,
+                        images: 1,
                         price: 1,
                         discountPrice: 1,
                         productCategory: 1,
@@ -217,6 +218,7 @@ export const getPublicProductsService = async (
         shortDescription: p.shortDescription,
         description: p.description,
         thumbnail: p.thumbnail,
+        images: p.images ?? [],
         price: p.price,
         discountPrice: p.discountPrice,
         discountPercentage: computeDiscountPercentage(

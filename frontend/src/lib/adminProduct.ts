@@ -122,3 +122,30 @@ export function buildCreateProductFormData(input: NewProductInput, files: File[]
   for (const f of files) fd.append('images', f);
   return fd;
 }
+
+/** One edit from the admin Photos panel, saved straight away. */
+export type PhotoChange = { remove: string } | { main: string } | { add: File[] };
+
+/**
+ * The PATCH payload for a single photo edit. The server keeps exactly the
+ * URLs sent as existingImages (and deletes the rest from S3), appends any
+ * newImages after them, and takes the thumbnail by index into that combined
+ * list — so the main photo's index among the kept photos is all it needs.
+ */
+export function photoUpdateFormData(product: BackendFullProduct, change: PhotoChange): FormData {
+  let images = product.images;
+  let thumbnail = product.thumbnail;
+
+  if ('remove' in change) {
+    images = images.filter((url) => url !== change.remove);
+    // A removed main photo needs no special case: buildProductFormData falls
+    // back to index 0, so the first remaining photo becomes main.
+    if (images.length === 0) throw new Error('A tote needs at least one photo.');
+  } else if ('main' in change) {
+    thumbnail = change.main;
+  }
+
+  const fd = buildProductFormData({ ...product, images, thumbnail }, {});
+  if ('add' in change) for (const f of change.add) fd.append('newImages', f);
+  return fd;
+}

@@ -1,0 +1,27 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { stepPhoto, swipeStep } from './gallery';
+
+test('stepping past either end wraps around', () => {
+  assert.equal(stepPhoto(3, 1, 4), 0);
+  assert.equal(stepPhoto(0, -1, 4), 3);
+  assert.equal(stepPhoto(1, 1, 4), 2);
+});
+
+test('a single photo never moves', () => {
+  assert.equal(stepPhoto(0, 1, 1), 0);
+});
+
+test('a clear sideways swipe moves one photo', () => {
+  assert.equal(swipeStep({ x: -80, y: 4 }, { x: 0, y: 0 }), 1); // drag left -> next
+  assert.equal(swipeStep({ x: 80, y: -4 }, { x: 0, y: 0 }), -1); // drag right -> previous
+});
+
+test('a short but fast flick also counts', () => {
+  assert.equal(swipeStep({ x: -20, y: 0 }, { x: -800, y: 0 }), 1);
+});
+
+test('a small nudge or a mostly vertical drag does not change photo', () => {
+  assert.equal(swipeStep({ x: -20, y: 0 }, { x: -100, y: 0 }), 0);
+  assert.equal(swipeStep({ x: -70, y: 120 }, { x: 0, y: 0 }), 0);
+});
