@@ -330,20 +330,12 @@ export async function cancelOrderService(input: CancelOrderInput) {
         }
     }
 
-    // ONLINE orders that were already paid need a refund. The actual Razorpay
-    // refund call isn't wired up yet (see Razorpay webhook/payment flow) —
-    // this marks intent so a background job / support flow can pick it up.
-    const needsRefund = order.payment.method === "ONLINE" && order.payment.status === "paid";
-
     const updated = await Order.findByIdAndUpdate(
         order._id,
         {
             status: "cancelled",
             cancelReason: reason === "Other" ? note : reason,
             cancelledAt: new Date(),
-            ...(needsRefund
-                ? { "payment.refundStatus": "initiated" } // TODO: trigger actual Razorpay refund here
-                : {}),
             ...(shiprocketCancelError
                 ? { "shiprocket.status": `cancel_failed: ${shiprocketCancelError}` }
                 : order.shiprocket?.orderId
@@ -393,10 +385,60 @@ export async function cancelOrderService(input: CancelOrderInput) {
         }
     }
 
+    const refunded = await refundPaidOrder(updated);
+
     return {
-        ...buildResponse(updated),
-        refundInitiated: needsRefund,
+        ...buildResponse(refunded ?? updated),
+        refundInitiated: refunded?.payment.refundStatus === "initiated",
     };
+}
+
+// Full refund of a paid online order, for when it gets cancelled. Best effort:
+// the cancellation stands either way, and a failed call leaves
+// refundStatus "failed" on the order so it can be refunded by hand from the
+// Razorpay dashboard. The refund.processed webhook marks it "processed" once
+// the money has actually gone back. Returns null when there is nothing to refund.
+export async function refundPaidOrder(order: any) {
+    if (!order || order.payment?.method !== "ONLINE" || order.payment.status !== "paid") return null;
+
+    // Claim the refund atomically, the same way pushToShiprocket claims the
+    // shipment, so a double-clicked or retried cancel can't refund twice.
+    const claimed = await Order.findOneAndUpdate(
+        { _id: order._id, "payment.status": "paid", "payment.refundStatus": { $nin: ["initiated", "processed"] } },
+        { "payment.refundStatus": "initiated" },
+        { new: true }
+    );
+    if (!claimed) return null;
+
+    try {
+        if (!claimed.payment.razorpayPaymentId) throw new Error("No Razorpay payment id on the order");
+        const refund = await getRazorpayClient().payments.refund(claimed.payment.razorpayPaymentId, {
+            // The refund webhooks find the order by this note.
+            notes: { razorpayOrderId: claimed.payment.razorpayOrderId ?? "", orderId: claimed._id.toString() },
+        });
+        return await Order.findByIdAndUpdate(
+            claimed._id,
+            { "payment.refundId": refund.id, "payment.refundAmount": refund.amount },
+            { new: true }
+        );
+    } catch (err: any) {
+        console.error(`[order] Razorpay refund failed for ${claimed.orderNumber}`, err);
+        return await Order.findByIdAndUpdate(
+            claimed._id,
+            {
+                "payment.refundStatus": "failed",
+                $push: {
+                    statusHistory: {
+                        status: claimed.status,
+                        timestamp: new Date(),
+                        note: `Automatic refund failed, refund by hand: ${err?.error?.description || err?.message || "unknown error"}`,
+                        source: "system",
+                    },
+                },
+            },
+            { new: true }
+        );
+    }
 }
 
 export async function createRazorpayOrderService(input: CreateRazorpayOrderInput) {

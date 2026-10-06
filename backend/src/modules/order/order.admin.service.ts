@@ -3,6 +3,7 @@ import mongoose, { QueryFilter } from "mongoose";
 import { Order, IOrder, OrderStatus, PaymentMethod } from "./order.model.js";
 import { OrderStatusBucket, getStatusesForBucket, ORDER_STATUS_BUCKET_MAP, ALL_ORDER_STATUSES } from "./order.constants.js";
 import { restoreStockForOrder } from "./stock.service.js";
+import { refundPaidOrder } from "./order.service.js";
 import { shiprocketClient } from "../../lib/shiprocket.js";
 import { sendEmail } from "../../email/email.service.js";
 import { EMAIL_SUBJECTS } from "../../constants/customer/email.js";
@@ -222,6 +223,10 @@ export async function updateOrderStatusManually(
         } catch (err) {
             console.error(`[order] cancellation email failed for ${order.orderNumber}`, err);
         }
+    }
+
+    if (isCancelling) {
+        return (await refundPaidOrder(order)) ?? order;
     }
 
     return order;
