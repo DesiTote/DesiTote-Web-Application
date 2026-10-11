@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { keyStep, stepPhoto, swipeStep } from '../utils/gallery';
 
 interface PhotoGalleryProps {
@@ -20,15 +21,13 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
   const [idx, setIdx] = useState(0);
   const count = photos.length;
   const step = (delta: number) => setIdx((i) => stepPhoto(i, delta, count));
-  const zoomRef = useRef<HTMLDivElement>(null);
+  const [zoomY, setZoomY] = useState<number | null>(null);
+  const dragged = useRef(false);
 
-  /* Hover zoom: the photo scales up in its frame and the cursor picks which
-     part. Set on the element directly so moving the mouse never re-renders.
-     Mouse only; touch keeps swiping. */
-  const aimZoom = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== 'mouse' || !zoomRef.current) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    zoomRef.current.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`;
+  /* Zara / H&M style zoom: a click opens the photo full screen, mouse only.
+     Phones keep swiping, and a mouse drag-swipe is not a click. */
+  const openZoom = (e: React.MouseEvent) => {
+    if (!dragged.current && window.matchMedia('(hover: hover) and (pointer: fine)').matches) setZoomY(e.clientY);
   };
 
   useEffect(() => {
@@ -46,41 +45,32 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
 
   return (
     <div className="space-y-3">
-      <div
-        onPointerMove={aimZoom}
-        onPointerEnter={aimZoom}
-        className="group relative aspect-square rounded-[24px] sm:rounded-[28px] overflow-hidden bg-[#efe9dd] border border-[#0B1420]/10 p-3 pointer-fine:cursor-zoom-in"
-      >
-        {/* 2x keeps the client's 800x1200 photos sharp; much more and they blur. */}
-        <div
-          ref={zoomRef}
-          className="w-full h-full transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none pointer-fine:group-hover:scale-200"
-        >
-          <motion.img
-            key={photos[idx]}
-            src={photos[idx]}
-            alt={count > 1 ? `${alt}, photo ${idx + 1} of ${count}` : alt}
-            referrerPolicy="no-referrer"
-            /* Eager, unlike the grid thumbnails: this is the one image the
-               shopper just asked to see, so deferring it only delays it. */
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            draggable={false}
-            /* The photo follows the finger with some give, springs back, and
-               the release decides whether that was a swipe. Vertical movement
-               is left to the browser so the popup still scrolls on a phone. */
-            drag={count > 1 ? 'x' : false}
-            dragSnapToOrigin
-            dragElastic={0.25}
-            onDragEnd={(_, info) => step(swipeStep(info.offset, info.velocity))}
-            /* object-contain, not cover: the whole tote — text and print to
-               the base — must stay in frame. object-cover cropped the bottom
-               off tall designs like the Kaleshi Aurat print. The neutral
-               backdrop and padding make the letterboxing intentional. */
-            className="w-full h-full object-contain rounded-[20px] touch-pan-y select-none"
-          />
-        </div>
+      <div onPointerDown={() => (dragged.current = false)} onClick={openZoom} className="group relative pointer-fine:cursor-zoom-in aspect-square rounded-[24px] sm:rounded-[28px] overflow-hidden bg-[#efe9dd] border border-[#0B1420]/10 p-3">
+        <motion.img
+          key={photos[idx]}
+          src={photos[idx]}
+          alt={count > 1 ? `${alt}, photo ${idx + 1} of ${count}` : alt}
+          referrerPolicy="no-referrer"
+          /* Eager, unlike the grid thumbnails: this is the one image the
+             shopper just asked to see, so deferring it only delays it. */
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          draggable={false}
+          /* The photo follows the finger with some give, springs back, and
+             the release decides whether that was a swipe. Vertical movement
+             is left to the browser so the popup still scrolls on a phone. */
+          drag={count > 1 ? 'x' : false}
+          dragSnapToOrigin
+          dragElastic={0.25}
+          onDragStart={() => (dragged.current = true)}
+          onDragEnd={(_, info) => step(swipeStep(info.offset, info.velocity))}
+          /* object-contain, not cover: the whole tote — text and print to
+             the base — must stay in frame. object-cover cropped the bottom
+             off tall designs like the Kaleshi Aurat print. The neutral
+             backdrop and padding make the letterboxing intentional. */
+          className="w-full h-full object-contain rounded-[20px] touch-pan-y select-none"
+        />
         {badge && (
           <span className="absolute top-6 left-6 px-3 py-1 rounded-full bg-[#0B1420] text-[#F7F2E8] text-[9px] font-mono font-bold uppercase tracking-widest shadow-md">
             {badge}
@@ -88,10 +78,10 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
         )}
         {count > 1 && (
           <>
-            <button onClick={() => step(-1)} aria-label="Previous photo" className={`${arrow} left-5`}>
+            <button onClick={(e) => { e.stopPropagation(); step(-1); }} aria-label="Previous photo" className={`${arrow} left-5`}>
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button onClick={() => step(1)} aria-label="Next photo" className={`${arrow} right-5`}>
+            <button onClick={(e) => { e.stopPropagation(); step(1); }} aria-label="Next photo" className={`${arrow} right-5`}>
               <ChevronRight className="w-4 h-4" />
             </button>
           </>
@@ -115,6 +105,65 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
           ))}
         </div>
       )}
+
+      {zoomY !== null && <ZoomView src={photos[idx]} alt={alt} startY={zoomY} onClose={() => setZoomY(null)} />}
     </div>
+  );
+};
+
+/**
+ * Full-screen zoom: the photo fills the screen's width and the mouse's
+ * height on screen picks which part shows (top of screen = top of the bag).
+ * Click, the X or Esc closes it; the arrow keys still change photo.
+ * Portalled to <body> because the popup card is transformed, which would
+ * trap a fixed overlay inside it.
+ */
+const ZoomView: React.FC<{ src: string; alt: string; startY: number; onClose: () => void }> = ({ src, alt, startY, onClose }) => {
+  const img = useRef<HTMLImageElement>(null);
+  const lastY = useRef(startY);
+
+  // Set on the element directly so moving the mouse never re-renders.
+  const pan = (y: number) => {
+    lastY.current = y;
+    const el = img.current;
+    if (!el) return;
+    const spare = window.innerHeight - el.offsetHeight;
+    el.style.transform = `translateY(${spare < 0 ? spare * (y / window.innerHeight) : spare / 2}px)`;
+  };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${alt}, zoomed`}
+      onMouseMove={(e) => pan(e.clientY)}
+      onClick={(e) => { e.stopPropagation(); onClose(); }}
+      className="fixed inset-0 z-[60] overflow-hidden bg-[#efe9dd] cursor-zoom-out transition-opacity duration-200 ease-out starting:opacity-0"
+    >
+      <img
+        ref={img}
+        src={src}
+        alt={alt}
+        referrerPolicy="no-referrer"
+        draggable={false}
+        onLoad={() => pan(lastY.current)}
+        className="w-full h-auto select-none"
+      />
+      <button
+        autoFocus
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        aria-label="Close zoom"
+        className="absolute top-5 right-5 p-3 rounded-full bg-[#F7F2E8]/90 border border-[#0B1420]/10 shadow-md text-[#0B1420]/70 hover:text-[#0B1420] transition-[color,transform] duration-150 ease-out active:scale-[0.97] cursor-pointer"
+      >
+        <X className="w-5 h-5" />
+      </button>
+    </div>,
+    document.body,
   );
 };
