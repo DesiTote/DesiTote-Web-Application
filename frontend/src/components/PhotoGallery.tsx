@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { keyStep, stepPhoto, swipeStep } from '../utils/gallery';
@@ -20,6 +20,16 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
   const [idx, setIdx] = useState(0);
   const count = photos.length;
   const step = (delta: number) => setIdx((i) => stepPhoto(i, delta, count));
+  const zoomRef = useRef<HTMLDivElement>(null);
+
+  /* Hover zoom: the photo scales up in its frame and the cursor picks which
+     part. Set on the element directly so moving the mouse never re-renders.
+     Mouse only; touch keeps swiping. */
+  const aimZoom = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse' || !zoomRef.current) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    zoomRef.current.style.transformOrigin = `${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`;
+  };
 
   useEffect(() => {
     if (count < 2) return;
@@ -36,31 +46,41 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
 
   return (
     <div className="space-y-3">
-      <div className="group relative aspect-square rounded-[24px] sm:rounded-[28px] overflow-hidden bg-[#efe9dd] border border-[#0B1420]/10 p-3">
-        <motion.img
-          key={photos[idx]}
-          src={photos[idx]}
-          alt={count > 1 ? `${alt}, photo ${idx + 1} of ${count}` : alt}
-          referrerPolicy="no-referrer"
-          /* Eager, unlike the grid thumbnails: this is the one image the
-             shopper just asked to see, so deferring it only delays it. */
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          draggable={false}
-          /* The photo follows the finger with some give, springs back, and
-             the release decides whether that was a swipe. Vertical movement
-             is left to the browser so the popup still scrolls on a phone. */
-          drag={count > 1 ? 'x' : false}
-          dragSnapToOrigin
-          dragElastic={0.25}
-          onDragEnd={(_, info) => step(swipeStep(info.offset, info.velocity))}
-          /* object-contain, not cover: the whole tote — text and print to
-             the base — must stay in frame. object-cover cropped the bottom
-             off tall designs like the Kaleshi Aurat print. The neutral
-             backdrop and padding make the letterboxing intentional. */
-          className="w-full h-full object-contain rounded-[20px] touch-pan-y select-none"
-        />
+      <div
+        onPointerMove={aimZoom}
+        onPointerEnter={aimZoom}
+        className="group relative aspect-square rounded-[24px] sm:rounded-[28px] overflow-hidden bg-[#efe9dd] border border-[#0B1420]/10 p-3 pointer-fine:cursor-zoom-in"
+      >
+        {/* 2x keeps the client's 800x1200 photos sharp; much more and they blur. */}
+        <div
+          ref={zoomRef}
+          className="w-full h-full transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none pointer-fine:group-hover:scale-200"
+        >
+          <motion.img
+            key={photos[idx]}
+            src={photos[idx]}
+            alt={count > 1 ? `${alt}, photo ${idx + 1} of ${count}` : alt}
+            referrerPolicy="no-referrer"
+            /* Eager, unlike the grid thumbnails: this is the one image the
+               shopper just asked to see, so deferring it only delays it. */
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            draggable={false}
+            /* The photo follows the finger with some give, springs back, and
+               the release decides whether that was a swipe. Vertical movement
+               is left to the browser so the popup still scrolls on a phone. */
+            drag={count > 1 ? 'x' : false}
+            dragSnapToOrigin
+            dragElastic={0.25}
+            onDragEnd={(_, info) => step(swipeStep(info.offset, info.velocity))}
+            /* object-contain, not cover: the whole tote — text and print to
+               the base — must stay in frame. object-cover cropped the bottom
+               off tall designs like the Kaleshi Aurat print. The neutral
+               backdrop and padding make the letterboxing intentional. */
+            className="w-full h-full object-contain rounded-[20px] touch-pan-y select-none"
+          />
+        </div>
         {badge && (
           <span className="absolute top-6 left-6 px-3 py-1 rounded-full bg-[#0B1420] text-[#F7F2E8] text-[9px] font-mono font-bold uppercase tracking-widest shadow-md">
             {badge}
