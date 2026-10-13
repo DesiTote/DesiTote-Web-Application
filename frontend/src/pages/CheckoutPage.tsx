@@ -229,10 +229,6 @@ export function CheckoutPage({ formatPrice }: CheckoutPageProps) {
                 <span className="font-mono">-{formatPrice(session.discount)}</span>
               </div>
             )}
-            <div className="flex justify-between text-[#0B1420]/60">
-              <span>GST</span>
-              <span className="font-mono">{formatPrice(session.gstAmount)}</span>
-            </div>
             {shippingQuote && (
               <div className="flex justify-between text-[#0B1420]/60">
                 <span>Shipping</span>

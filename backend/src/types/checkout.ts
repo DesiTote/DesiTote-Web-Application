@@ -50,7 +50,7 @@ export interface CheckoutSession {
 
     subtotal: number; // sum of ORIGINAL prices, before item-level discount
     discount: number; // sum of item-level savings (price - discountPrice) * qty
-    gstAmount: number; // 18% GST on each item's (priceAtCheckout * quantity), summed
+    gstAmount: number; // retained for historical sessions; new checkouts always use 0
 
     deliveryAddress: CheckoutDeliveryAddress | null;
     paymentMethod: CheckoutPaymentMethod | null;

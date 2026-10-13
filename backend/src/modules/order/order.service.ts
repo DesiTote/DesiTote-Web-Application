@@ -42,7 +42,7 @@ export async function placeOrderService(input: PlaceOrderInput) {
         throw new ApiError(422, `${paymentMethod === "COD" ? "Cash on Delivery" : "Online payment"} is not available for this address`);
     }
 
-    const grandTotal = sessionData.subtotal - sessionData.discount + sessionData.gstAmount + shippingQuote.charge;
+    const grandTotal = sessionData.subtotal - sessionData.discount + shippingQuote.charge;
 
     // ── 1. Check if order already exists for this session ─────
     const existingOrder = await Order.findOne({ sessionId });
@@ -85,7 +85,7 @@ export async function placeOrderService(input: PlaceOrderInput) {
                 sku: item.sku,
                 image: item.thumbnail,
                 quantity: item.quantity,
-                unitPrice: item.priceAtCheckout, // actual price charged — drives totals/GST, matches what Shiprocket taxes
+                unitPrice: item.priceAtCheckout, // final customer-facing item price
                 originalPrice: item.originalPrice, // MRP — display/invoice only, never used in totals
                 gstPercentage: item.gstPercentage,
                 lineTotal: item.priceAtCheckout * item.quantity,
@@ -93,7 +93,7 @@ export async function placeOrderService(input: PlaceOrderInput) {
             subtotal: sessionData.subtotal,
             shippingCharge: shippingQuote.charge,
             discount: sessionData.discount,
-            gstAmount: sessionData.gstAmount,
+            gstAmount: 0,
             grandTotal,
             currency: "INR",
             deliveryAddress,
@@ -175,7 +175,7 @@ function buildShiprocketPayload(order: any) {
 
         // Shiprocket expects "COD" or "Prepaid" specifically — not "ONLINE"
         payment_method: order.payment.method === "COD" ? "COD" : "Prepaid",
-        sub_total: order.subtotal + order.gstAmount,
+        sub_total: order.subtotal,
         total_discount: order.discount,
         shipping_charges: order.shippingCharge,
         length: DEFAULT_PACKAGE_DIMENSIONS_CM.length,
@@ -187,7 +187,7 @@ function buildShiprocketPayload(order: any) {
             name: item.name,
             sku: item.sku,
             units: item.quantity,
-            selling_price: Number((item.unitPrice * (1 + item.gstPercentage / 100)).toFixed(2)),
+            selling_price: Number(item.unitPrice.toFixed(2)),
             discount: "",
             tax: String(item.gstPercentage),
             hsn: "4202", // cotton tote bags — same for the whole catalogue
@@ -415,7 +415,7 @@ export async function createRazorpayOrderService(input: CreateRazorpayOrderInput
         throw new ApiError(422, "Online payment is not available for this address");
     }
 
-    const grandTotal = sessionData.subtotal - sessionData.discount + sessionData.gstAmount + shippingQuote.charge;
+    const grandTotal = sessionData.subtotal - sessionData.discount + shippingQuote.charge;
 
     // ── Idempotency: same session, different possible prior states ──
     const existingOrder = await Order.findOne({ sessionId });
@@ -500,7 +500,7 @@ export async function createRazorpayOrderService(input: CreateRazorpayOrderInput
                 subtotal: sessionData.subtotal,
                 shippingCharge: shippingQuote.charge,
                 discount: sessionData.discount,
-                gstAmount: sessionData.gstAmount,
+                gstAmount: 0,
                 grandTotal,
                 currency: "INR",
                 deliveryAddress,

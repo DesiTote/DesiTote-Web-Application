@@ -121,7 +121,7 @@ export interface IOrder extends Document {
     subtotal: number;
     shippingCharge: number;
     discount: number;
-    gstAmount: number; // 18% GST, summed across items at (priceAtCheckout * qty)
+    gstAmount: number; // retained for historical orders; new orders use 0
     grandTotal: number;
     currency: string;
 

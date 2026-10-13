@@ -66,6 +66,15 @@ async function readSession(sessionId: string, userId: string): Promise<CheckoutS
     if (session.userId !== userId) {
         throw new ApiError(403, "You are not authorized to access this checkout session");
     }
+
+    // Catalogue prices are now the final customer-facing prices. Normalise any
+    // short-lived checkout session created before this change as well.
+    if (session.gstAmount !== 0) {
+        session.gstAmount = 0;
+        const quote = session.paymentMethod ? session.shippingOptions?.[session.paymentMethod] : null;
+        session.total = quote ? session.subtotal - session.discount + quote.charge : null;
+        await writeSession(sessionId, session);
+    }
     return session;
 }
 
@@ -81,6 +90,7 @@ async function writeSession(sessionId: string, session: CheckoutSession) {
  * payment method afterward never needs another Shiprocket call.
  * ──────────────────────────────────────────────────────────── */
 async function recalculateShipping(session: CheckoutSession) {
+    session.gstAmount = 0;
     if (!session.deliveryAddress) {
         session.shippingOptions = null;
         session.total = null;
@@ -153,7 +163,7 @@ async function recalculateShipping(session: CheckoutSession) {
             // total stays null until the user (or frontend default) picks the serviceable one.
             const selectedQuote = session.paymentMethod ? shippingOptions[session.paymentMethod] : null;
             session.total = selectedQuote
-                ? session.subtotal - session.discount + session.gstAmount + selectedQuote.charge // GST added on top of the discounted (tax-exclusive) amount
+                ? session.subtotal - session.discount + selectedQuote.charge
                 : null;
         }
     } catch (err) {
@@ -213,10 +223,10 @@ export const createCheckoutSessionService = async (
 
     const productMap = new Map(products.map((p) => [p._id.toString(), p]));
 
-    // ─── STEP 3: CONSOLIDATE SNAPSHOT, SUBTOTAL (ORIGINAL PRICE) + DISCOUNT + GST ──
+    // ─── STEP 3: CONSOLIDATE SNAPSHOT, SUBTOTAL (ORIGINAL PRICE) + DISCOUNT ──
     let subtotal = 0; // sum of ORIGINAL prices — what the order summary "Subtotal" row should show
     let discount = 0; // sum of item-level savings from discountPrice
-    let gstAmount = 0; // 18% GST computed on (priceAtCheckout * quantity), summed — ADDED on top to reach the final bill
+    const gstAmount = 0; // Catalogue prices are final; tax is not added at checkout.
     const checkoutItems = [];
 
     for (const item of itemsToProcess) {
@@ -235,8 +245,6 @@ export const createCheckoutSessionService = async (
 
         subtotal += originalPrice * item.quantity;
         discount += (originalPrice - priceAtCheckout) * item.quantity;
-        gstAmount += priceAtCheckout * item.quantity *( product.gstPercentage/100); // added on top of the tax-exclusive discounted price
-
         checkoutItems.push({
             productId: item.productId,
             quantity: item.quantity,
@@ -369,7 +377,8 @@ export const updateCheckoutPaymentMethodService = async (
     }
 
     session.paymentMethod = paymentMethod;
-    session.total = session.subtotal - session.discount + session.gstAmount + quote.charge; // GST added on top of the discounted amount
+    session.gstAmount = 0;
+    session.total = session.subtotal - session.discount + quote.charge;
 
     await writeSession(sessionId, session);
     return session;

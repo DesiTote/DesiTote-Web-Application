@@ -157,10 +157,12 @@ export function AdminOrderDetail({ orderId, onClose }: Props) {
                       <span className="font-mono">-{money(order.discount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-[#0B1420]/60">
-                    <span>GST</span>
-                    <span className="font-mono">{money(order.gstAmount)}</span>
-                  </div>
+                  {order.gstAmount > 0 && (
+                    <div className="flex justify-between text-[#0B1420]/60">
+                      <span>GST</span>
+                      <span className="font-mono">{money(order.gstAmount)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-[#0B1420]/60">
                     <span>Shipping</span>
                     <span className="font-mono">{money(order.shippingCharge)}</span>

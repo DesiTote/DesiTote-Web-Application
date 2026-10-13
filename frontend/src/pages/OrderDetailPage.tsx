@@ -118,10 +118,12 @@ export function OrderDetailPage({ formatPrice }: { formatPrice: (inr: number) =>
               <span className="font-mono">-{formatPrice(order.discount)}</span>
             </div>
           )}
-          <div className="flex justify-between text-[#0B1420]/60">
-            <span>GST</span>
-            <span className="font-mono">{formatPrice(order.gstAmount)}</span>
-          </div>
+          {order.gstAmount > 0 && (
+            <div className="flex justify-between text-[#0B1420]/60">
+              <span>GST</span>
+              <span className="font-mono">{formatPrice(order.gstAmount)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-[#0B1420]/60">
             <span>Shipping</span>
             <span className="font-mono">{formatPrice(order.shippingCharges)}</span>
