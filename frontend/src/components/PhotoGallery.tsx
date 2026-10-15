@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { keyStep, stepPhoto, swipeStep } from '../utils/gallery';
 
 interface PhotoGalleryProps {
@@ -20,6 +21,14 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
   const [idx, setIdx] = useState(0);
   const count = photos.length;
   const step = (delta: number) => setIdx((i) => stepPhoto(i, delta, count));
+  const [zoomY, setZoomY] = useState<number | null>(null);
+  const dragged = useRef(false);
+
+  /* Zara / H&M style zoom: a click opens the photo full screen, mouse only.
+     Phones keep swiping, and a mouse drag-swipe is not a click. */
+  const openZoom = (e: React.MouseEvent) => {
+    if (!dragged.current && window.matchMedia('(hover: hover) and (pointer: fine)').matches) setZoomY(e.clientY);
+  };
 
   useEffect(() => {
     if (count < 2) return;
@@ -36,7 +45,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
 
   return (
     <div className="space-y-3">
-      <div className="group relative aspect-square rounded-[24px] sm:rounded-[28px] overflow-hidden bg-[#efe9dd] border border-[#0B1420]/10 p-3">
+      <div onPointerDown={() => (dragged.current = false)} onClick={openZoom} className="group relative pointer-fine:cursor-zoom-in aspect-square rounded-[24px] sm:rounded-[28px] overflow-hidden bg-[#efe9dd] border border-[#0B1420]/10 p-3">
         <motion.img
           key={photos[idx]}
           src={photos[idx]}
@@ -54,6 +63,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
           drag={count > 1 ? 'x' : false}
           dragSnapToOrigin
           dragElastic={0.25}
+          onDragStart={() => (dragged.current = true)}
           onDragEnd={(_, info) => step(swipeStep(info.offset, info.velocity))}
           /* object-contain, not cover: the whole tote — text and print to
              the base — must stay in frame. object-cover cropped the bottom
@@ -68,10 +78,10 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
         )}
         {count > 1 && (
           <>
-            <button onClick={() => step(-1)} aria-label="Previous photo" className={`${arrow} left-5`}>
+            <button onClick={(e) => { e.stopPropagation(); step(-1); }} aria-label="Previous photo" className={`${arrow} left-5`}>
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button onClick={() => step(1)} aria-label="Next photo" className={`${arrow} right-5`}>
+            <button onClick={(e) => { e.stopPropagation(); step(1); }} aria-label="Next photo" className={`${arrow} right-5`}>
               <ChevronRight className="w-4 h-4" />
             </button>
           </>
@@ -95,6 +105,65 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, alt, badge }
           ))}
         </div>
       )}
+
+      {zoomY !== null && <ZoomView src={photos[idx]} alt={alt} startY={zoomY} onClose={() => setZoomY(null)} />}
     </div>
+  );
+};
+
+/**
+ * Full-screen zoom: the photo fills the screen's width and the mouse's
+ * height on screen picks which part shows (top of screen = top of the bag).
+ * Click, the X or Esc closes it; the arrow keys still change photo.
+ * Portalled to <body> because the popup card is transformed, which would
+ * trap a fixed overlay inside it.
+ */
+const ZoomView: React.FC<{ src: string; alt: string; startY: number; onClose: () => void }> = ({ src, alt, startY, onClose }) => {
+  const img = useRef<HTMLImageElement>(null);
+  const lastY = useRef(startY);
+
+  // Set on the element directly so moving the mouse never re-renders.
+  const pan = (y: number) => {
+    lastY.current = y;
+    const el = img.current;
+    if (!el) return;
+    const spare = window.innerHeight - el.offsetHeight;
+    el.style.transform = `translateY(${spare < 0 ? spare * (y / window.innerHeight) : spare / 2}px)`;
+  };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${alt}, zoomed`}
+      onMouseMove={(e) => pan(e.clientY)}
+      onClick={(e) => { e.stopPropagation(); onClose(); }}
+      className="fixed inset-0 z-[60] overflow-hidden bg-[#efe9dd] cursor-zoom-out transition-opacity duration-200 ease-out starting:opacity-0"
+    >
+      <img
+        ref={img}
+        src={src}
+        alt={alt}
+        referrerPolicy="no-referrer"
+        draggable={false}
+        onLoad={() => pan(lastY.current)}
+        className="w-full h-auto select-none"
+      />
+      <button
+        autoFocus
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        aria-label="Close zoom"
+        className="absolute top-5 right-5 p-3 rounded-full bg-[#F7F2E8]/90 border border-[#0B1420]/10 shadow-md text-[#0B1420]/70 hover:text-[#0B1420] transition-[color,transform] duration-150 ease-out active:scale-[0.97] cursor-pointer"
+      >
+        <X className="w-5 h-5" />
+      </button>
+    </div>,
+    document.body,
   );
 };
