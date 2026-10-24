@@ -49,7 +49,8 @@ export interface CheckoutSession {
     items: CheckoutItem[];
 
     subtotal: number; // sum of ORIGINAL prices, before item-level discount
-    discount: number; // sum of item-level savings (price - discountPrice) * qty
+    discount: number; // sum of item-level savings (price - discountPrice) * qty, plus firstOrderDiscount
+    firstOrderDiscount?: number; // 10% off the first order, already included in discount
     gstAmount: number; // retained for historical sessions; new checkouts always use 0
 
     deliveryAddress: CheckoutDeliveryAddress | null;

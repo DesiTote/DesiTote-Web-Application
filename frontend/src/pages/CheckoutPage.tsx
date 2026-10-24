@@ -223,10 +223,16 @@ export function CheckoutPage({ formatPrice }: CheckoutPageProps) {
               <span>Subtotal</span>
               <span className="font-mono">{formatPrice(session.subtotal)}</span>
             </div>
-            {session.discount > 0 && (
+            {session.discount - (session.firstOrderDiscount ?? 0) > 0 && (
               <div className="flex justify-between text-[#0B1420]/60">
                 <span>Discount</span>
-                <span className="font-mono">-{formatPrice(session.discount)}</span>
+                <span className="font-mono">-{formatPrice(session.discount - (session.firstOrderDiscount ?? 0))}</span>
+              </div>
+            )}
+            {(session.firstOrderDiscount ?? 0) > 0 && (
+              <div className="flex justify-between text-[#B87D00]">
+                <span>First order 10% off</span>
+                <span className="font-mono">-{formatPrice(session.firstOrderDiscount ?? 0)}</span>
               </div>
             )}
             {shippingQuote && (

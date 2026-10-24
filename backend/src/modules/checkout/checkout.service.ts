@@ -2,11 +2,15 @@ import crypto from "crypto";
 import Cart from "../cart/cart.model.js";
 import Product from "../product/product.model.js";
 import {Address} from "../address/address.model.js"; // adjust path to your actual Address model
+import { Order } from "../order/order.model.js";
 import { getRedis } from "../../config/redis.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { CheckoutSession, CheckoutShippingOptions, ShippingQuote } from "../../types/checkout.js";
 import { getShippingRate } from "../../services/shiprocket.service.js";
 const SESSION_TTL_SECONDS = 60 * 20; // 20 min
+const FIRST_ORDER_DISCOUNT_RATE = 0.1; // promised by the "10% Off Your First Order" footer banner
+// Attempts that never became a real order don't use up the first-order discount.
+const NOT_A_REAL_ORDER = ["pending_payment", "payment_failed", "cancelled", "failed"];
 
 interface BuyNowInput {
     productId: string;
@@ -258,6 +262,16 @@ export const createCheckoutSessionService = async (
         });
     }
 
+    // ─── STEP 3b: 10% OFF THE CUSTOMER'S FIRST ORDER ──────────────────────
+    // Folded into `discount`, so every total downstream (session, COD order,
+    // Razorpay amount, Shiprocket) picks it up without further changes.
+    // shortcut: checked when the session is created, so two checkouts opened
+    // side by side before either is placed could both get it; re-check at
+    // place-order time if that ever shows up.
+    const hasPastOrder = await Order.exists({ userId, status: { $nin: NOT_A_REAL_ORDER } });
+    const firstOrderDiscount = hasPastOrder ? 0 : Math.round((subtotal - discount) * FIRST_ORDER_DISCOUNT_RATE);
+    discount += firstOrderDiscount;
+
     // ─── STEP 4: AUTO-APPLY DEFAULT ADDRESS IF ONE EXISTS or take recently created ────────────────
     const defaultAddress = await Address.findOne({ userId })
         .sort({ isDefault: -1, createdAt: -1 })
@@ -292,6 +306,7 @@ export const createCheckoutSessionService = async (
         status: "INITIATED",
         items: checkoutItems,
         discount,
+        firstOrderDiscount,
         subtotal,
         gstAmount: Math.round(gstAmount * 100) / 100,
         deliveryAddress,

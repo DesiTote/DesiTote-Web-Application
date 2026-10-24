@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Send, CheckCircle2, MessageCircle, Heart, Shield, Sparkles } from 'lucide-react';
 import { playPop } from '../utils/audio';
 import { DesiLogo } from './DesiLogo';
+import { api } from '../lib/api';
 
 export const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +13,8 @@ export const Footer: React.FC = () => {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
+    // Best-effort: "already subscribed" or a network blip shouldn't block the thank-you.
+    api.post('/api/subscriptions', { email }).catch(() => {});
     playPop();
     setSubscribed(true);
     setEmail('');
@@ -41,7 +44,7 @@ export const Footer: React.FC = () => {
               <span className="text-[#B87D00] font-serif font-bold not-italic">10% Off Your First Order</span>
             </h3>
             <p className="text-white/50 text-xs sm:text-sm font-light leading-relaxed">
-              Plus first access to new print drops.
+              Taken off automatically at checkout. Join for first access to new print drops.
             </p>
           </div>
 
@@ -53,7 +56,7 @@ export const Footer: React.FC = () => {
                 className="p-4 rounded-full bg-[#B87D00]/15 border border-[#B87D00]/40 text-[#B87D00] flex items-center justify-center gap-3 shadow-lg"
               >
                 <CheckCircle2 className="w-5 h-5 text-[#B87D00] shrink-0" />
-                <span className="font-mono text-xs uppercase tracking-wider">You're in! Watch your inbox for new print drops.</span>
+                <span className="font-mono text-xs uppercase tracking-wider">You're in! Your 10% comes off at checkout.</span>
               </motion.div>
             ) : (
               <form onSubmit={handleSubscribe} className="flex gap-2">

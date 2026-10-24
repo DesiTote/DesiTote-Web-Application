@@ -98,6 +98,7 @@ export interface BackendCheckoutSession {
   items: BackendCheckoutSessionItem[];
   subtotal: number;
   discount: number;
+  firstOrderDiscount?: number; // already included in discount
   gstAmount: number;
   deliveryAddress: BackendAddress | null;
   paymentMethod: 'COD' | 'ONLINE' | null;
