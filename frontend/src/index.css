@@ -182,25 +182,3 @@
   perspective: 1000px;
 }
 
-/* Diwali banner decorations (components/DiwaliSale.tsx). Ambient only, so
-   they stay still for anyone who asks for reduced motion. */
-@media (prefers-reduced-motion: no-preference) {
-  .diwali-twinkle {
-    animation: diwali-twinkle 2.4s ease-in-out infinite alternate;
-  }
-  .diwali-flame {
-    transform-box: fill-box;
-    transform-origin: 50% 100%;
-    animation: diwali-flame 1.4s ease-in-out infinite alternate;
-  }
-}
-
-@keyframes diwali-twinkle {
-  from { opacity: 0.55; }
-  to { opacity: 1; }
-}
-
-@keyframes diwali-flame {
-  from { transform: scaleY(0.92) rotate(-2deg); }
-  to { transform: scaleY(1.06) rotate(2deg); }
-}

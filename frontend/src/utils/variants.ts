@@ -40,3 +40,20 @@ export function withVariantFirst(product: Product, variant: ProductVariant): Pro
   const rank = (v: ProductVariant) => (v.id === variant.id ? 0 : key(v) === key(variant) ? 1 : 2);
   return { ...product, variants: [...product.variants].sort((a, b) => rank(a) - rank(b)) };
 }
+
+/** Photo for a shop-nav icon: the first option that passes `keep`, plain bags first so a colour icon shows the colour, not a print. */
+export function iconImage(products: Product[], keep: (p: Product, v: ProductVariant) => boolean): string | undefined {
+  const plainFirst = [...products].sort((a, b) => Number(a.category !== 'plain') - Number(b.category !== 'plain'));
+  for (const p of plainFirst) {
+    const v = p.variants.find((x) => keep(p, x));
+    if (v) return v.image;
+  }
+  return undefined;
+}
+
+/** Every colour and zip option on sale, each once, for filter chips and shop-nav icons. */
+export function filterOptions(products: Product[]) {
+  const all = products.flatMap((p) => p.variants);
+  const unique = (xs: (string | undefined)[]) => [...new Set(xs.filter(Boolean) as string[])].sort();
+  return { colors: unique(all.map((v) => v.colorLabel)), zips: unique(all.map((v) => v.badge)) };
+}

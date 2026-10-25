@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
 import { MarqueeTicker } from './components/MarqueeTicker';
 import { BestsellerSpotlight } from './components/BestsellerSpotlight';
-import { ProductCatalog } from './components/ProductCatalog';
+import { CatalogFilters, NO_FILTERS, ProductCatalog } from './components/ProductCatalog';
+import { ShopNav } from './components/ShopNav';
+import { CustomOrders } from './components/CustomOrders';
 import { PrintGallery } from './components/PrintGallery';
 import { ReviewsSection } from './components/ReviewsSection';
 import { FAQSection } from './components/FAQSection';
@@ -52,32 +53,34 @@ interface AddToCartItem {
 function HomePage({
   onAddToCart,
   onQuickView,
-  currency,
   formatPrice,
   reviewsList,
   onAddReview,
 }: {
   onAddToCart: (item: AddToCartItem) => void;
   onQuickView: (product: Product) => void;
-  currency: 'INR' | 'USD';
   formatPrice: (inr: number) => string;
   reviewsList: Review[];
   onAddReview: (review: Review) => void;
 }) {
   const { products } = useProducts();
+  const [filters, setFilters] = useState<CatalogFilters>(NO_FILTERS);
 
+  // Shop first, the way Myntra opens: tabs and icons, the festive banner while the sale runs, then the bags.
   return (
     <main>
-      <Hero onAddToCart={onAddToCart} currency={currency} formatPrice={formatPrice} />
+      <ShopNav products={products} filters={filters} onChange={setFilters} />
       <DiwaliSaleBanner />
-      <MarqueeTicker />
-      <BestsellerSpotlight onAddToCart={onAddToCart} formatPrice={formatPrice} />
       <ProductCatalog
         products={products}
         onAddToCart={onAddToCart}
         onQuickView={onQuickView}
         formatPrice={formatPrice}
+        filters={filters}
+        onFiltersChange={setFilters}
       />
+      <MarqueeTicker />
+      <BestsellerSpotlight onAddToCart={onAddToCart} formatPrice={formatPrice} />
       <PrintGallery
         onQuickViewByProductId={(productId) => {
           const found = products.find((p) => p.id === productId);
@@ -85,6 +88,7 @@ function HomePage({
         }}
         formatPrice={formatPrice}
       />
+      <CustomOrders />
       <ReviewsSection reviews={reviewsList} onAddReview={onAddReview} />
       <FAQSection />
     </main>
@@ -255,7 +259,6 @@ function AppShell() {
             <HomePage
               onAddToCart={handleAddToCart}
               onQuickView={setQuickViewProduct}
-              currency={currency}
               formatPrice={formatPrice}
               reviewsList={reviewsList}
               onAddReview={handleAddReview}

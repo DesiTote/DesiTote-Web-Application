@@ -1,15 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { ShoppingBag, Eye, Check, Flame } from 'lucide-react';
 import { PriceTag } from './PriceTag';
 import { Product, ProductVariant } from '../types';
 import { playPop, playSnap } from '../utils/audio';
-import { firstMatch, getColorGroups, withVariantFirst } from '../utils/variants';
+import { filterOptions, firstMatch, getColorGroups, withVariantFirst } from '../utils/variants';
 import { colorHexFromLabel } from '../lib/adaptProducts';
 import { useProducts } from '../context/ProductsContext';
 
+export type BagType = 'all' | 'bestseller' | 'plain' | 'printed';
+export interface CatalogFilters {
+  type: BagType;
+  color: string | null;
+  zip: string | null;
+}
+export const NO_FILTERS: CatalogFilters = { type: 'all', color: null, zip: null };
+
+/** Takes the shopper to the filter chips, so the bags are on screen rather than the section heading. */
+export const scrollToBags = () => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.getElementById('catalog-filters')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+};
+
 interface ProductCatalogProps {
   products: Product[];
+  /** Owned by the home page, so the shop nav at the top can set them too. */
+  filters: CatalogFilters;
+  onFiltersChange: (filters: CatalogFilters) => void;
   onAddToCart: (item: {
     id: string;
     name: string;
@@ -35,11 +52,11 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   onAddToCart,
   onQuickView,
   formatPrice,
+  filters,
+  onFiltersChange,
 }) => {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'bestseller' | 'plain' | 'printed'>('all');
   // Every colour/zip combination is a variant of a card, so these filter variants, not cards.
-  const [colorFilter, setColorFilter] = useState<string | null>(null);
-  const [zipFilter, setZipFilter] = useState<string | null>(null);
+  const { type: activeCategory, color: colorFilter, zip: zipFilter } = filters;
   const { isLoading, error } = useProducts();
 
   // Two-step picker per product card, like a clothing site: color swatch first, then option (zip/no zip).
@@ -53,9 +70,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     { id: 'printed', label: 'Printed Designs' },
   ];
 
-  const allVariants = products.flatMap((p) => p.variants);
-  const colorOptions = [...new Set(allVariants.map((v) => v.colorLabel).filter(Boolean) as string[])].sort();
-  const zipOptions = [...new Set(allVariants.map((v) => v.badge).filter(Boolean) as string[])].sort();
+  const { colors: colorOptions, zips: zipOptions } = filterOptions(products);
 
   const matchesFilters = (v: ProductVariant) =>
     (!colorFilter || v.colorLabel === colorFilter) && (!zipFilter || v.badge === zipFilter);
@@ -69,30 +84,26 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
   const hasFilters = activeCategory !== 'all' || colorFilter !== null || zipFilter !== null;
 
-  // A new filter drops the shopper's swatch picks so each card opens on its first matching option.
-  const resetPicks = () => {
+  // A new colour or zip filter, from these chips or the shop nav, drops the shopper's swatch
+  // picks so each card opens on its first matching option.
+  useEffect(() => {
     setSelectedColorIdx({});
     setSelectedOptionIdx({});
-  };
+  }, [colorFilter, zipFilter]);
 
   const toggleColor = (color: string) => {
     playSnap();
-    setColorFilter((prev) => (prev === color ? null : color));
-    resetPicks();
+    onFiltersChange({ ...filters, color: colorFilter === color ? null : color });
   };
 
   const toggleZip = (zip: string) => {
     playSnap();
-    setZipFilter((prev) => (prev === zip ? null : zip));
-    resetPicks();
+    onFiltersChange({ ...filters, zip: zipFilter === zip ? null : zip });
   };
 
   const clearFilters = () => {
     playSnap();
-    setActiveCategory('all');
-    setColorFilter(null);
-    setZipFilter(null);
-    resetPicks();
+    onFiltersChange(NO_FILTERS);
   };
 
   // The shopper's own pick wins; otherwise the first colour/option that matches the filters.
@@ -172,8 +183,8 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           </p>
         </div>
 
-        {/* Filters */}
-        <div className="mb-6 sm:mb-10 space-y-3">
+        {/* Filters; scroll-mt clears the pinned navbar when the shop nav or banner scrolls here. */}
+        <div id="catalog-filters" className="mb-6 sm:mb-10 space-y-3 scroll-mt-28">
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-5">
             <div className={CHIP_ROW}>
               {categories.map((cat) => (
@@ -182,7 +193,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                   aria-pressed={activeCategory === cat.id}
                   onClick={() => {
                     playSnap();
-                    setActiveCategory(cat.id as typeof activeCategory);
+                    onFiltersChange({ ...filters, type: cat.id as BagType });
                   }}
                   className={`${CHIP_BASE} ${activeCategory === cat.id ? CHIP_ON : CHIP_OFF}`}
                 >
