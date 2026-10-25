@@ -10,9 +10,10 @@ export const SALE = {
   endsAt: new Date('2026-11-12T00:00:00+05:30'),
 };
 
-// Vercel preview links show the sale before it starts so it can be reviewed;
-// the real site (desitotes.com) waits for `startsAt`.
-const isPreviewDeploy = typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.app');
+// Vercel preview links and a local build show the sale before it starts so it
+// can be reviewed; the real site (desitotes.com) waits for `startsAt`.
+const isPreviewDeploy =
+  typeof window !== 'undefined' && /\.vercel\.app$|^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
 
 export const isSaleOn = (): boolean =>
   SALE.enabled && (isPreviewDeploy || Date.now() >= SALE.startsAt.getTime()) && Date.now() < SALE.endsAt.getTime();
