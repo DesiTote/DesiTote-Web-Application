@@ -32,7 +32,10 @@ export const DiwaliSaleBanner: React.FC = () => {
             className="absolute -right-24 -top-24 w-[420px] h-[420px] rounded-full bg-[#E8A33D]/20 blur-3xl pointer-events-none"
             aria-hidden
           />
-          <div className="relative grid grid-cols-1 md:grid-cols-12 items-center gap-8 px-6 py-10 sm:px-12 sm:py-14">
+          <FestoonLights />
+          <Rangoli className="absolute -left-24 -bottom-32 w-64 sm:w-72 text-[#E8A33D] opacity-[0.18]" />
+          <Rangoli className="hidden md:block absolute right-[38%] -top-16 w-40 text-[#E8A33D] opacity-[0.08]" />
+          <div className="relative grid grid-cols-1 md:grid-cols-12 items-center gap-8 px-6 pt-16 pb-12 sm:px-12 sm:pt-20 sm:pb-16">
             <div className="md:col-span-7 space-y-5 text-center md:text-left">
               <p className="text-[11px] uppercase tracking-[0.22em] text-[#E8A33D] font-semibold">{SALE.name}</p>
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-light leading-[1.05] tracking-tight text-balance">
@@ -68,6 +71,8 @@ export const DiwaliSaleBanner: React.FC = () => {
                       }`}
                     />
                   ))}
+                  <Diya className="absolute -bottom-7 -left-6 w-16 sm:w-20" />
+                  <Diya className="absolute -bottom-8 -right-4 w-14 sm:w-16" flameDelay="-0.7s" />
                 </div>
               </div>
             )}
@@ -77,3 +82,90 @@ export const DiwaliSaleBanner: React.FC = () => {
     </section>
   );
 };
+
+/* ── Decorations ──────────────────────────────────────────────
+ * Plain SVG so they stay crisp and cost nothing to load. The bulb twinkle and
+ * flame flicker live in index.css and stop under reduced motion. */
+
+/** A string of fairy lights sagging in two swags across the top of the banner. */
+const FestoonLights: React.FC = () => {
+  // Bulbs sit on the two quadratic swags of the wire: (0,6)→(600,6) via (300,56), and the mirror.
+  const bulbs: { x: number; y: number }[] = [];
+  for (const [x0, cx] of [[0, 300], [600, 900]]) {
+    for (let k = 1; k <= 7; k++) {
+      const t = k / 8;
+      bulbs.push({ x: (1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * (x0 + 600), y: 6 + 2 * (1 - t) * t * 50 });
+    }
+  }
+  return (
+    <svg
+      viewBox="0 0 1200 90"
+      preserveAspectRatio="xMidYMin slice"
+      className="absolute inset-x-0 top-0 w-full h-16 sm:h-20 pointer-events-none"
+      aria-hidden
+    >
+      <defs>
+        <radialGradient id="bulb-glow">
+          <stop offset="0" stopColor="#FFD58A" stopOpacity="0.9" />
+          <stop offset="1" stopColor="#FFD58A" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <path d="M0 6 Q300 56 600 6 Q900 56 1200 6" fill="none" stroke="#F7F2E8" strokeOpacity="0.25" strokeWidth="1.5" />
+      {bulbs.map((b, i) => (
+        <g key={i} className="diwali-twinkle" style={{ animationDelay: `${(i * 0.37) % 2.4}s` }}>
+          <circle cx={b.x} cy={b.y + 12} r="14" fill="url(#bulb-glow)" />
+          <rect x={b.x - 2.5} y={b.y} width="5" height="5" rx="1" fill="#F7F2E8" fillOpacity="0.4" />
+          <ellipse cx={b.x} cy={b.y + 11} rx="4.5" ry="6" fill={i % 3 === 1 ? '#F7F2E8' : '#FFC75A'} />
+        </g>
+      ))}
+    </svg>
+  );
+};
+
+/** Eight-petal rangoli in currentColor, drawn as outlines so it reads as a faint pattern. */
+const Rangoli: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="-100 -100 200 200" className={`pointer-events-none ${className ?? ''}`} aria-hidden>
+    <g fill="none" stroke="currentColor" strokeWidth="1.4">
+      <circle r="96" strokeDasharray="2 6" strokeLinecap="round" />
+      <circle r="78" />
+      {Array.from({ length: 16 }, (_, i) => (
+        <path key={`o${i}`} d="M0 -78 Q12 -62 0 -46 Q-12 -62 0 -78Z" transform={`rotate(${i * 22.5})`} />
+      ))}
+      <circle r="44" />
+      {Array.from({ length: 8 }, (_, i) => (
+        <ellipse key={`p${i}`} cx="0" cy="-26" rx="9" ry="18" transform={`rotate(${i * 45})`} />
+      ))}
+      <circle r="7" fill="currentColor" />
+    </g>
+    {Array.from({ length: 8 }, (_, i) => (
+      <circle key={`d${i}`} cx="0" cy="-62" r="2.4" fill="currentColor" transform={`rotate(${i * 45 + 22.5})`} />
+    ))}
+  </svg>
+);
+
+/** A clay diya with a flickering flame. */
+const Diya: React.FC<{ className?: string; flameDelay?: string }> = ({ className, flameDelay }) => (
+  <svg viewBox="0 0 80 64" className={`pointer-events-none drop-shadow-[0_0_14px_rgba(255,170,60,0.45)] ${className ?? ''}`} aria-hidden>
+    <defs>
+      <linearGradient id="diya-flame" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stopColor="#FF7A1A" />
+        <stop offset="0.55" stopColor="#FFB23E" />
+        <stop offset="1" stopColor="#FFF1C2" />
+      </linearGradient>
+      <linearGradient id="diya-clay" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#C8642E" />
+        <stop offset="1" stopColor="#7A2E12" />
+      </linearGradient>
+    </defs>
+    <circle cx="40" cy="22" r="16" fill="#FFB23E" fillOpacity="0.18" />
+    <path
+      className="diwali-flame"
+      style={{ animationDelay: flameDelay }}
+      d="M40 6 C46 16 47 23 40 30 C33 23 34 16 40 6Z"
+      fill="url(#diya-flame)"
+    />
+    <path d="M6 34 Q40 30 74 34 Q70 58 40 60 Q10 58 6 34Z" fill="url(#diya-clay)" />
+    <path d="M6 34 Q40 30 74 34 Q40 40 6 34Z" fill="#E8A33D" />
+    <path d="M20 46 Q40 50 60 46" fill="none" stroke="#E8A33D" strokeOpacity="0.6" strokeWidth="1.5" strokeDasharray="1 4" strokeLinecap="round" />
+  </svg>
+);
