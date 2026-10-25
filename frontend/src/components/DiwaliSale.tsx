@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Banknote, Hand, Truck } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
 import { SALE, isSaleOn, saleLastDay } from '../lib/sale';
 import { playPop } from '../utils/audio';
@@ -37,12 +37,15 @@ export const DiwaliSaleBanner: React.FC = () => {
           <Rangoli className="hidden md:block absolute right-[38%] -top-16 w-40 text-[#E8A33D] opacity-[0.08]" />
           <div className="relative grid grid-cols-1 md:grid-cols-12 items-center gap-8 px-6 pt-16 pb-12 sm:px-12 sm:pt-20 sm:pb-16">
             <div className="md:col-span-7 space-y-5 text-center md:text-left">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-[#E8A33D] font-semibold">{SALE.name}</p>
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#E8A33D]/15 ring-1 ring-[#E8A33D]/40 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#E8A33D]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#E8A33D]" aria-hidden />
+                Live now
+              </span>
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-light leading-[1.05] tracking-tight text-balance">
-                <span className="font-bold text-[#E8A33D]">{SALE.percent}% off</span> every tote
+                The <span className="font-bold text-[#E8A33D]">{SALE.name}</span>
               </h2>
               <p className="text-sm sm:text-base text-pretty text-[#F7F2E8]/75 max-w-md mx-auto md:mx-0 leading-relaxed">
-                Prices already include the discount, no code needed. Ends {saleLastDay()}.
+                Flat {SALE.percent}% off every tote, already taken off the price. No code needed. Ends {saleLastDay()}.
               </p>
               <motion.button
                 whileTap={{ scale: 0.97 }}
@@ -71,6 +74,7 @@ export const DiwaliSaleBanner: React.FC = () => {
                       }`}
                     />
                   ))}
+                  <OffSeal percent={SALE.percent} />
                   <Diya className="absolute -bottom-7 -left-6 w-16 sm:w-20" />
                   <Diya className="absolute -bottom-8 -right-4 w-14 sm:w-16" flameDelay="-0.7s" />
                 </div>
@@ -79,6 +83,20 @@ export const DiwaliSaleBanner: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Reassurance strip under the offer, the way the big festive sale pages do it. */}
+      <ul className="max-w-7xl mx-auto mt-3 grid grid-cols-3 gap-2 text-[11px] sm:text-xs text-[#0B1420]/70">
+        {[
+          { Icon: Banknote, text: 'Cash on delivery' },
+          { Icon: Truck, text: 'Free shipping over ₹999' },
+          { Icon: Hand, text: 'Handmade in India' },
+        ].map(({ Icon, text }) => (
+          <li key={text} className="flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-[#0B1420]/[0.04] px-2 py-3 text-center">
+            <Icon className="w-4 h-4 text-[#B87D00] shrink-0" aria-hidden />
+            {text}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 };
@@ -141,6 +159,17 @@ const Rangoli: React.FC<{ className?: string }> = ({ className }) => (
       <circle key={`d${i}`} cx="0" cy="-62" r="2.4" fill="currentColor" transform={`rotate(${i * 45 + 22.5})`} />
     ))}
   </svg>
+);
+
+/** Gold "FLAT 25% OFF" seal pinned to the photo stack, like the festive sale stamps. */
+const OffSeal: React.FC<{ percent: number }> = ({ percent }) => (
+  <div className="absolute -top-5 -left-6 sm:-left-10 z-10 w-24 h-24 sm:w-28 sm:h-28 -rotate-12 rounded-full bg-gradient-to-br from-[#FFE2A3] via-[#E8A33D] to-[#B87D00] p-1 shadow-xl shadow-black/40">
+    <div className="w-full h-full rounded-full border border-dashed border-[#340E09]/40 flex flex-col items-center justify-center text-[#340E09] leading-none">
+      <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em]">Flat</span>
+      <span className="text-3xl sm:text-4xl font-extrabold tracking-tight tabular-nums">{percent}%</span>
+      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em]">Off</span>
+    </div>
+  </div>
 );
 
 /** A clay diya with a flickering flame. */
