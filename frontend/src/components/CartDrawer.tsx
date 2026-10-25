@@ -207,7 +207,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
                       <span className="font-mono text-[#0B1420]/80">{formatPrice(subtotal)}</span>
                     </div>
                     {isSaleOn() && (
-                      <p className="text-[10px] font-semibold text-[#E8590C]">
+                      <p className="text-[10px] font-semibold text-[#C2410C]">
                         {SALE.name}: {SALE.percent}% off already applied
                       </p>
                     )}

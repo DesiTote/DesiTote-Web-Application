@@ -110,6 +110,7 @@ export const PrintGallery: React.FC<LookbookProps> = ({
                         mrp={displayVariant.mrp}
                         formatPrice={formatPrice}
                         className="font-display tabular-nums font-semibold text-xs"
+                        offClassName="text-[#FB923C]"
                       />
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </div>
