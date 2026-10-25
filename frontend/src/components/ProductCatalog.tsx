@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ShoppingBag, Eye, Check, Flame } from 'lucide-react';
+import { PriceTag } from './PriceTag';
 import { Product } from '../types';
 import { playPop, playSnap } from '../utils/audio';
 import { getColorGroups } from '../utils/variants';
@@ -306,9 +307,12 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                   <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
                     <div>
                       <div className="flex items-baseline gap-2">
-                        <span className="font-display tabular-nums text-2xl sm:text-3xl font-semibold tracking-tight text-[#0B1420]">
-                          {formatPrice(activeVariant.price)}
-                        </span>
+                        <PriceTag
+                          price={activeVariant.price}
+                          mrp={activeVariant.mrp}
+                          formatPrice={formatPrice}
+                          className="font-display tabular-nums text-2xl sm:text-3xl font-semibold tracking-tight text-[#0B1420]"
+                        />
                       </div>
                       <span className="text-[9px] text-[#0B1420]/50 block font-mono uppercase tracking-wider">
                         {activeVariant.badge || 'Made to Order'}

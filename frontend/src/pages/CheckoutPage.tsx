@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { BackendAddress, BackendCheckoutSession, RazorpayOrderResponse } from '../lib/apiTypes';
 import { openRazorpayCheckout } from '../lib/razorpay';
+import { SALE, isSaleOn } from '../lib/sale';
 
 const inputClass =
   'w-full px-4 py-3 rounded-2xl bg-white border border-[#0B1420]/15 text-sm text-[#0B1420] focus:outline-none focus:border-[#B87D00] placeholder-[#0B1420]/30';
@@ -225,7 +226,7 @@ export function CheckoutPage({ formatPrice }: CheckoutPageProps) {
             </div>
             {session.discount > 0 && (
               <div className="flex justify-between text-[#0B1420]/60">
-                <span>Discount</span>
+                <span>{isSaleOn() ? `${SALE.name} ${SALE.percent}% off` : 'Discount'}</span>
                 <span className="font-mono">-{formatPrice(session.discount)}</span>
               </div>
             )}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { PriceTag } from './PriceTag';
 import { motion } from 'motion/react';
 import {
   Sparkles,
@@ -234,9 +235,12 @@ export const BestsellerSpotlight: React.FC<BestsellerSpotlightProps> = ({
                   {spotlightProduct.name}
                 </h3>
 
-                <span className="block font-display tabular-nums text-2xl sm:text-3xl font-semibold tracking-tight text-[#B87D00]">
-                  {formatPrice(currentVariant.price)}
-                </span>
+                <PriceTag
+                  price={currentVariant.price}
+                  mrp={currentVariant.mrp}
+                  formatPrice={formatPrice}
+                  className="font-display tabular-nums text-2xl sm:text-3xl font-semibold tracking-tight text-[#B87D00]"
+                />
 
                 <p className="text-sm sm:text-[15px] text-[#0B1420]/70 leading-relaxed font-light max-w-md">
                   {spotlightProduct.description}

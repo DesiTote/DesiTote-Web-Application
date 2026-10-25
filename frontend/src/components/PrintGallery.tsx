@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
+import { PriceTag } from './PriceTag';
 import { useProducts } from '../context/ProductsContext';
 import { playPop } from '../utils/audio';
 
@@ -104,7 +105,12 @@ export const PrintGallery: React.FC<LookbookProps> = ({
                   >
                     <span className="truncate">View Design</span>
                     <div className="flex items-center gap-1">
-                      <span className="font-display tabular-nums font-semibold text-xs">{formatPrice(displayVariant.price)}</span>
+                      <PriceTag
+                        price={displayVariant.price}
+                        mrp={displayVariant.mrp}
+                        formatPrice={formatPrice}
+                        className="font-display tabular-nums font-semibold text-xs"
+                      />
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </div>
                   </button>

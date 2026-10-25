@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { api } from '../lib/api';
 import { BackendCart } from '../lib/apiTypes';
 import { colorHexFromLabel } from '../lib/adaptProducts';
+import { salePrice } from '../lib/sale';
 import { useAuth } from './AuthContext';
 
 export interface DisplayCartItem {
@@ -52,7 +53,7 @@ function toDisplayItems(cart: BackendCart): DisplayCartItem[] {
       productId: item.productId._id,
       name: item.productId.title,
       image: item.productId.thumbnail,
-      price: item.productId.discountPrice,
+      price: salePrice(item.productId.discountPrice),
       quantity: item.quantity,
       colorHex: colorHexFromLabel(item.productId.color || ''),
       colorLabel: item.productId.color,

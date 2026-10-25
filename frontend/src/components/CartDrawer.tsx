@@ -6,6 +6,7 @@ import { playPop } from '../utils/audio';
 import { useCart } from '../context/CartContext';
 import { authErrorMessage } from '../context/AuthContext';
 import { useCloseOnBack } from '../hooks/useCloseOnBack';
+import { SALE, isSaleOn } from '../lib/sale';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -205,6 +206,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
                       <span>Subtotal:</span>
                       <span className="font-mono text-[#0B1420]/80">{formatPrice(subtotal)}</span>
                     </div>
+                    {isSaleOn() && (
+                      <p className="text-[10px] font-semibold text-[#E8590C]">
+                        {SALE.name}: {SALE.percent}% off already applied
+                      </p>
+                    )}
                     <p className="text-[10px] text-[#0B1420]/40 font-mono">
                       Shipping &amp; taxes calculated at checkout
                     </p>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { X, ShoppingBag, Check, Ruler, Layers } from 'lucide-react';
+import { PriceTag } from './PriceTag';
 import { Product } from '../types';
 import { playPop, playSnap } from '../utils/audio';
 import { getColorGroups } from '../utils/variants';
@@ -127,9 +128,12 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
 
             {/* Price */}
             <div className="flex items-baseline gap-2.5">
-              <span className="font-display tabular-nums text-2xl sm:text-3xl font-semibold tracking-tight text-[#B87D00]">
-                {formatPrice(activeVariant.price)}
-              </span>
+              <PriceTag
+                price={activeVariant.price}
+                mrp={activeVariant.mrp}
+                formatPrice={formatPrice}
+                className="font-display tabular-nums text-2xl sm:text-3xl font-semibold tracking-tight text-[#B87D00]"
+              />
             </div>
 
             <p className="text-xs text-[#0B1420]/60 leading-relaxed border-t border-[#0B1420]/10 pt-3 font-light">

@@ -4,6 +4,7 @@ import { ShoppingBag, Volume2, VolumeX, Menu, X, Leaf, User, LogOut, Package } f
 import { motion, AnimatePresence } from 'motion/react';
 import { playPop, toggleSound, isSoundActive } from '../utils/audio';
 import { DesiLogo } from './DesiLogo';
+import { SALE, isSaleOn, saleLastDay } from '../lib/sale';
 import { BackendUser } from '../lib/apiTypes';
 
 interface NavbarProps {
@@ -62,9 +63,18 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5 mx-auto sm:mx-0">
             <span className="w-2 h-2 rounded-full bg-[#ef4444] animate-pulse shrink-0"></span>
-            <span>Handmade cotton canvas totes, made to order in India</span>
-            <span className="hidden md:inline text-[#F7F2E8]/40">|</span>
-            <span className="hidden md:inline text-[#F7F2E8]/90">Free shipping over ₹999</span>
+            {isSaleOn() ? (
+              <span>
+                <span className="text-[#E8A33D]">{SALE.name}:</span> {SALE.percent}% off every tote
+                <span className="hidden md:inline text-[#F7F2E8]/70">, applied automatically. Ends {saleLastDay()}</span>
+              </span>
+            ) : (
+              <>
+                <span>Handmade cotton canvas totes, made to order in India</span>
+                <span className="hidden md:inline text-[#F7F2E8]/40">|</span>
+                <span className="hidden md:inline text-[#F7F2E8]/90">Free shipping over ₹999</span>
+              </>
+            )}
           </div>
           <div className="hidden sm:flex items-center gap-4 text-[11px] uppercase tracking-[0.1em] text-[#F7F2E8]/85 font-medium">
             <span className="flex items-center gap-1"><Leaf className="w-3.5 h-3.5 text-[#F7F2E8]" /> 100% Cotton Canvas</span>

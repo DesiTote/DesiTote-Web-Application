@@ -17,6 +17,7 @@ import { AuthModal } from './components/AuthModal';
 import { AdminShoppingNotice } from './components/AdminShoppingNotice';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { DiwaliSaleBanner } from './components/DiwaliSale';
 import { ProductsProvider, useProducts } from './context/ProductsContext';
 import { CartProvider, useCart } from './context/CartContext';
 import { AuthModalProvider, useAuthModal } from './context/AuthModalContext';
@@ -68,6 +69,7 @@ function HomePage({
   return (
     <main>
       <Hero onAddToCart={onAddToCart} currency={currency} formatPrice={formatPrice} />
+      <DiwaliSaleBanner />
       <MarqueeTicker />
       <BestsellerSpotlight onAddToCart={onAddToCart} formatPrice={formatPrice} />
       <ProductCatalog

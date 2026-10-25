@@ -1,5 +1,6 @@
 import { Product, ProductVariant } from '../types';
 import { BackendProductListItem } from './apiTypes';
+import { salePrice } from './sale';
 
 // The backend has no variant concept — every color/zip combination is its own
 // product with its own stock. These two tags (baked in at seed time, see
@@ -64,7 +65,8 @@ export function adaptProducts(items: BackendProductListItem[]): Product[] {
           colorHex: undefined as unknown as string, // filled below
           image: m.thumbnail,
           images: [...new Set([m.thumbnail, ...(m.images ?? [])])],
-          price: m.discountPrice,
+          price: salePrice(m.discountPrice),
+          mrp: m.price,
           badge,
           stock: m.stock,
         };
@@ -81,7 +83,7 @@ export function adaptProducts(items: BackendProductListItem[]): Product[] {
       id: familyId,
       name: familyName,
       tagline: capitalize(first.shortDescription),
-      price: Math.min(...members.map((m) => m.discountPrice)),
+      price: salePrice(Math.min(...members.map((m) => m.discountPrice))),
       category,
       description: first.description || capitalize(first.shortDescription),
       features: copy.features,

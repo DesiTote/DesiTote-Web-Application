@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, ArrowUpRight, RotateCw, Leaf } from 'lucide-react';
+import { PriceTag } from './PriceTag';
 import { playPop, playSnap } from '../utils/audio';
 import { useProducts } from '../context/ProductsContext';
 import { DesiLogo } from './DesiLogo';
@@ -125,9 +126,12 @@ export const Hero: React.FC<HeroProps> = ({
                     </button>
                   );
                 })}
-                <span className="text-[10px] text-[#0B1420]/50 font-mono ml-auto tracking-wider">
-                  {formatPrice(currentVariant.price)}
-                </span>
+                <PriceTag
+                  price={currentVariant.price}
+                  mrp={currentVariant.mrp}
+                  formatPrice={formatPrice}
+                  className="text-[10px] text-[#0B1420]/60 font-mono ml-auto tracking-wider"
+                />
               </div>
             </div>
 

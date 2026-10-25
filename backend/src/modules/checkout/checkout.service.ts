@@ -6,6 +6,7 @@ import { getRedis } from "../../config/redis.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { CheckoutSession, CheckoutShippingOptions, ShippingQuote } from "../../types/checkout.js";
 import { getShippingRate } from "../../services/shiprocket.service.js";
+import { salePrice } from "../../config/sale.js";
 const SESSION_TTL_SECONDS = 60 * 20; // 20 min
 
 interface BuyNowInput {
@@ -241,7 +242,9 @@ export const createCheckoutSessionService = async (
         }
 
         const originalPrice = product.price;
-        const priceAtCheckout = product.discountPrice ?? product.price;
+        // Site-wide sale (config/sale.ts) lands in `discount`, so the session total,
+        // COD order, Razorpay amount and Shiprocket all pick it up.
+        const priceAtCheckout = salePrice(product.discountPrice ?? product.price);
 
         subtotal += originalPrice * item.quantity;
         discount += (originalPrice - priceAtCheckout) * item.quantity;
