@@ -255,11 +255,12 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
         {products.length > 0 && filteredProducts.length === 0 && (
           <p className="text-center text-sm text-[#0B1420]/60 py-12">No totes match these filters.</p>
         )}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
+        {/* Phones: 2 per row and compact cards, so 3 rows (6 totes) fit on one screen. */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-8">
           {/* A sleeping API can take ~25s to answer; placeholders say "loading" instead of "empty". */}
-          {isLoading && products.length === 0 && Array.from({ length: 4 }, (_, i) => (
-            <div key={i} className={`rounded-2xl sm:rounded-[36px] border border-[#0B1420]/10 overflow-hidden animate-pulse ${i === 3 ? 'lg:hidden' : ''}`}>
-              <div className="aspect-[4/5] bg-[#efe9dd]" />
+          {isLoading && products.length === 0 && Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className={`rounded-2xl sm:rounded-[36px] border border-[#0B1420]/10 overflow-hidden animate-pulse ${i >= 3 ? 'lg:hidden' : ''}`}>
+              <div className="aspect-square sm:aspect-[4/5] bg-[#efe9dd]" />
               <div className="p-3 sm:p-6 space-y-3">
                 <div className="h-4 w-2/3 rounded-full bg-[#0B1420]/10" />
                 <div className="h-4 w-1/3 rounded-full bg-[#0B1420]/10" />
@@ -283,7 +284,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
               >
                 {/* Image Showcase Container — object-contain + a fixed neutral backdrop so the
                     whole tote (handles to base) always stays in frame, never cropped. */}
-                <div className="relative aspect-[4/5] overflow-hidden flex items-center justify-center bg-[#efe9dd]">
+                <div className="relative aspect-square sm:aspect-[4/5] overflow-hidden flex items-center justify-center bg-[#efe9dd]">
                   {/* Product Image */}
                   <img
                     src={activeVariant.image}
@@ -291,7 +292,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     referrerPolicy="no-referrer"
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-contain p-2 sm:p-3 group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-contain p-1 sm:p-3 group-hover:scale-105 transition-transform duration-500"
                   />
 
                   {/* Top Badges (Immersive UI rounded-full pills) */}
@@ -307,6 +308,18 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                       </span>
                     )}
                   </div>
+
+                  {colorGroups.length > 1 && (
+                    <div className="sm:hidden absolute bottom-1.5 left-1.5 flex gap-1 rounded-full bg-white/85 px-1.5 py-1" aria-hidden>
+                      {colorGroups.map((group, gIdx) => (
+                        <span
+                          key={group.label}
+                          className={`size-3 rounded-full border border-[#0B1420]/20 ${activeColorIdx === gIdx ? 'ring-1 ring-[#0B1420] ring-offset-1' : ''}`}
+                          style={{ backgroundColor: group.colorHex }}
+                        />
+                      ))}
+                    </div>
+                  )}
 
                   {/* Quick View Hover Button */}
                   <button
@@ -325,7 +338,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
                 {/* Card Content & Details. On phones the card is compact (name, swatches,
                     price); the tap opens the popup where zip option and Add live. */}
-                <div className="p-3 sm:p-6 space-y-2 sm:space-y-4 flex-1 flex flex-col justify-between">
+                <div className="p-2 sm:p-6 space-y-1 sm:space-y-4 flex-1 flex flex-col justify-between">
                   <div className="flex-1 space-y-1 sm:space-y-2">
                     {/* Category & Size */}
                     <div className="hidden sm:flex items-center justify-between text-xs">
@@ -336,7 +349,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-sm sm:text-lg font-serif font-medium leading-snug text-[#0B1420] group-hover:text-[#B87D00] transition-colors line-clamp-2">
+                    <h3 className="text-[13px] sm:text-lg font-serif font-medium leading-snug text-[#0B1420] group-hover:text-[#B87D00] transition-colors line-clamp-1 sm:line-clamp-2">
                       {product.name}
                     </h3>
                     <p className="hidden sm:block text-xs text-[#0B1420]/60 line-clamp-2 leading-relaxed font-light">
@@ -349,7 +362,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                       a single-colour tote left one lone swatch on the left and
                       the label stranded on the right, which read as misaligned
                       against the option pills and price stacked below. */}
-                  <div className="sm:pt-3 sm:border-t border-white/5 space-y-2.5">
+                  <div className="hidden sm:block pt-3 border-t border-white/5 space-y-2.5">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <div className="flex items-center gap-1.5 sm:gap-2">
                         {colorGroups.map((group, gIdx) => {
@@ -411,10 +424,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                           price={activeVariant.price}
                           mrp={activeVariant.mrp}
                           formatPrice={formatPrice}
-                          className="font-display tabular-nums text-lg sm:text-2xl lg:text-3xl font-semibold tracking-tight text-[#0B1420]"
+                          className="font-display tabular-nums text-[15px] sm:text-2xl lg:text-3xl font-semibold tracking-tight text-[#0B1420]"
                         />
                       </div>
-                      <span className="text-[9px] text-[#0B1420]/50 block font-mono uppercase tracking-wider">
+                      <span className="hidden sm:block text-[9px] text-[#0B1420]/50 font-mono uppercase tracking-wider">
                         {activeVariant.badge || 'Made to Order'}
                       </span>
                     </div>

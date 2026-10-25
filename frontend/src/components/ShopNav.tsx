@@ -1,11 +1,15 @@
 import React from 'react';
-import { MessageCircle } from 'lucide-react';
 import { Product } from '../types';
 import { BagType, CatalogFilters, scrollToBags } from './ProductCatalog';
 import { filterOptions, iconImage } from '../utils/variants';
 import { customOrderUrl } from '../lib/whatsapp';
-import { isSaleOn } from '../lib/sale';
 import { playSnap } from '../utils/audio';
+import iconBlack from '../assets/images/icon-black.webp';
+import iconNatural from '../assets/images/icon-natural.webp';
+import iconOffWhite from '../assets/images/icon-off-white.webp';
+import iconWithZip from '../assets/images/icon-with-zip.webp';
+import iconWithoutZip from '../assets/images/icon-without-zip.webp';
+import iconCustom from '../assets/images/icon-custom-order.webp';
 
 const TABS: { id: BagType; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -14,10 +18,23 @@ const TABS: { id: BagType; label: string }[] = [
   { id: 'bestseller', label: 'Bestsellers' },
 ];
 
+// Cut-outs of real Desi Totes photos, one different bag per icon. A colour added
+// later in the admin falls back to a catalogue photo until it gets its own.
+const ICON_ART: Record<string, string> = {
+  Black: iconBlack,
+  Natural: iconNatural,
+  'Off White': iconOffWhite,
+  'With Zip': iconWithZip,
+  'Without Zip': iconWithoutZip,
+};
+
 // The panel and the active tab share this colour, so the tab reads as part of the panel (Myntra's folder tab).
 const PANEL = 'bg-[#FCFAF5]';
 const ICON = 'flex w-[72px] shrink-0 snap-start flex-col items-center gap-1.5 cursor-pointer transition-transform duration-150 active:scale-[0.97]';
-const DISC = 'block size-16 sm:size-[72px] rounded-full p-[3px] ring-2 transition-[box-shadow] duration-150';
+// Brand maroon ring all year; the selected icon's ring is thicker and solid.
+const DISC = 'block size-16 sm:size-[72px] rounded-full p-[3px] transition-[box-shadow] duration-150';
+const RING_IDLE = 'ring-2 ring-[#340E09]/60';
+const RING_ON = 'ring-[3px] ring-[#340E09]';
 
 interface ShopNavProps {
   products: Product[];
@@ -30,9 +47,7 @@ interface ShopNavProps {
  * Every tap filters the product grid and takes the shopper to it.
  */
 export const ShopNav: React.FC<ShopNavProps> = ({ products, filters, onChange }) => {
-  const festive = isSaleOn();
   const { colors, zips } = filterOptions(products);
-  const idleRing = festive ? 'ring-[#E8A33D]' : 'ring-[#0B1420]/10';
 
   const apply = (next: CatalogFilters) => {
     playSnap();
@@ -40,25 +55,17 @@ export const ShopNav: React.FC<ShopNavProps> = ({ products, filters, onChange })
     scrollToBags();
   };
 
-  // Each icon gets a different bag, so Black and With Zip never show the same photo.
-  const used = new Set<string>();
-  const photo = (keep: (p: Product, v: Product['variants'][number]) => boolean) => {
-    const image = iconImage(products, (p, v) => keep(p, v) && !used.has(v.image)) ?? iconImage(products, keep);
-    if (image) used.add(image);
-    return image;
-  };
-
   const icons = [
     ...colors.map((color) => ({
       label: color,
       on: filters.color === color,
-      image: photo((_, v) => v.colorLabel === color),
+      image: ICON_ART[color] ?? iconImage(products, (_, v) => v.colorLabel === color),
       next: { ...filters, color: filters.color === color ? null : color },
     })),
     ...zips.map((zip) => ({
       label: zip,
       on: filters.zip === zip,
-      image: photo((_, v) => v.badge === zip),
+      image: ICON_ART[zip] ?? iconImage(products, (_, v) => v.badge === zip),
       next: { ...filters, zip: filters.zip === zip ? null : zip },
     })),
   ];
@@ -90,7 +97,7 @@ export const ShopNav: React.FC<ShopNavProps> = ({ products, filters, onChange })
           {products.length === 0
             ? Array.from({ length: 6 }, (_, i) => (
                 <li key={i} className={ICON} aria-hidden>
-                  <span className={`${DISC} ring-[#0B1420]/10`}>
+                  <span className={`${DISC} ${RING_IDLE}`}>
                     <span className="block size-full rounded-full bg-[#0B1420]/[0.06] animate-pulse" />
                   </span>
                   <span className="h-3 w-12 rounded-full bg-[#0B1420]/[0.06] animate-pulse" />
@@ -99,14 +106,14 @@ export const ShopNav: React.FC<ShopNavProps> = ({ products, filters, onChange })
             : icons.map((icon) => (
                 <li key={icon.label}>
                   <button aria-pressed={icon.on} onClick={() => apply(icon.next)} className={ICON}>
-                    <span className={`${DISC} ${icon.on ? 'ring-[#340E09]' : idleRing}`}>
+                    <span className={`${DISC} ${icon.on ? RING_ON : RING_IDLE}`}>
                       {icon.image && (
                         <img
                           src={icon.image}
                           alt=""
                           loading="lazy"
                           decoding="async"
-                          className="size-full rounded-full object-contain p-1.5 bg-white"
+                          className="size-full rounded-full object-contain p-1 bg-white"
                         />
                       )}
                     </span>
@@ -119,10 +126,8 @@ export const ShopNav: React.FC<ShopNavProps> = ({ products, filters, onChange })
 
           <li>
             <a href={customOrderUrl} target="_blank" rel="noreferrer" aria-label="Custom orders on WhatsApp" className={ICON}>
-              <span className={`${DISC} ${idleRing}`}>
-                <span className="flex size-full items-center justify-center rounded-full bg-[#0B1420]">
-                  <MessageCircle className="size-6 text-[#25D366]" aria-hidden />
-                </span>
+              <span className={`${DISC} ${RING_IDLE}`}>
+                <img src={iconCustom} alt="" loading="lazy" decoding="async" className="size-full rounded-full object-contain p-1 bg-white" />
               </span>
               <span className="text-[11px] leading-tight text-center text-[#0B1420]/75">Custom orders</span>
             </a>
