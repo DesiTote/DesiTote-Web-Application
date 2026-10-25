@@ -25,3 +25,18 @@ export function getColorGroups(product: Product): ColorGroup[] {
     variants,
   }));
 }
+
+/** First colour swatch and option that pass `matches` (a shop filter), else the first ones. */
+export function firstMatch(product: Product, matches: (v: ProductVariant) => boolean) {
+  const groups = getColorGroups(product);
+  const colorIdx = Math.max(0, groups.findIndex((g) => g.variants.some(matches)));
+  const optionIdx = Math.max(0, groups[colorIdx].variants.findIndex(matches));
+  return { colorIdx, optionIdx };
+}
+
+/** The product with `variant` as its first swatch and option, which is where the popup opens. */
+export function withVariantFirst(product: Product, variant: ProductVariant): Product {
+  const key = (v: ProductVariant) => v.colorLabel || v.name;
+  const rank = (v: ProductVariant) => (v.id === variant.id ? 0 : key(v) === key(variant) ? 1 : 2);
+  return { ...product, variants: [...product.variants].sort((a, b) => rank(a) - rank(b)) };
+}

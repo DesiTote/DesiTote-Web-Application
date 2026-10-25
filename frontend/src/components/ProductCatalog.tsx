@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ShoppingBag, Eye, Check, Flame } from 'lucide-react';
 import { PriceTag } from './PriceTag';
-import { Product } from '../types';
+import { Product, ProductVariant } from '../types';
 import { playPop, playSnap } from '../utils/audio';
-import { getColorGroups } from '../utils/variants';
+import { firstMatch, getColorGroups, withVariantFirst } from '../utils/variants';
+import { colorHexFromLabel } from '../lib/adaptProducts';
 import { useProducts } from '../context/ProductsContext';
 
 interface ProductCatalogProps {
@@ -22,6 +23,13 @@ interface ProductCatalogProps {
   formatPrice: (inr: number) => string;
 }
 
+const CHIP_BASE =
+  'shrink-0 whitespace-nowrap px-3.5 py-2 sm:px-4 rounded-full text-[10px] font-mono uppercase tracking-widest border cursor-pointer flex items-center gap-1.5 transition-[color,background-color,border-color,transform] duration-150 active:scale-[0.97]';
+// Phones: each chip group is one swipeable row (Myntra style). Wider screens: chips wrap.
+const CHIP_ROW = 'flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible';
+const CHIP_ON = 'bg-[#0B1420] text-[#F7F2E8] border-[#0B1420] font-bold';
+const CHIP_OFF = 'bg-[#0B1420]/[0.04] text-[#0B1420]/70 border-[#0B1420]/15 hover:text-[#0B1420] hover:bg-[#0B1420]/[0.08]';
+
 export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   products,
   onAddToCart,
@@ -29,6 +37,9 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   formatPrice,
 }) => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'bestseller' | 'plain' | 'printed'>('all');
+  // Every colour/zip combination is a variant of a card, so these filter variants, not cards.
+  const [colorFilter, setColorFilter] = useState<string | null>(null);
+  const [zipFilter, setZipFilter] = useState<string | null>(null);
   const { isLoading, error } = useProducts();
 
   // Two-step picker per product card, like a clothing site: color swatch first, then option (zip/no zip).
@@ -42,31 +53,68 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     { id: 'printed', label: 'Printed Designs' },
   ];
 
-  const filteredProducts = activeCategory === 'all'
+  const allVariants = products.flatMap((p) => p.variants);
+  const colorOptions = [...new Set(allVariants.map((v) => v.colorLabel).filter(Boolean) as string[])].sort();
+  const zipOptions = [...new Set(allVariants.map((v) => v.badge).filter(Boolean) as string[])].sort();
+
+  const matchesFilters = (v: ProductVariant) =>
+    (!colorFilter || v.colorLabel === colorFilter) && (!zipFilter || v.badge === zipFilter);
+
+  const filteredProducts = (activeCategory === 'all'
     ? products
     : activeCategory === 'bestseller'
     ? products.filter((p) => p.isBestSeller)
-    : products.filter((p) => p.category === activeCategory);
+    : products.filter((p) => p.category === activeCategory)
+  ).filter((p) => p.variants.some(matchesFilters));
 
-  const getActiveGroup = (product: Product) => {
-    const groups = getColorGroups(product);
-    const idx = selectedColorIdx[product.id] || 0;
-    return groups[idx] || groups[0];
+  const hasFilters = activeCategory !== 'all' || colorFilter !== null || zipFilter !== null;
+
+  // A new filter drops the shopper's swatch picks so each card opens on its first matching option.
+  const resetPicks = () => {
+    setSelectedColorIdx({});
+    setSelectedOptionIdx({});
   };
+
+  const toggleColor = (color: string) => {
+    playSnap();
+    setColorFilter((prev) => (prev === color ? null : color));
+    resetPicks();
+  };
+
+  const toggleZip = (zip: string) => {
+    playSnap();
+    setZipFilter((prev) => (prev === zip ? null : zip));
+    resetPicks();
+  };
+
+  const clearFilters = () => {
+    playSnap();
+    setActiveCategory('all');
+    setColorFilter(null);
+    setZipFilter(null);
+    resetPicks();
+  };
+
+  // The shopper's own pick wins; otherwise the first colour/option that matches the filters.
+  const getActiveIdx = (product: Product) =>
+    selectedColorIdx[product.id] !== undefined
+      ? { colorIdx: selectedColorIdx[product.id], optionIdx: selectedOptionIdx[product.id] || 0 }
+      : firstMatch(product, matchesFilters);
 
   const getActiveVariant = (product: Product) => {
-    const group = getActiveGroup(product);
-    const idx = selectedOptionIdx[product.id] || 0;
-    return group.variants[idx] || group.variants[0];
+    const groups = getColorGroups(product);
+    const { colorIdx, optionIdx } = getActiveIdx(product);
+    const group = groups[colorIdx] || groups[0];
+    return group.variants[optionIdx] || group.variants[0];
   };
+
+  const openQuickView = (product: Product) => onQuickView(withVariantFirst(product, getActiveVariant(product)));
 
   const handleSelectColor = (product: Product, colorIdx: number, e: React.MouseEvent) => {
     e.stopPropagation();
     playSnap();
     const groups = getColorGroups(product);
-    const currentOptIdx = selectedOptionIdx[product.id] || 0;
-    const currentGroup = groups[selectedColorIdx[product.id] || 0];
-    const currentBadge = currentGroup?.variants[currentOptIdx]?.badge;
+    const currentBadge = getActiveVariant(product).badge;
     const newGroup = groups[colorIdx];
     const matchIdx = currentBadge ? newGroup.variants.findIndex((v) => v.badge === currentBadge) : -1;
 
@@ -74,10 +122,12 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
     setSelectedOptionIdx((prev) => ({ ...prev, [product.id]: matchIdx >= 0 ? matchIdx : 0 }));
   };
 
-  const handleSelectOption = (productId: string, optionIdx: number, e: React.MouseEvent) => {
+  const handleSelectOption = (product: Product, optionIdx: number, e: React.MouseEvent) => {
     e.stopPropagation();
     playSnap();
-    setSelectedOptionIdx((prev) => ({ ...prev, [productId]: optionIdx }));
+    const { colorIdx } = getActiveIdx(product);
+    setSelectedColorIdx((prev) => ({ ...prev, [product.id]: colorIdx }));
+    setSelectedOptionIdx((prev) => ({ ...prev, [product.id]: optionIdx }));
   };
 
   const handleAdd = (product: Product, e: React.MouseEvent) => {
@@ -96,7 +146,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   };
 
   return (
-    <section id="catalog" className="py-24 bg-gradient-to-b from-[#F7F2E8] via-[#F0E2DC] to-[#F7F2E8] border-t border-[#0B1420]/10 relative overflow-hidden">
+    <section id="catalog" className="py-16 sm:py-24 bg-gradient-to-b from-[#F7F2E8] via-[#F0E2DC] to-[#F7F2E8] border-t border-[#0B1420]/10 relative overflow-hidden">
       {/* Immersive UI Ambient Blurs */}
       <div className="ambient-glow-container">
         <div className="ambient-glow-slate opacity-20" />
@@ -106,57 +156,100 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-[1px] bg-gradient-to-r from-transparent via-[#B87D00] to-transparent" />
-              <span className="text-[10px] uppercase tracking-[0.25em] text-[#B87D00] font-mono font-medium">
-                The Permanent Lineup
-              </span>
-            </div>
-            <h2 className="text-4xl sm:text-5xl font-serif font-light text-[#0B1420] leading-tight">
-              <span className="italic text-[#0B1420]/70">Made for</span>{' '}
-              <span className="text-[#340E09] font-serif font-bold not-italic">Everyday Carry</span>
-            </h2>
-            <p className="text-[#0B1420]/60 text-sm sm:text-base max-w-xl font-light tracking-wide leading-relaxed">
-              Hand-finished from 320 GSM cotton canvas — plain silhouettes in Black &amp; Off White, plus fun printed designs. Reusable, washable, and made to order.
-            </p>
+        <div className="space-y-3 mb-8 sm:mb-10">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-[1px] bg-gradient-to-r from-transparent via-[#B87D00] to-transparent" />
+            <span className="text-[10px] uppercase tracking-[0.25em] text-[#B87D00] font-mono font-medium">
+              The Permanent Lineup
+            </span>
           </div>
+          <h2 className="text-4xl sm:text-5xl font-serif font-light text-[#0B1420] leading-tight">
+            <span className="italic text-[#0B1420]/70">Made for</span>{' '}
+            <span className="text-[#340E09] font-serif font-bold not-italic">Everyday Carry</span>
+          </h2>
+          <p className="text-[#0B1420]/60 text-sm sm:text-base max-w-xl font-light tracking-wide leading-relaxed">
+            Hand-finished from 320 GSM cotton canvas — plain silhouettes in Black &amp; Off White, plus fun printed designs. Reusable, washable, and made to order.
+          </p>
+        </div>
 
-          {/* Filter Pills (Immersive UI Rounded-Full) */}
-          <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => {
-              const isSelected = activeCategory === cat.id;
-              return (
+        {/* Filters */}
+        <div className="mb-6 sm:mb-10 space-y-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-5">
+            <div className={CHIP_ROW}>
+              {categories.map((cat) => (
                 <button
                   key={cat.id}
+                  aria-pressed={activeCategory === cat.id}
                   onClick={() => {
                     playSnap();
                     setActiveCategory(cat.id as typeof activeCategory);
                   }}
-                  className={`px-4 py-2 rounded-full text-[10px] font-mono uppercase tracking-widest transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-[#0B1420] to-[#340E09] text-[#F7F2E8] font-bold shadow-lg shadow-[#B87D00]/20 border border-[#0B1420]'
-                      : 'bg-[#0B1420]/[0.04] text-[#0B1420]/60 hover:text-[#0B1420] hover:bg-[#0B1420]/[0.08] border border-[#0B1420]/15'
-                  }`}
+                  className={`${CHIP_BASE} ${activeCategory === cat.id ? CHIP_ON : CHIP_OFF}`}
                 >
                   {cat.label}
                 </button>
-              );
-            })}
+              ))}
+            </div>
+
+            {colorOptions.length > 0 && (
+              <div className={CHIP_ROW}>
+                {colorOptions.map((color) => (
+                  <button
+                    key={color}
+                    aria-pressed={colorFilter === color}
+                    onClick={() => toggleColor(color)}
+                    className={`${CHIP_BASE} ${colorFilter === color ? CHIP_ON : CHIP_OFF}`}
+                  >
+                    <span
+                      className={`w-3 h-3 rounded-full border ${colorFilter === color ? 'border-[#F7F2E8]/60' : 'border-[#0B1420]/20'}`}
+                      style={{ backgroundColor: colorHexFromLabel(color) }}
+                    />
+                    {color}
+                  </button>
+                ))}
+
+                {zipOptions.length > 0 && <span aria-hidden className="shrink-0 w-px my-1.5 bg-[#0B1420]/15" />}
+                {zipOptions.map((zip) => (
+                  <button
+                    key={zip}
+                    aria-pressed={zipFilter === zip}
+                    onClick={() => toggleZip(zip)}
+                    className={`${CHIP_BASE} ${zipFilter === zip ? CHIP_ON : CHIP_OFF}`}
+                  >
+                    {zip}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
+          {products.length > 0 && (
+            <div className="flex items-center gap-3 text-[11px] font-mono uppercase tracking-wider text-[#0B1420]/55" aria-live="polite">
+              <span>
+                {filteredProducts.length} {filteredProducts.length === 1 ? 'tote' : 'totes'}
+              </span>
+              {hasFilters && (
+                <button onClick={clearFilters} className="underline underline-offset-4 hover:text-[#0B1420] cursor-pointer">
+                  Clear filters
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Product Cards Grid */}
         {error && products.length === 0 && (
           <p className="text-center text-sm text-[#0B1420]/60 py-12">{error}</p>
         )}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        {products.length > 0 && filteredProducts.length === 0 && (
+          <p className="text-center text-sm text-[#0B1420]/60 py-12">No totes match these filters.</p>
+        )}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
           {/* A sleeping API can take ~25s to answer; placeholders say "loading" instead of "empty". */}
-          {isLoading && products.length === 0 && Array.from({ length: 3 }, (_, i) => (
-            <div key={i} className="rounded-[32px] sm:rounded-[36px] border border-[#0B1420]/10 overflow-hidden animate-pulse">
+          {isLoading && products.length === 0 && Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className={`rounded-2xl sm:rounded-[36px] border border-[#0B1420]/10 overflow-hidden animate-pulse ${i === 3 ? 'lg:hidden' : ''}`}>
               <div className="aspect-[4/5] bg-[#efe9dd]" />
-              <div className="p-6 space-y-3">
+              <div className="p-3 sm:p-6 space-y-3">
                 <div className="h-4 w-2/3 rounded-full bg-[#0B1420]/10" />
                 <div className="h-4 w-1/3 rounded-full bg-[#0B1420]/10" />
               </div>
@@ -164,45 +257,41 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           ))}
           {filteredProducts.map((product) => {
             const colorGroups = getColorGroups(product);
-            const activeColorIdx = selectedColorIdx[product.id] || 0;
+            const { colorIdx: activeColorIdx, optionIdx: activeOptionIdx } = getActiveIdx(product);
             const activeGroup = colorGroups[activeColorIdx] || colorGroups[0];
-            const activeOptionIdx = selectedOptionIdx[product.id] || 0;
             const activeVariant = activeGroup.variants[activeOptionIdx] || activeGroup.variants[0];
 
             return (
               <motion.div
                 key={product.id}
-                layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="group rounded-[32px] sm:rounded-[36px] bg-[#0B1420]/[0.03] border border-[#0B1420]/10 hover:border-[#B87D00]/50 transition-all duration-300 overflow-hidden flex flex-col justify-between shadow-2xl"
+                onClick={() => openQuickView(product)}
+                className="group cursor-pointer rounded-2xl sm:rounded-[36px] bg-[#0B1420]/[0.03] border border-[#0B1420]/10 hover:border-[#B87D00]/50 transition-colors duration-300 overflow-hidden flex flex-col justify-between shadow-md sm:shadow-2xl"
               >
                 {/* Image Showcase Container — object-contain + a fixed neutral backdrop so the
                     whole tote (handles to base) always stays in frame, never cropped. */}
-                <div
-                  onClick={() => onQuickView(product)}
-                  className="relative aspect-[4/5] overflow-hidden cursor-pointer flex items-center justify-center bg-[#efe9dd]"
-                >
+                <div className="relative aspect-[4/5] overflow-hidden flex items-center justify-center bg-[#efe9dd]">
                   {/* Product Image */}
                   <img
                     src={activeVariant.image}
                     alt={`${product.name} in ${activeGroup.label}`}
                     referrerPolicy="no-referrer"
-              loading="lazy"
-              decoding="async"
-                    className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-contain p-2 sm:p-3 group-hover:scale-105 transition-transform duration-500"
                   />
 
                   {/* Top Badges (Immersive UI rounded-full pills) */}
-                  <div className="absolute top-6 left-6 flex flex-col gap-1.5 z-10">
+                  <div className="absolute top-2 left-2 sm:top-6 sm:left-6 flex flex-col gap-1.5 z-10">
                     {product.isBestSeller && (
-                      <span className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#B87D00]/40 text-[#B87D00] text-[9px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 shadow-md">
-                        <Flame className="w-3 h-3 text-[#B87D00]" /> Bestseller
+                      <span className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#B87D00]/40 text-[#B87D00] text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 shadow-md">
+                        <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#B87D00]" /> Bestseller
                       </span>
                     )}
                     {product.isNewDrop && (
-                      <span className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-white text-[9px] font-mono font-bold uppercase tracking-wider shadow-md">
+                      <span className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-white text-[8px] sm:text-[9px] font-mono font-bold uppercase tracking-wider shadow-md">
                         New
                       </span>
                     )}
@@ -213,20 +302,22 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     onClick={(e) => {
                       e.stopPropagation();
                       playPop();
-                      onQuickView(product);
+                      openQuickView(product);
                     }}
-                    className="absolute bottom-6 right-6 p-3 rounded-full bg-black/80 hover:bg-black text-white border border-white/20 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-xl hover:scale-110 flex items-center gap-1.5 text-xs font-semibold backdrop-blur-md"
+                    aria-label={`View ${product.name}`}
+                    className="absolute bottom-6 right-6 p-3 rounded-full bg-black/80 hover:bg-black text-white border border-white/20 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all duration-200 shadow-xl hover:scale-110 flex items-center gap-1.5 text-xs font-semibold backdrop-blur-md"
                   >
                     <Eye className="w-3.5 h-3.5 text-[#F7F2E8]" />
                     <span className="text-[10px] uppercase font-mono tracking-wider hidden sm:inline">Inspect</span>
                   </button>
                 </div>
 
-                {/* Card Content & Details */}
-                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                  <div className="space-y-2">
+                {/* Card Content & Details. On phones the card is compact (name, swatches,
+                    price); the tap opens the popup where zip option and Add live. */}
+                <div className="p-3 sm:p-6 space-y-2 sm:space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="flex-1 space-y-1 sm:space-y-2">
                     {/* Category & Size */}
-                    <div className="flex items-center justify-between text-xs">
+                    <div className="hidden sm:flex items-center justify-between text-xs">
                       <span className="text-[10px] font-mono uppercase tracking-wider text-[#B87D00]">
                         {product.category === 'plain' ? 'Plain Canvas' : 'Printed Design'}
                       </span>
@@ -234,13 +325,10 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     </div>
 
                     {/* Title */}
-                    <h3
-                      onClick={() => onQuickView(product)}
-                      className="text-lg font-serif font-medium text-[#0B1420] group-hover:text-[#B87D00] transition-colors cursor-pointer"
-                    >
+                    <h3 className="text-sm sm:text-lg font-serif font-medium leading-snug text-[#0B1420] group-hover:text-[#B87D00] transition-colors line-clamp-2">
                       {product.name}
                     </h3>
-                    <p className="text-xs text-[#0B1420]/60 line-clamp-2 leading-relaxed font-light">
+                    <p className="hidden sm:block text-xs text-[#0B1420]/60 line-clamp-2 leading-relaxed font-light">
                       {product.tagline}
                     </p>
                   </div>
@@ -250,24 +338,25 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                       a single-colour tote left one lone swatch on the left and
                       the label stranded on the right, which read as misaligned
                       against the option pills and price stacked below. */}
-                  <div className="pt-3 border-t border-white/5 space-y-2.5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
+                  <div className="sm:pt-3 sm:border-t border-white/5 space-y-2.5">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
                         {colorGroups.map((group, gIdx) => {
                           const isChosen = activeColorIdx === gIdx;
                           return (
                             <button
                               key={group.label}
                               onClick={(e) => handleSelectColor(product, gIdx, e)}
-                              className={`w-7 h-7 rounded-full border transition-all cursor-pointer flex items-center justify-center ${
-                                isChosen ? 'ring-2 ring-offset-2 ring-offset-[#F7F2E8] ring-[#0B1420] scale-105' : 'border-[#0B1420]/15 opacity-70 hover:opacity-100'
+                              aria-label={group.label}
+                              className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full border transition-all cursor-pointer flex items-center justify-center ${
+                                isChosen ? 'ring-2 ring-offset-1 sm:ring-offset-2 ring-offset-[#F7F2E8] ring-[#0B1420] scale-105' : 'border-[#0B1420]/15 opacity-70 hover:opacity-100'
                               }`}
                               style={{ backgroundColor: group.colorHex }}
                               title={group.label}
                             >
                               {isChosen && (
                                 <Check
-                                  className="w-3 h-3 stroke-[3]"
+                                  className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]"
                                   style={{ color: group.colorHex === '#efe9dd' ? '#0B1420' : '#F7F2E8' }}
                                 />
                               )}
@@ -275,20 +364,20 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                           );
                         })}
                       </div>
-                      <span className="text-[10px] font-mono text-[#0B1420]/50 uppercase tracking-wider">
+                      <span className="text-[9px] sm:text-[10px] font-mono text-[#0B1420]/50 uppercase tracking-wider truncate">
                         {activeGroup.label}
                       </span>
                     </div>
 
                     {/* Zip / No-Zip Option Pills (only when the color has more than one option) */}
                     {activeGroup.variants.length > 1 && (
-                      <div className="flex items-center gap-1.5">
+                      <div className="hidden sm:flex items-center gap-1.5">
                         {activeGroup.variants.map((v, vIdx) => {
                           const isChosen = activeOptionIdx === vIdx;
                           return (
                             <button
                               key={v.id}
-                              onClick={(e) => handleSelectOption(product.id, vIdx, e)}
+                              onClick={(e) => handleSelectOption(product, vIdx, e)}
                               className={`px-2.5 py-1 rounded-full text-[9px] font-mono uppercase tracking-wider border transition-all cursor-pointer ${
                                 isChosen
                                   ? 'bg-[#0B1420] text-[#F7F2E8] border-[#0B1420]'
@@ -304,14 +393,14 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                   </div>
 
                   {/* Price & Add to Bag */}
-                  <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+                  <div className="sm:pt-3 sm:border-t border-white/10 flex items-center justify-between gap-3">
                     <div>
                       <div className="flex items-baseline gap-2">
                         <PriceTag
                           price={activeVariant.price}
                           mrp={activeVariant.mrp}
                           formatPrice={formatPrice}
-                          className="font-display tabular-nums text-2xl sm:text-3xl font-semibold tracking-tight text-[#0B1420]"
+                          className="font-display tabular-nums text-lg sm:text-2xl lg:text-3xl font-semibold tracking-tight text-[#0B1420]"
                         />
                       </div>
                       <span className="text-[9px] text-[#0B1420]/50 block font-mono uppercase tracking-wider">
@@ -322,7 +411,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
                     <motion.button
                       whileTap={{ scale: 0.94 }}
                       onClick={(e) => handleAdd(product, e)}
-                      className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#0B1420] to-[#340E09] hover:from-[#05090F] hover:to-[#4a1a10] text-[#F7F2E8] font-semibold text-[10px] uppercase tracking-widest flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-lg shadow-[#B87D00]/15"
+                      className="hidden sm:flex px-5 py-2.5 rounded-full bg-gradient-to-r from-[#0B1420] to-[#340E09] hover:from-[#05090F] hover:to-[#4a1a10] text-[#F7F2E8] font-semibold text-[10px] uppercase tracking-widest items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-lg shadow-[#B87D00]/15"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
                       <span>Add</span>
