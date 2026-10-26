@@ -1,5 +1,6 @@
 // ─── models/order.model.ts ───────────────────────────────────
 import mongoose, { Schema, Document } from "mongoose";
+import type { OfferCode } from "../offers/applyOffers.js";
 
 /* ────────────────────────────────────────────────────────────
  * Sub-types
@@ -15,8 +16,14 @@ export interface IOrderItem {
     originalPrice?: number;
     gstPercentage: number;
     lineTotal: number;
+    isFreeGift: boolean; // a free bag from Buy 2 Get 1: unitPrice is 0 and it can't be returned
     returnRequestedQuantity: number;
     returnedQuantity: number;
+}
+
+export interface IOrderOffer {
+    code: OfferCode | null;
+    saving: number; // rupees the offer took off
 }
 
 export interface IDeliveryAddress {
@@ -121,6 +128,8 @@ export interface IOrder extends Document {
     subtotal: number;
     shippingCharge: number;
     discount: number;
+    offer?: IOrderOffer; // missing on orders placed before offers were recorded
+    finalSale: boolean; // Buy 2 Get 1 orders can't be returned unless damaged or wrong
     gstAmount: number; // retained for historical orders; new orders use 0
     grandTotal: number;
     currency: string;
@@ -163,6 +172,7 @@ const OrderItemSchema = new Schema<IOrderItem>(
         gstPercentage: { type: Number, required: true, min: 0, max: 100 },
         unitPrice: { type: Number, required: true },
         lineTotal: { type: Number, required: true },
+        isFreeGift: { type: Boolean, default: false },
         returnRequestedQuantity: {
             type: Number,
             default: 0,
@@ -173,6 +183,14 @@ const OrderItemSchema = new Schema<IOrderItem>(
             default: 0,
             min: 0,
         },
+    },
+    { _id: false }
+);
+
+const OrderOfferSchema = new Schema<IOrderOffer>(
+    {
+        code: { type: String, enum: ["buy2get1", "diwali25", "firstOrder10", null], default: null },
+        saving: { type: Number, default: 0 },
     },
     { _id: false }
 );
@@ -296,6 +314,8 @@ const OrderSchema = new Schema<IOrder>(
         subtotal: { type: Number, required: true },
         shippingCharge: { type: Number, default: 0 },
         discount: { type: Number, default: 0 },
+        offer: { type: OrderOfferSchema },
+        finalSale: { type: Boolean, default: false },
         gstAmount: { type: Number, default: 0 },
         grandTotal: { type: Number, required: true },
         currency: { type: String, default: "INR" },

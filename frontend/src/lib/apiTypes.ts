@@ -48,16 +48,28 @@ export interface BackendCartProduct {
   slug: string;
   color: string;
   stock: number;
+  tags?: string[];
 }
 
 export interface BackendCartItem {
   productId: BackendCartProduct;
   quantity: number;
+  /** A free bag from Buy 2 Get 1; it sits beside a paid line of the same tote. Absent from an older backend. */
+  isFreeGift?: boolean;
+  /** The price the server will charge for this line (0 for a free bag). Absent from an older backend. */
+  unitPrice?: number;
 }
+
+export type BackendOffer = 'buy2get1' | 'diwali25' | 'firstOrder10';
 
 export interface BackendCart {
   userId?: string;
   items: BackendCartItem[];
+  /** The one offer in effect; null when nothing is saved. The three offer fields are absent from an older backend. */
+  offer?: BackendOffer | null;
+  offerSaving?: number;
+  /** Free bags the server just took out because they no longer qualify. */
+  freeGiftsRemoved?: number;
 }
 
 export interface BackendAddress {
@@ -89,6 +101,8 @@ export interface BackendCheckoutSessionItem {
   originalPrice: number;
   title: string;
   thumbnail: string;
+  /** A free bag from Buy 2 Get 1 (priceAtCheckout is 0). Absent from a session saved before the offers shipped. */
+  isFreeGift?: boolean;
 }
 
 export interface BackendCheckoutSession {
@@ -98,6 +112,9 @@ export interface BackendCheckoutSession {
   items: BackendCheckoutSessionItem[];
   subtotal: number;
   discount: number;
+  /** The one offer that earned the discount; null when nothing is saved. Both offer fields are absent from an older session. */
+  offer?: BackendOffer | null;
+  offerSaving?: number;
   gstAmount: number;
   deliveryAddress: BackendAddress | null;
   paymentMethod: 'COD' | 'ONLINE' | null;
@@ -128,6 +145,8 @@ export interface BackendOrderItem {
   quantity: number;
   image: string;
   price: number;
+  /** A free bag from Buy 2 Get 1 (price is 0). Absent from an older backend. */
+  isFreeGift?: boolean;
 }
 
 export interface BackendOrderDetail {
@@ -141,6 +160,9 @@ export interface BackendOrderDetail {
   gstAmount: number;
   shippingCharges: number;
   total: number;
+  /** The offer that earned the discount, and Buy 2 Get 1's final sale. Both are absent from an older backend. */
+  offer?: { code: BackendOffer | null; saving: number };
+  finalSale?: boolean;
   createdAt: string;
   items: BackendOrderItem[];
   shippingAddress: BackendAddress;
@@ -223,6 +245,8 @@ export interface BackendAdminOrderDetail {
   gstAmount: number;
   shippingCharge: number;
   grandTotal: number;
+  offer?: { code: BackendOffer | null; saving: number };
+  finalSale?: boolean;
   packageWeight?: number;
   items: {
     productId: string;
@@ -233,6 +257,7 @@ export interface BackendAdminOrderDetail {
     unitPrice: number;
     originalPrice?: number;
     lineTotal: number;
+    isFreeGift?: boolean;
   }[];
   deliveryAddress?: {
     fullName?: string;

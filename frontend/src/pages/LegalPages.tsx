@@ -190,6 +190,10 @@ export function RefundPage() {
         returned within {BUSINESS.returnWindowDays} days; return postage is yours unless the fault
         was ours.
       </p>
+      <p>
+        Buy 2 Get 1 orders can't be returned unless an item arrives damaged or wrong. The free bag
+        can't be returned.
+      </p>
 
       <H>Refunds</H>
       <p>

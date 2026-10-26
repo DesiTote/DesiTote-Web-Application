@@ -3,6 +3,7 @@ import { Product } from '../types';
 import { BagType, CatalogFilters, scrollToBags } from './ProductCatalog';
 import { filterOptions, iconImage } from '../utils/variants';
 import { customOrderUrl } from '../lib/whatsapp';
+import { isSaleOn } from '../lib/sale';
 import { playSnap } from '../utils/audio';
 import iconBlack from '../assets/images/icon-black.webp';
 import iconNatural from '../assets/images/icon-natural.webp';
@@ -133,6 +134,9 @@ export const ShopNav: React.FC<ShopNavProps> = ({ products, filters, onChange })
             </a>
           </li>
         </ul>
+        {!isSaleOn() && (
+          <p className="px-4 pb-3 text-center text-[11px] text-[#340E09]">10% off your first order, taken off at checkout</p>
+        )}
       </div>
     </section>
   );

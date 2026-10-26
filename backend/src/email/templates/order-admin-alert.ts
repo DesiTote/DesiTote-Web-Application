@@ -1,4 +1,5 @@
 import { emailLayout } from "../layout/email-layout.js";
+import type { OfferCode } from "../../modules/offers/applyOffers.js";
 
 /**
  * Sent to the shop owner the moment an order is confirmed, so a new order is
@@ -11,6 +12,7 @@ interface AdminOrderAlertItem {
     sku?: string;
     quantity: number;
     unitPrice: number;
+    isFreeGift?: boolean;
 }
 
 interface AdminOrderAlertProps {
@@ -21,6 +23,7 @@ interface AdminOrderAlertProps {
     customerName: string;
     customerPhone: string;
     customerEmail: string;
+    offer?: { code: OfferCode | null; saving: number } | null;
     address: {
         addressLine1: string;
         addressLine2?: string;
@@ -32,6 +35,12 @@ interface AdminOrderAlertProps {
 
 const money = (n: number) => `₹${(n ?? 0).toLocaleString("en-IN")}`;
 
+const OFFER_LABELS: Record<OfferCode, string> = {
+    buy2get1: "Buy 2 Get 1",
+    diwali25: "Diwali Sale 25% off",
+    firstOrder10: "First order 10% off",
+};
+
 export const orderAdminAlertTemplate = ({
     orderNumber,
     paymentMethod,
@@ -40,6 +49,7 @@ export const orderAdminAlertTemplate = ({
     customerName,
     customerPhone,
     customerEmail,
+    offer,
     address,
 }: AdminOrderAlertProps) => {
     const rows = items
@@ -48,10 +58,12 @@ export const orderAdminAlertTemplate = ({
       <tr>
         <td style="padding:8px 0;color:#333;">${i.name}${i.sku ? ` <span style="color:#999;font-size:12px;">(${i.sku})</span>` : ""}</td>
         <td style="padding:8px 0;color:#333;text-align:center;">×${i.quantity}</td>
-        <td style="padding:8px 0;color:#333;text-align:right;">${money(i.unitPrice * i.quantity)}</td>
+        <td style="padding:8px 0;color:#333;text-align:right;">${i.isFreeGift ? "FREE (not returnable)" : money(i.unitPrice * i.quantity)}</td>
       </tr>`
         )
         .join("");
+
+    const offerLine = offer?.code ? `Offer: ${OFFER_LABELS[offer.code]} (${money(offer.saving)} off)` : "";
 
     const payLabel = paymentMethod === "COD" ? "Cash on Delivery — collect on delivery" : "Paid online — money already received";
 
@@ -74,7 +86,8 @@ export const orderAdminAlertTemplate = ({
       <p style="color:#111;font-size:18px;margin:18px 0 6px;">
         <strong>${orderNumber}</strong> &nbsp;·&nbsp; <strong>${money(grandTotal)}</strong>
       </p>
-      <p style="color:#555;margin:0 0 18px;">${payLabel}</p>
+      <p style="color:#555;margin:0 0 ${offerLine ? "4px" : "18px"};">${payLabel}</p>
+      ${offerLine ? `<p style="color:#555;margin:0 0 18px;">${offerLine}</p>` : ""}
 
       <table style="width:100%;border-collapse:collapse;border-top:1px solid #e5ddc8;border-bottom:1px solid #e5ddc8;margin-bottom:18px;">
         ${rows}

@@ -6,6 +6,7 @@ import { Order } from "../order/order.model.js";
 import { restoreStockForOrder } from "../order/stock.service.js";
 import { RETURN_REASONS, RETURN_WINDOW_DAYS, ReturnReason } from "./return.constant.js";
 import { Return, ReturnStatus } from "./return.mode.js";
+import { canReturnLine, reasonAllowed } from "./returnRules.js";
 import { any } from "zod";
 
 
@@ -55,6 +56,7 @@ export async function getReturnableItems(orderId: string, userId: string) {
     }
 
     const items = order.items
+        .filter((item: any) => canReturnLine(item))
         .map((item: any) => {
             const remaining =
                 item.quantity - (item.returnRequestedQuantity ?? 0) - (item.returnedQuantity ?? 0);
@@ -107,6 +109,12 @@ export async function createReturnRequest(input: {
         throw new ApiError(409, "Only delivered orders can be returned");
     }
 
+    for (const ri of requestedItems) {
+        if (!reasonAllowed(order, ri.reason)) {
+            throw new ApiError(400, "Buy 2 Get 1 orders can only be returned if an item arrived damaged or wrong");
+        }
+    }
+
     const existingReturn = await Return.findOne({ orderId });
     if (existingReturn) {
         throw new ApiError(
@@ -124,8 +132,14 @@ export async function createReturnRequest(input: {
     // BEFORE touching anything.
     const returnItems: any[] = [];
     for (const ri of requestedItems) {
-        const orderItem = order.items.find((oi: any) => oi.productId.toString() === ri.productId);
+        // A paid and a free line of the same tote can share a productId; only the paid one is returnable.
+        const orderItem = order.items.find(
+            (oi: any) => oi.productId.toString() === ri.productId && canReturnLine(oi)
+        );
         if (!orderItem) {
+            if (order.items.some((oi: any) => oi.productId.toString() === ri.productId)) {
+                throw new ApiError(400, "The free bag can't be returned");
+            }
             throw new ApiError(400, `Product ${ri.productId} was not part of this order`);
         }
 
@@ -158,7 +172,7 @@ export async function createReturnRequest(input: {
         await session.withTransaction(async () => {
             for (const ri of requestedItems) {
                 const result = await Order.updateOne(
-                    { _id: order._id, "items.productId": ri.productId },
+                    { _id: order._id, items: { $elemMatch: { productId: ri.productId, isFreeGift: { $ne: true } } } },
                     { $inc: { "items.$.returnRequestedQuantity": ri.quantity } },
                     { session }
                 );
@@ -241,7 +255,7 @@ export async function updateReturnStatus(
 
         for (const item of returnDoc.items) {
             await Order.updateOne(
-                { _id: returnDoc.orderId, "items.productId": item.productId },
+                { _id: returnDoc.orderId, items: { $elemMatch: { productId: item.productId, isFreeGift: { $ne: true } } } },
                 {
                     $inc: {
                         "items.$.returnRequestedQuantity": -item.quantity,
@@ -253,7 +267,7 @@ export async function updateReturnStatus(
     } else if ((newStatus === "rejected" || newStatus === "cancelled") && previousStatus === "requested") {
         for (const item of returnDoc.items) {
             await Order.updateOne(
-                { _id: returnDoc.orderId, "items.productId": item.productId },
+                { _id: returnDoc.orderId, items: { $elemMatch: { productId: item.productId, isFreeGift: { $ne: true } } } },
                 { $inc: { "items.$.returnRequestedQuantity": -item.quantity } }
             );
         }

@@ -1,8 +1,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { api } from '../lib/api';
-import { BackendCart } from '../lib/apiTypes';
+import { BackendCart, BackendOffer } from '../lib/apiTypes';
 import { colorHexFromLabel } from '../lib/adaptProducts';
-import { salePrice } from '../lib/sale';
+import { freeSlotsLeft } from '../lib/offers';
+import { isSaleOn, salePrice } from '../lib/sale';
 import { useAuth } from './AuthContext';
 
 export interface DisplayCartItem {
@@ -14,6 +15,8 @@ export interface DisplayCartItem {
   colorHex: string;
   colorLabel: string;
   stock: number;
+  /** A free bag from Buy 2 Get 1; it can sit beside a paid line of the same tote. */
+  isFreeGift: boolean;
 }
 
 /** Just enough of a product to draw a cart row before the server confirms. */
@@ -34,12 +37,20 @@ interface CartContextValue {
    *  not just `!isLoading`, to know whether `items` reflects a real answer yet — it starts false on
    *  every mount/user-change, before `isLoading` has had a chance to turn true. */
   hasLoaded: boolean;
+  /** The one offer the server applied to this bag; null when nothing is saved. */
+  offer: BackendOffer | null;
+  /** Free bags the shopper can still pick: one per 2 paid totes, minus the free ones already in the bag. */
+  freeSlotsLeft: number;
+  /** Set when the server just removed a free bag that no longer qualifies. */
+  notice: string | null;
   /** `preview` lets the bag fill in immediately, before the server answers.
    *  Without it the shopper taps Add to Bag and watches nothing happen for the
    *  ~1.5s the round trip takes. */
   addItem: (productId: string, quantity?: number, preview?: CartItemPreview) => Promise<void>;
-  updateQuantity: (productId: string, quantity: number) => Promise<void>;
-  removeItem: (productId: string) => Promise<void>;
+  /** Rejects with the server's reason (e.g. "Add 2 more totes for another free bag"). */
+  addFreeGift: (productId: string) => Promise<void>;
+  updateQuantity: (productId: string, quantity: number, isFreeGift?: boolean) => Promise<void>;
+  removeItem: (productId: string, isFreeGift?: boolean) => Promise<void>;
   clearCart: () => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -53,12 +64,24 @@ function toDisplayItems(cart: BackendCart): DisplayCartItem[] {
       productId: item.productId._id,
       name: item.productId.title,
       image: item.productId.thumbnail,
-      price: salePrice(item.productId.discountPrice),
+      // A backend that predates unitPrice (a preview build, the minute after a merge) would otherwise give NaN.
+      price: item.unitPrice ?? salePrice(item.productId.discountPrice),
       quantity: item.quantity,
       colorHex: colorHexFromLabel(item.productId.color || ''),
       colorLabel: item.productId.color,
       stock: item.productId.stock,
+      isFreeGift: item.isFreeGift === true,
     }));
+}
+
+// The free line and the paid line of one tote share a productId, so a ?free=1 query tells the server which.
+const freeQuery = (isFreeGift: boolean) => (isFreeGift ? '?free=1' : '');
+
+function removedNotice(cart: BackendCart): string | null {
+  if ((cart.freeGiftsRemoved ?? 0) <= 0) return null;
+  return isSaleOn()
+    ? 'Your free bag was removed: add 2 totes to get it back'
+    : 'Buy 2 Get 1 has ended, so the free bag was removed';
 }
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -66,6 +89,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<DisplayCartItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [offer, setOffer] = useState<BackendOffer | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   // Mirrors `items` synchronously. An optimistic add has to capture the exact
   // list it is replacing so a rejected request can put it back, and reading
@@ -76,9 +101,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setItems(next);
   }, []);
 
+  const commitMeta = useCallback((cart: BackendCart | null) => {
+    setOffer(cart?.offer ?? null);
+    setNotice(cart ? removedNotice(cart) : null);
+  }, []);
+
   const refresh = useCallback(async () => {
     if (!user) {
       commitItems([]);
+      commitMeta(null);
       setHasLoaded(true);
       return;
     }
@@ -86,14 +117,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await api.get<{ data: BackendCart }>('/api/cart');
       commitItems(toDisplayItems(res.data));
+      commitMeta(res.data);
     } catch {
       // Not logged in, or a transient error — cart just stays empty.
       commitItems([]);
+      commitMeta(null);
     } finally {
       setIsLoading(false);
       setHasLoaded(true);
     }
-  }, [user, commitItems]);
+  }, [user, commitItems, commitMeta]);
 
   useEffect(() => {
     setHasLoaded(false);
@@ -113,8 +146,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       commitItems(mapped);
+      commitMeta(cart);
     },
-    [refresh, commitItems]
+    [refresh, commitItems, commitMeta]
   );
 
   const addItem = useCallback(
@@ -123,12 +157,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Draw the row straight away, then let the server's copy replace it.
       if (preview) {
-        const existing = previous.find((i) => i.productId === productId);
+        const isPaid = (i: DisplayCartItem) => i.productId === productId && !i.isFreeGift;
+        const existing = previous.find(isPaid);
         commitItems(
           existing
-            ? previous.map((i) =>
-                i.productId === productId ? { ...i, quantity: i.quantity + quantity } : i
-              )
+            ? previous.map((i) => (isPaid(i) ? { ...i, quantity: i.quantity + quantity } : i))
             : [
                 ...previous,
                 {
@@ -139,6 +172,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   price: preview.price,
                   colorHex: preview.colorHex,
                   colorLabel: preview.colorLabel,
+                  isFreeGift: false,
                   // Real stock arrives with the server's reply a moment later.
                   // Assume there is room until then rather than greying out the
                   // quantity control on a guess.
@@ -161,17 +195,30 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [applyCart, commitItems]
   );
 
+  const addFreeGift = useCallback(
+    async (productId: string) => {
+      const res = await api.post<{ cart: BackendCart }>('/api/cart/add', { productId, quantity: 1, isFreeGift: true });
+      await applyCart(res.cart);
+    },
+    [applyCart]
+  );
+
   const updateQuantity = useCallback(
-    async (productId: string, quantity: number) => {
-      const res = await api.patch<{ data: BackendCart }>(`/api/cart/update-quantity/${productId}`, { quantity });
+    async (productId: string, quantity: number, isFreeGift = false) => {
+      const res = await api.patch<{ data: BackendCart }>(
+        `/api/cart/update-quantity/${productId}${freeQuery(isFreeGift)}`,
+        { quantity }
+      );
       await applyCart(res.data);
     },
     [applyCart]
   );
 
   const removeItem = useCallback(
-    async (productId: string) => {
-      const res = await api.delete<{ data: BackendCart }>(`/api/cart/remove-item/${productId}`);
+    async (productId: string, isFreeGift = false) => {
+      const res = await api.delete<{ data: BackendCart }>(
+        `/api/cart/remove-item/${productId}${freeQuery(isFreeGift)}`
+      );
       await applyCart(res.data);
     },
     [applyCart]
@@ -193,7 +240,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         subtotal,
         isLoading,
         hasLoaded,
+        offer,
+        freeSlotsLeft: freeSlotsLeft(items),
+        notice,
         addItem,
+        addFreeGift,
         updateQuantity,
         removeItem,
         clearCart,

@@ -7,8 +7,3 @@ export const SALE = {
     startsAt: new Date("2026-11-01T00:00:00+05:30"),
     endsAt: new Date("2026-11-12T00:00:00+05:30"),
 };
-
-export const isSaleOn = (): boolean => SALE.enabled && Date.now() >= SALE.startsAt.getTime() && Date.now() < SALE.endsAt.getTime();
-
-export const salePrice = (price: number): number =>
-    isSaleOn() ? Math.round((price * (100 - SALE.percent)) / 100) : price;
