@@ -54,10 +54,10 @@ export interface BackendCartProduct {
 export interface BackendCartItem {
   productId: BackendCartProduct;
   quantity: number;
-  /** A free bag from Buy 2 Get 1; it sits beside a paid line of the same tote. */
-  isFreeGift: boolean;
-  /** The price the server will charge for this line (0 for a free bag). */
-  unitPrice: number;
+  /** A free bag from Buy 2 Get 1; it sits beside a paid line of the same tote. Absent from an older backend. */
+  isFreeGift?: boolean;
+  /** The price the server will charge for this line (0 for a free bag). Absent from an older backend. */
+  unitPrice?: number;
 }
 
 export type BackendOffer = 'buy2get1' | 'diwali25' | 'firstOrder10';
@@ -65,11 +65,11 @@ export type BackendOffer = 'buy2get1' | 'diwali25' | 'firstOrder10';
 export interface BackendCart {
   userId?: string;
   items: BackendCartItem[];
-  /** The one offer in effect; null when nothing is saved. */
-  offer: BackendOffer | null;
-  offerSaving: number;
+  /** The one offer in effect; null when nothing is saved. The three offer fields are absent from an older backend. */
+  offer?: BackendOffer | null;
+  offerSaving?: number;
   /** Free bags the server just took out because they no longer qualify. */
-  freeGiftsRemoved: number;
+  freeGiftsRemoved?: number;
 }
 
 export interface BackendAddress {

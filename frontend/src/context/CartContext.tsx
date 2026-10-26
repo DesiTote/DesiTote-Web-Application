@@ -3,7 +3,7 @@ import { api } from '../lib/api';
 import { BackendCart, BackendOffer } from '../lib/apiTypes';
 import { colorHexFromLabel } from '../lib/adaptProducts';
 import { freeSlotsLeft } from '../lib/offers';
-import { isSaleOn } from '../lib/sale';
+import { isSaleOn, salePrice } from '../lib/sale';
 import { useAuth } from './AuthContext';
 
 export interface DisplayCartItem {
@@ -64,7 +64,8 @@ function toDisplayItems(cart: BackendCart): DisplayCartItem[] {
       productId: item.productId._id,
       name: item.productId.title,
       image: item.productId.thumbnail,
-      price: item.unitPrice,
+      // A backend that predates unitPrice (a preview build, the minute after a merge) would otherwise give NaN.
+      price: item.unitPrice ?? salePrice(item.productId.discountPrice),
       quantity: item.quantity,
       colorHex: colorHexFromLabel(item.productId.color || ''),
       colorLabel: item.productId.color,
@@ -77,7 +78,7 @@ function toDisplayItems(cart: BackendCart): DisplayCartItem[] {
 const freeQuery = (isFreeGift: boolean) => (isFreeGift ? '?free=1' : '');
 
 function removedNotice(cart: BackendCart): string | null {
-  if (!(cart.freeGiftsRemoved > 0)) return null;
+  if ((cart.freeGiftsRemoved ?? 0) <= 0) return null;
   return isSaleOn()
     ? 'Your free bag was removed: add 2 totes to get it back'
     : 'Buy 2 Get 1 has ended, so the free bag was removed';
