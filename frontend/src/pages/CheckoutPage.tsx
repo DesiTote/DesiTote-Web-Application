@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { BackendAddress, BackendCheckoutSession, RazorpayOrderResponse } from '../lib/apiTypes';
 import { openRazorpayCheckout } from '../lib/razorpay';
-import { SALE, isSaleOn } from '../lib/sale';
+import { offerLabel } from '../lib/offers';
 
 const inputClass =
   'w-full px-4 py-3 rounded-2xl bg-white border border-[#0B1420]/15 text-sm text-[#0B1420] focus:outline-none focus:border-[#B87D00] placeholder-[#0B1420]/30';
@@ -215,7 +215,13 @@ export function CheckoutPage({ formatPrice }: CheckoutPageProps) {
             <span className="text-[#0B1420]/80">
               {item.name} × {item.quantity}
             </span>
-            <span className="font-mono text-[#0B1420]">{formatPrice(item.price * item.quantity)}</span>
+            {item.isFreeGift ? (
+              <span className="shrink-0 text-right font-mono text-[10px] font-bold tracking-wider text-[#B87D00]">
+                FREE · not returnable
+              </span>
+            ) : (
+              <span className="font-mono text-[#0B1420]">{formatPrice(item.price * item.quantity)}</span>
+            )}
           </div>
         ))}
         {session && (
@@ -226,7 +232,7 @@ export function CheckoutPage({ formatPrice }: CheckoutPageProps) {
             </div>
             {session.discount > 0 && (
               <div className="flex justify-between text-[#0B1420]/60">
-                <span>{isSaleOn() ? `${SALE.name} ${SALE.percent}% off` : 'Discount'}</span>
+                <span>{offerLabel(session.offer)}</span>
                 <span className="font-mono">-{formatPrice(session.discount)}</span>
               </div>
             )}

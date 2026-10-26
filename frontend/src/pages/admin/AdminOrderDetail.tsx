@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { X, Loader2, Package, MapPin, CreditCard, Truck } from 'lucide-react';
 import { api } from '../../lib/api';
 import { BackendAdminOrderDetail } from '../../lib/apiTypes';
+import { offerLabel } from '../../lib/offers';
 
 interface Props {
   orderId: string;
@@ -80,6 +81,7 @@ export function AdminOrderDetail({ orderId, onClose }: Props) {
                 <p className="text-xs text-[#0B1420]/50 mt-1">
                   Placed {when(order.createdAt)} · <span className="uppercase">{order.status}</span>
                 </p>
+                {order.finalSale && <p className="text-xs text-[#0B1420]/50">Final sale (Buy 2 Get 1)</p>}
               </div>
 
               <section className="space-y-2">
@@ -102,7 +104,7 @@ export function AdminOrderDetail({ orderId, onClose }: Props) {
                         <p className="text-sm text-[#0B1420]">{item.name}</p>
                         <p className="text-[10px] font-mono text-[#0B1420]/45">
                           {item.sku ? `${item.sku} · ` : ''}
-                          {money(item.unitPrice)} each
+                          {item.isFreeGift ? 'FREE · not returnable' : `${money(item.unitPrice)} each`}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
@@ -153,7 +155,7 @@ export function AdminOrderDetail({ orderId, onClose }: Props) {
                   </div>
                   {order.discount > 0 && (
                     <div className="flex justify-between text-[#0B1420]/60">
-                      <span>Discount</span>
+                      <span>{offerLabel(order.offer?.code)}</span>
                       <span className="font-mono">-{money(order.discount)}</span>
                     </div>
                   )}

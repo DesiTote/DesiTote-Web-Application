@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FREE_GIFT_GROUPS, freeBagChoices, freeSlotsLeft } from './offers';
+import { FREE_GIFT_GROUPS, freeBagChoices, freeSlotsLeft, offerLabel } from './offers';
 import { Product, ProductVariant } from '../types';
 
 const variant = (id: string, colorLabel: string, stock = 5, badge?: string) =>
@@ -68,4 +68,16 @@ test('free bags already in the bag use up slots, and never go below 0', () => {
   assert.equal(freeSlotsLeft([line(4), line(1, true)]), 1);
   assert.equal(freeSlotsLeft([line(2), line(1, true)]), 0);
   assert.equal(freeSlotsLeft([line(2), line(2, true)]), 0);
+});
+
+test('each offer is named for the customer', () => {
+  assert.equal(offerLabel('buy2get1'), 'Buy 2 Get 1');
+  assert.equal(offerLabel('diwali25'), 'Diwali Sale 25% off');
+  assert.equal(offerLabel('firstOrder10'), 'First order 10% off');
+});
+
+test('no offer, or one this build does not know, reads as a plain discount', () => {
+  assert.equal(offerLabel(null), 'Discount');
+  assert.equal(offerLabel(undefined), 'Discount');
+  assert.equal(offerLabel('somethingNew' as never), 'Discount');
 });

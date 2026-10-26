@@ -101,6 +101,8 @@ export interface BackendCheckoutSessionItem {
   originalPrice: number;
   title: string;
   thumbnail: string;
+  /** A free bag from Buy 2 Get 1 (priceAtCheckout is 0). Absent from a session saved before the offers shipped. */
+  isFreeGift?: boolean;
 }
 
 export interface BackendCheckoutSession {
@@ -110,6 +112,9 @@ export interface BackendCheckoutSession {
   items: BackendCheckoutSessionItem[];
   subtotal: number;
   discount: number;
+  /** The one offer that earned the discount; null when nothing is saved. Both offer fields are absent from an older session. */
+  offer?: BackendOffer | null;
+  offerSaving?: number;
   gstAmount: number;
   deliveryAddress: BackendAddress | null;
   paymentMethod: 'COD' | 'ONLINE' | null;
@@ -140,6 +145,8 @@ export interface BackendOrderItem {
   quantity: number;
   image: string;
   price: number;
+  /** A free bag from Buy 2 Get 1 (price is 0). Absent from an older backend. */
+  isFreeGift?: boolean;
 }
 
 export interface BackendOrderDetail {
@@ -153,6 +160,9 @@ export interface BackendOrderDetail {
   gstAmount: number;
   shippingCharges: number;
   total: number;
+  /** The offer that earned the discount, and Buy 2 Get 1's final sale. Both are absent from an older backend. */
+  offer?: { code: BackendOffer | null; saving: number };
+  finalSale?: boolean;
   createdAt: string;
   items: BackendOrderItem[];
   shippingAddress: BackendAddress;
@@ -235,6 +245,8 @@ export interface BackendAdminOrderDetail {
   gstAmount: number;
   shippingCharge: number;
   grandTotal: number;
+  offer?: { code: BackendOffer | null; saving: number };
+  finalSale?: boolean;
   packageWeight?: number;
   items: {
     productId: string;
@@ -245,6 +257,7 @@ export interface BackendAdminOrderDetail {
     unitPrice: number;
     originalPrice?: number;
     lineTotal: number;
+    isFreeGift?: boolean;
   }[];
   deliveryAddress?: {
     fullName?: string;

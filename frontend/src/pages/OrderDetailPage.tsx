@@ -4,6 +4,7 @@ import { CheckCircle2, Loader2, Truck, XCircle } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { BackendOrderDetail } from '../lib/apiTypes';
+import { offerLabel } from '../lib/offers';
 
 // Must match the API's list in constants/customer/order.ts — it rejects
 // anything else, and "Other" requires a note.
@@ -93,17 +94,24 @@ export function OrderDetailPage({ formatPrice }: { formatPrice: (inr: number) =>
         <CheckCircle2 className="w-10 h-10 text-[#B87D00] mx-auto" />
         <h1 className="text-2xl font-serif text-[#0B1420]">Order {order.orderNumber}</h1>
         <p className="text-sm text-[#0B1420]/50">{order.statusLabel}</p>
+        {order.finalSale && <p className="text-xs text-[#0B1420]/50">Final sale (Buy 2 Get 1)</p>}
       </div>
 
       <section className="rounded-3xl border border-[#0B1420]/10 bg-white/50 p-6 space-y-3">
         {order.items.map((item) => (
-          <div key={item.productId} className="flex items-center gap-3">
+          <div key={`${item.productId}:${item.isFreeGift ? 'free' : 'paid'}`} className="flex items-center gap-3">
             <img src={item.image} alt={item.name} className="w-14 h-14 rounded-xl object-cover border border-[#0B1420]/10" />
             <div className="flex-1 min-w-0">
               <p className="text-sm text-[#0B1420] truncate">{item.name}</p>
               <p className="text-xs text-[#0B1420]/50">Qty {item.quantity}</p>
             </div>
-            <span className="text-sm font-mono text-[#0B1420]">{formatPrice(item.price * item.quantity)}</span>
+            {item.isFreeGift ? (
+              <span className="shrink-0 text-right font-mono text-[10px] font-bold tracking-wider text-[#B87D00]">
+                FREE · not returnable
+              </span>
+            ) : (
+              <span className="text-sm font-mono text-[#0B1420]">{formatPrice(item.price * item.quantity)}</span>
+            )}
           </div>
         ))}
 
@@ -114,7 +122,7 @@ export function OrderDetailPage({ formatPrice }: { formatPrice: (inr: number) =>
           </div>
           {order.discount > 0 && (
             <div className="flex justify-between text-[#0B1420]/60">
-              <span>Discount</span>
+              <span>{offerLabel(order.offer?.code)}</span>
               <span className="font-mono">-{formatPrice(order.discount)}</span>
             </div>
           )}

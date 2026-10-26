@@ -1,5 +1,7 @@
 import { Product } from '../types';
 import { getColorGroups } from '../utils/variants';
+import { BackendOffer } from './apiTypes';
+import { SALE } from './sale';
 
 // Picture-only designs a customer may take as a free bag (their group slug).
 // Mirror of FREE_GIFT_GROUPS in backend/src/config/offers.ts, which is what the cart enforces.
@@ -52,4 +54,18 @@ export function freeBagChoices(products: Product[]): FreeBagChoice[] {
 export function freeSlotsLeft(items: { quantity: number; isFreeGift: boolean }[]): number {
   const qty = (free: boolean) => items.reduce((n, i) => n + (i.isFreeGift === free ? i.quantity : 0), 0);
   return Math.max(0, Math.floor(qty(false) / 2) - qty(true));
+}
+
+/** What a discount row calls the offer that earned it; a missing or unknown offer is just "Discount". */
+export function offerLabel(code: BackendOffer | null | undefined): string {
+  switch (code) {
+    case 'buy2get1':
+      return 'Buy 2 Get 1';
+    case 'diwali25':
+      return `${SALE.name} ${SALE.percent}% off`;
+    case 'firstOrder10':
+      return 'First order 10% off';
+    default:
+      return 'Discount';
+  }
 }
