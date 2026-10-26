@@ -48,16 +48,28 @@ export interface BackendCartProduct {
   slug: string;
   color: string;
   stock: number;
+  tags?: string[];
 }
 
 export interface BackendCartItem {
   productId: BackendCartProduct;
   quantity: number;
+  /** A free bag from Buy 2 Get 1; it sits beside a paid line of the same tote. */
+  isFreeGift: boolean;
+  /** The price the server will charge for this line (0 for a free bag). */
+  unitPrice: number;
 }
+
+export type BackendOffer = 'buy2get1' | 'diwali25' | 'firstOrder10';
 
 export interface BackendCart {
   userId?: string;
   items: BackendCartItem[];
+  /** The one offer in effect; null when nothing is saved. */
+  offer: BackendOffer | null;
+  offerSaving: number;
+  /** Free bags the server just took out because they no longer qualify. */
+  freeGiftsRemoved: number;
 }
 
 export interface BackendAddress {

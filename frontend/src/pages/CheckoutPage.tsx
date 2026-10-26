@@ -211,7 +211,7 @@ export function CheckoutPage({ formatPrice }: CheckoutPageProps) {
       <section className="rounded-3xl border border-[#0B1420]/10 bg-white/50 p-6 space-y-3">
         <h2 className="text-sm font-mono uppercase tracking-widest text-[#B87D00]">Order Summary</h2>
         {cartItems.map((item) => (
-          <div key={item.productId} className="flex items-center justify-between text-sm">
+          <div key={`${item.productId}:${item.isFreeGift ? 'free' : 'paid'}`} className="flex items-center justify-between text-sm">
             <span className="text-[#0B1420]/80">
               {item.name} × {item.quantity}
             </span>

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
 import { playPop } from '../utils/audio';
-import { useCart } from '../context/CartContext';
+import { DisplayCartItem, useCart } from '../context/CartContext';
+import { useProducts } from '../context/ProductsContext';
 import { authErrorMessage } from '../context/AuthContext';
 import { useCloseOnBack } from '../hooks/useCloseOnBack';
 import { SALE, isSaleOn } from '../lib/sale';
+import { freeBagChoices } from '../lib/offers';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -17,9 +19,16 @@ interface CartDrawerProps {
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatPrice }) => {
   const navigate = useNavigate();
-  const { items, subtotal, isLoading, updateQuantity, removeItem } = useCart();
-  const [pendingProductId, setPendingProductId] = useState<string | null>(null);
+  const { items, subtotal, isLoading, offer, freeSlotsLeft, notice, addFreeGift, updateQuantity, removeItem } = useCart();
+  const { products } = useProducts();
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const [addingFree, setAddingFree] = useState(false);
   const [error, setError] = useState('');
+
+  const choices = useMemo(() => freeBagChoices(products), [products]);
+  const showPicker = isSaleOn() && freeSlotsLeft > 0 && choices.length > 0;
+  // A tote can be in the bag as a paid line and a free line, so the id alone is not a line's identity.
+  const lineKey = (item: DisplayCartItem) => `${item.productId}:${item.isFreeGift ? 'free' : 'paid'}`;
 
   // Back button closes the bag instead of leaving the shop.
   useCloseOnBack(isOpen, onClose);
@@ -27,34 +36,48 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
   const shippingThreshold = 999;
   const isFreeShipping = subtotal >= shippingThreshold;
 
-  const handleQuantityChange = async (productId: string, delta: number, currentQty: number) => {
+  const handleQuantityChange = async (item: DisplayCartItem, delta: number) => {
     playPop();
     setError('');
-    const nextQty = currentQty + delta;
-    setPendingProductId(productId);
+    const nextQty = item.quantity + delta;
+    setPendingKey(lineKey(item));
     try {
       if (nextQty <= 0) {
-        await removeItem(productId);
+        await removeItem(item.productId, item.isFreeGift);
       } else {
-        await updateQuantity(productId, nextQty);
+        await updateQuantity(item.productId, nextQty, item.isFreeGift);
       }
     } catch (err) {
       setError(authErrorMessage(err));
     } finally {
-      setPendingProductId(null);
+      setPendingKey(null);
     }
   };
 
-  const handleRemove = async (productId: string) => {
+  const handleRemove = async (item: DisplayCartItem) => {
     playPop();
     setError('');
-    setPendingProductId(productId);
+    setPendingKey(lineKey(item));
     try {
-      await removeItem(productId);
+      await removeItem(item.productId, item.isFreeGift);
     } catch (err) {
       setError(authErrorMessage(err));
     } finally {
-      setPendingProductId(null);
+      setPendingKey(null);
+    }
+  };
+
+  const handleAddFree = async (productId: string) => {
+    playPop();
+    setError('');
+    setAddingFree(true);
+    try {
+      await addFreeGift(productId);
+    } catch (err) {
+      // The server's own words say why, e.g. "Add 2 more totes for another free bag".
+      setError(authErrorMessage(err));
+    } finally {
+      setAddingFree(false);
     }
   };
 
@@ -119,6 +142,39 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                {notice && (
+                  <p role="status" className="rounded-2xl bg-[#B87D00]/10 border border-[#B87D00]/30 px-4 py-3 text-[11px] text-[#0B1420]">
+                    {notice}
+                  </p>
+                )}
+
+                {showPicker && (
+                  <section className="rounded-[24px] bg-white/60 border border-[#B87D00]/30 p-4 space-y-3">
+                    <h4 className="text-xs font-serif font-medium text-[#0B1420]">Choose your free bag</h4>
+                    <div className="scrollbar-hide flex gap-2.5 overflow-x-auto overscroll-x-contain snap-x snap-mandatory">
+                      {choices.map((choice) => (
+                        <button
+                          key={choice.productId}
+                          onClick={() => handleAddFree(choice.productId)}
+                          disabled={addingFree || pendingKey !== null}
+                          className="snap-start shrink-0 w-24 text-left cursor-pointer transition-[opacity,transform] duration-150 ease-out active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100"
+                        >
+                          <img
+                            src={choice.image}
+                            alt=""
+                            referrerPolicy="no-referrer"
+                            loading="lazy"
+                            decoding="async"
+                            className="w-24 h-24 rounded-2xl bg-[#efe9dd] object-contain border border-[#0B1420]/10"
+                          />
+                          <span className="block mt-1.5 text-[10px] font-serif font-medium text-[#0B1420] truncate">{choice.name}</span>
+                          <span className="block text-[9px] font-mono text-[#0B1420]/50 truncate">{choice.colorLabel}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
                 {isLoading && items.length === 0 ? (
                   <div className="flex justify-center py-20">
                     <Loader2 className="w-5 h-5 text-[#0B1420]/40 animate-spin" />
@@ -136,8 +192,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
                 ) : (
                   items.map((item) => (
                     <div
-                      key={item.productId}
-                      className="p-4 rounded-[24px] bg-white/60 border border-[#0B1420]/10 flex gap-3.5 items-start"
+                      key={lineKey(item)}
+                      className={`p-4 rounded-[24px] bg-white/60 border flex gap-3.5 items-start ${
+                        item.isFreeGift ? 'border-[#B87D00]/40' : 'border-[#0B1420]/10'
+                      }`}
                     >
                       <img
                         src={item.image}
@@ -152,8 +210,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
                         <div className="flex items-start justify-between gap-2">
                           <h5 className="text-xs font-serif font-medium text-[#0B1420] truncate">{item.name}</h5>
                           <button
-                            onClick={() => handleRemove(item.productId)}
-                            disabled={pendingProductId === item.productId}
+                            onClick={() => handleRemove(item)}
+                            disabled={pendingKey === lineKey(item)}
                             className="text-[#0B1420]/40 hover:text-rose-500 transition-colors p-1 cursor-pointer disabled:opacity-40"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -168,23 +226,32 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
                           <span className="truncate">{item.colorLabel}</span>
                         </div>
 
+                        {item.isFreeGift && (
+                          <p className="text-[10px] font-mono font-bold tracking-wider text-[#B87D00]">
+                            FREE · not returnable
+                          </p>
+                        )}
+
                         <div className="pt-2 flex items-center justify-between">
                           <div className="flex items-center border border-[#0B1420]/10 rounded-full bg-[#0B1420]/5 px-1 py-0.5">
                             <button
-                              onClick={() => handleQuantityChange(item.productId, -1, item.quantity)}
-                              disabled={pendingProductId === item.productId}
+                              onClick={() => handleQuantityChange(item, -1)}
+                              disabled={pendingKey === lineKey(item)}
                               className="p-1 text-[#0B1420]/50 hover:text-[#0B1420] cursor-pointer disabled:opacity-40"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
                             <span className="px-2 font-mono text-[11px] font-bold text-[#0B1420]">{item.quantity}</span>
-                            <button
-                              onClick={() => handleQuantityChange(item.productId, 1, item.quantity)}
-                              disabled={pendingProductId === item.productId || item.quantity >= item.stock}
-                              className="p-1 text-[#0B1420]/50 hover:text-[#0B1420] cursor-pointer disabled:opacity-40"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
+                            {/* A free line only goes down; how many were earned is the server's call. */}
+                            {!item.isFreeGift && (
+                              <button
+                                onClick={() => handleQuantityChange(item, 1)}
+                                disabled={pendingKey === lineKey(item) || item.quantity >= item.stock}
+                                className="p-1 text-[#0B1420]/50 hover:text-[#0B1420] cursor-pointer disabled:opacity-40"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            )}
                           </div>
 
                           <span className="font-mono font-bold text-xs text-[#B87D00]">
@@ -206,9 +273,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
                       <span>Subtotal:</span>
                       <span className="font-mono text-[#0B1420]/80">{formatPrice(subtotal)}</span>
                     </div>
-                    {isSaleOn() && (
+                    {offer === 'diwali25' && (
                       <p className="text-[10px] font-semibold text-[#C2410C]">
                         {SALE.name}: {SALE.percent}% off already applied
+                      </p>
+                    )}
+                    {offer === 'buy2get1' && (
+                      <p className="text-[10px] font-semibold text-[#C2410C]">
+                        Buy 2 Get 1 applied instead of {SALE.percent}% off
                       </p>
                     )}
                     <p className="text-[10px] text-[#0B1420]/40 font-mono">
