@@ -8,6 +8,8 @@ export interface ProductVariant {
   /** Every photo of this exact option (fabric, zip, side view...), main photo first. */
   images: string[];
   price: number;
+  /** Price before any discount, shown struck through when higher than `price`. */
+  mrp: number;
   badge?: string;
   stock: number;
   /** Groups variants into a color swatch (e.g. "Natural", "Black"). Variants that

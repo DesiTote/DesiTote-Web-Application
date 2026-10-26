@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Send, CheckCircle2, MessageCircle, Heart, Shield, Sparkles } from 'lucide-react';
 import { playPop } from '../utils/audio';
 import { DesiLogo } from './DesiLogo';
+import { SHOP_PHONE, customOrderUrl, whatsappUrl } from '../lib/whatsapp';
 
 export const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -90,13 +91,13 @@ export const Footer: React.FC = () => {
             </p>
             <div className="flex items-center gap-3 pt-1">
               <a
-                href="https://wa.me/"
+                href={whatsappUrl('Hi Desi Totes, I have a question.')}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] hover:bg-white/[0.08] text-white/70 hover:text-white border border-white/10 transition-colors text-[10px] font-mono uppercase tracking-wider"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] hover:bg-white/[0.08] text-white/70 hover:text-white border border-white/10 transition-colors text-[11px] tracking-wide active:scale-[0.97]"
               >
                 <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Chat on WhatsApp</span>
+                <span>WhatsApp +91 {SHOP_PHONE.replace(/(\d{5})(\d{5})/, '$1 $2')}</span>
               </a>
             </div>
           </div>
@@ -129,7 +130,7 @@ export const Footer: React.FC = () => {
               <li><Link to="/orders" className="hover:text-white">Order Tracking</Link></li>
               <li><Link to="/shipping-policy" className="hover:text-white">Shipping &amp; Delivery</Link></li>
               <li><Link to="/refund-policy" className="hover:text-white">Returns &amp; Refunds</Link></li>
-              <li><Link to="/contact" className="hover:text-white">Bulk &amp; Custom Orders</Link></li>
+              <li><a href={customOrderUrl} target="_blank" rel="noreferrer" className="hover:text-white">Bulk &amp; Custom Orders</a></li>
               <li>
                 <a href="mailto:desitotes0401@gmail.com" className="hover:text-white">
                   desitotes0401@gmail.com

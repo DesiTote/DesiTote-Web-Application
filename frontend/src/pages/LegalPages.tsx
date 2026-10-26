@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MessageCircle, MapPin } from 'lucide-react';
+import { SHOP_PHONE, whatsappUrl } from '../lib/whatsapp';
 
 /**
  * Terms, Privacy, Refunds, Shipping and Contact.
@@ -18,7 +19,7 @@ const BUSINESS = {
   name: 'Desi Totes',
   owner: 'Pratik Ambhere',
   address: 'S. No 70/3A/3B, B/105, Shitole Empire, Famous Chowk, Samarth Nagar, New Sangvi, Pimpri Chinchwad, Pune, Maharashtra 411027, India',
-  phone: '9823126309',
+  phone: SHOP_PHONE,
   email: 'desitotes0401@gmail.com',
   // Shown on every page so customers can see how current the terms are.
   updated: '15 September 2026',
@@ -258,9 +259,14 @@ export function ContactPage() {
           </a>
         </p>
         <p className="flex items-start gap-3">
-          <Phone className="w-4 h-4 text-[#B87D00] mt-0.5 shrink-0" />
-          <a href={`tel:+91${BUSINESS.phone}`} className="text-[#B87D00] underline underline-offset-2">
-            +91 {BUSINESS.phone}
+          <MessageCircle className="w-4 h-4 text-[#B87D00] mt-0.5 shrink-0" />
+          <a
+            href={whatsappUrl('Hi Desi Totes, I have a question.')}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[#B87D00] underline underline-offset-2"
+          >
+            +91 {BUSINESS.phone} (WhatsApp)
           </a>
         </p>
         <p className="flex items-start gap-3">
