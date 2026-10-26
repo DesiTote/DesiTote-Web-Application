@@ -4,6 +4,7 @@ export interface ICartItem {
   productId: mongoose.Types.ObjectId;
   quantity: number;
   priceAtAdd?: number;
+  isFreeGift?: boolean;
 }
 
 export interface ICart extends Document {
@@ -30,6 +31,11 @@ const cartItemSchema = new Schema<ICartItem>(
     priceAtAdd: {
       type: Number,
       required: false,
+    },
+    // The free bag from Buy 2 Get 1 is its own line, apart from a paid copy of the same tote.
+    isFreeGift: {
+      type: Boolean,
+      default: false,
     },
   },
   { _id: false }
