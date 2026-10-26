@@ -27,21 +27,20 @@ export const PrintGallery: React.FC<LookbookProps> = ({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Header: the line sits beside the heading on laptops, like the catalogue's. */}
-        <div className="space-y-3 mb-6 sm:mb-12 lg:flex lg:items-end lg:justify-between lg:gap-12 lg:space-y-0">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-[1px] bg-gradient-to-r from-transparent via-[#B87D00] to-transparent" />
-              <span className="text-[10px] uppercase tracking-[0.25em] text-[#B87D00] font-mono font-medium">
-                Printed Collection
-              </span>
-            </div>
-            <h2 className="text-4xl sm:text-5xl font-serif font-light text-[#0B1420] leading-tight">
-              <span className="italic text-[#0B1420]/70">Prints With</span>{' '}
-              <span className="text-[#340E09] font-serif font-bold not-italic">Personality</span>
-            </h2>
+        {/* Header: centred on laptops, like the catalogue's. */}
+        <div className="space-y-3 mb-6 sm:mb-12 lg:text-center">
+          <div className="flex items-center gap-2.5 lg:justify-center">
+            <div className="w-8 h-[1px] bg-gradient-to-r from-transparent via-[#B87D00] to-transparent" />
+            <span className="text-[10px] uppercase tracking-[0.25em] text-[#B87D00] font-mono font-medium">
+              Printed Collection
+            </span>
+            <div className="hidden lg:block w-8 h-[1px] bg-gradient-to-r from-transparent via-[#B87D00] to-transparent" />
           </div>
-          <p className="text-[#0B1420]/60 text-sm sm:text-base max-w-xl lg:max-w-md lg:pb-1.5 font-light tracking-wide leading-relaxed">
+          <h2 className="text-4xl sm:text-5xl font-serif font-light text-[#0B1420] leading-tight">
+            <span className="italic text-[#0B1420]/70">Prints With</span>{' '}
+            <span className="text-[#340E09] font-serif font-bold not-italic">Personality</span>
+          </h2>
+          <p className="text-[#0B1420]/60 text-sm sm:text-base max-w-xl lg:mx-auto lg:text-balance font-light tracking-wide leading-relaxed">
             Screen-printed by hand on 320 GSM cotton canvas — each design available with or without a zip.
           </p>
         </div>
