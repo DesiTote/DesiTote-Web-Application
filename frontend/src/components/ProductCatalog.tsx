@@ -179,8 +179,8 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             <span className="italic text-[#0B1420]/70">Made for</span>{' '}
             <span className="text-[#340E09] font-serif font-bold not-italic">Everyday Carry</span>
           </h2>
-          <p className="text-[#0B1420]/60 text-sm sm:text-base max-w-xl lg:mx-auto lg:text-balance font-light tracking-wide leading-relaxed">
-            Hand-finished from 320 GSM cotton canvas — plain silhouettes in Black &amp; Off White, plus fun printed designs. Reusable, washable, and made to order.
+          <p className="text-[#0B1420]/60 text-sm sm:text-base max-w-xl lg:max-w-3xl lg:mx-auto lg:text-balance font-light tracking-wide leading-relaxed">
+            Hand-finished from 320 GSM cotton canvas — plain silhouettes in Black&nbsp;&amp;&nbsp;Off&nbsp;White, plus fun printed designs. Reusable, washable, and made to order.
           </p>
         </div>
 
