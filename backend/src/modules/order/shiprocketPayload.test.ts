@@ -52,12 +52,24 @@ test("buy2get1 order lists the free bag at its normal price and discounts it", (
     const order = orderOf([line(349, 349, 1, "A"), line(349, 349, 1, "B"), line(299, 0, 1, "Free")], 299);
     const payload = buildShiprocketPayload(order);
     assert.equal(payload.order_items[2].selling_price, 299);
-    assert.ok(payload.total_discount >= 299);
+    assert.equal(payload.total_discount, 299);
+    assert.equal(payload.sub_total - payload.total_discount, paidForTotes(order));
+});
+
+test("a tote bought and also given free goes out as one Shiprocket line per SKU", () => {
+    const order = orderOf([line(299, 299, 2, "A"), line(299, 0, 1, "A"), line(349, 349, 1, "B")], 299);
+    const payload = buildShiprocketPayload(order);
+    const skus = payload.order_items.map((i: any) => i.sku);
+    assert.equal(new Set(skus).size, skus.length);
+    assert.equal(payload.order_items.length, 2);
+    assert.equal(payload.order_items.find((i: any) => i.sku === "SKU-A").units, 3);
+    assert.equal(payload.sub_total, 299 * 3 + 349);
+    assert.equal(payload.total_discount, 299);
     assert.equal(payload.sub_total - payload.total_discount, paidForTotes(order));
 });
 
 test("every selling_price is the item's originalPrice", () => {
-    const order = orderOf([line(349, 262), line(299, 0), line(399, 399, 3)], 0);
+    const order = orderOf([line(349, 262, 1, "A"), line(299, 0, 1, "B"), line(399, 399, 3, "C")], 0);
     const payload = buildShiprocketPayload(order);
     assert.deepEqual(
         payload.order_items.map((i: any) => i.selling_price),

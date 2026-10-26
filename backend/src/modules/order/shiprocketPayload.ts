@@ -7,15 +7,26 @@ export const DEFAULT_PACKAGE_DIMENSIONS_CM = { length: 25, breadth: 20, height: 
 export function buildShiprocketPayload(order: any) {
     // Items go out at MRP and total_discount carries every rupee knocked off, so Shiprocket
     // sees sub_total - total_discount = what the customer pays (a free bag is MRP, fully discounted).
-    const orderItems = order.items.map((item: any) => ({
-        name: item.name,
-        sku: item.sku,
-        units: item.quantity,
-        selling_price: Number((item.originalPrice ?? item.unitPrice).toFixed(2)),
-        discount: "",
-        tax: String(item.gstPercentage),
-        hsn: "4202", // cotton tote bags — same for the whole catalogue
-    }));
+    // A tote bought and also given free is two order lines with one SKU, which Shiprocket rejects, so merge by SKU.
+    // Both go out at the same selling_price; the free unit's value is already in total_discount.
+    const bySku = new Map<string, any>();
+    for (const item of order.items) {
+        const existing = bySku.get(item.sku);
+        if (existing) {
+            existing.units += item.quantity;
+            continue;
+        }
+        bySku.set(item.sku, {
+            name: item.name,
+            sku: item.sku,
+            units: item.quantity,
+            selling_price: Number((item.originalPrice ?? item.unitPrice).toFixed(2)),
+            discount: "",
+            tax: String(item.gstPercentage),
+            hsn: "4202", // cotton tote bags — same for the whole catalogue
+        });
+    }
+    const orderItems = [...bySku.values()];
 
     return {
         order_id: order._id.toString(),

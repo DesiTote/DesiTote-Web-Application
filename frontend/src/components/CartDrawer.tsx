@@ -279,9 +279,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, formatP
                       </p>
                     )}
                     {offer === 'buy2get1' && (
-                      <p className="text-[10px] font-semibold text-[#C2410C]">
-                        Buy 2 Get 1 applied instead of {SALE.percent}% off
-                      </p>
+                      <>
+                        <p className="text-[10px] font-semibold text-[#C2410C]">
+                          Buy 2 Get 1 applied instead of {SALE.percent}% off
+                        </p>
+                        <p className="text-[10px] font-semibold text-[#C2410C]">
+                          Final sale: returns only if an item arrives damaged or wrong.
+                        </p>
+                      </>
                     )}
                     <p className="text-[10px] text-[#0B1420]/40 font-mono">
                       Shipping &amp; taxes calculated at checkout

@@ -236,6 +236,11 @@ export function CheckoutPage({ formatPrice }: CheckoutPageProps) {
                 <span className="font-mono">-{formatPrice(session.discount)}</span>
               </div>
             )}
+            {session.offer === 'buy2get1' && (
+              <p className="text-xs font-semibold text-[#C2410C]">
+                Final sale: returns only if an item arrives damaged or wrong.
+              </p>
+            )}
             {shippingQuote && (
               <div className="flex justify-between text-[#0B1420]/60">
                 <span>Shipping</span>

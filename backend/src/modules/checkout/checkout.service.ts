@@ -9,7 +9,7 @@ import { getShippingRate } from "../../services/shiprocket.service.js";
 import { Order } from "../order/order.model.js";
 import { applyOffers, offersNow } from "../offers/applyOffers.js";
 import { toOfferLines } from "../cart/cartLines.js";
-import { checkoutTotals } from "./checkoutTotals.js";
+import { checkoutTotals, meetsFreeShippingThreshold } from "./checkoutTotals.js";
 const SESSION_TTL_SECONDS = 60 * 20; // 20 min
 // Orders in these states never went through, so they do not use up the first-order discount.
 const NOT_A_REAL_ORDER = ["pending_payment", "payment_failed", "cancelled", "failed"];
@@ -134,7 +134,8 @@ async function recalculateShipping(session: CheckoutSession) {
         // "Ship Now" screen bills the seller, so without this the seller loses
         // that gap on each order. Tune with SHIPPING_BUFFER; 0 disables it.
         const shippingBuffer = Number(process.env.SHIPPING_BUFFER ?? 8);
-        const qualifiesForFreeShipping = freeShippingThreshold > 0 && declaredValue >= freeShippingThreshold;
+        // Judged before the first-order 10%, because the cart drawer promised free shipping without knowing it.
+        const qualifiesForFreeShipping = meetsFreeShippingThreshold(session, freeShippingThreshold);
 
         const toQuote = (result: PromiseSettledResult<Awaited<ReturnType<typeof getShippingRate>>>): ShippingQuote | null => {
             if (result.status !== "fulfilled") return null;

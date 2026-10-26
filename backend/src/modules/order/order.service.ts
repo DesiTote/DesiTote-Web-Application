@@ -687,6 +687,7 @@ export async function pushToShiprocket(order: any, sessionId: string) {
                         customerName: updated!.deliveryAddress?.fullName || "Customer",
                         customerPhone: updated!.deliveryAddress?.mobileNumber || "",
                         customerEmail: updated!.billingEmail || "",
+                        offer: updated!.offer,
                         address: {
                             addressLine1: updated!.deliveryAddress?.addressLine1 || "",
                             addressLine2: updated!.deliveryAddress?.addressLine2,
