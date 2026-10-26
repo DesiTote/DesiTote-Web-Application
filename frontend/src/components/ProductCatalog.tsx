@@ -157,7 +157,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
   };
 
   return (
-    <section id="catalog" className="py-16 sm:py-24 bg-gradient-to-b from-[#F7F2E8] via-[#F0E2DC] to-[#F7F2E8] border-t border-[#0B1420]/10 relative overflow-hidden">
+    <section id="catalog" className="pt-8 pb-16 sm:pt-12 sm:pb-24 bg-gradient-to-b from-[#F7F2E8] via-[#F0E2DC] to-[#F7F2E8] border-t border-[#0B1420]/10 relative overflow-hidden">
       {/* Immersive UI Ambient Blurs */}
       <div className="ambient-glow-container">
         <div className="ambient-glow-slate opacity-20" />
@@ -166,26 +166,27 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Section Header */}
-        <div className="space-y-3 mb-8 sm:mb-10">
-          <div className="flex items-center gap-2.5">
+        {/* Section Header: centred on laptops, where left-aligned it left the right half empty. */}
+        <div className="space-y-3 mb-6 sm:mb-8 lg:text-center">
+          <div className="flex items-center gap-2.5 lg:justify-center">
             <div className="w-8 h-[1px] bg-gradient-to-r from-transparent via-[#B87D00] to-transparent" />
             <span className="text-[10px] uppercase tracking-[0.25em] text-[#B87D00] font-mono font-medium">
               The Permanent Lineup
             </span>
+            <div className="hidden lg:block w-8 h-[1px] bg-gradient-to-r from-transparent via-[#B87D00] to-transparent" />
           </div>
           <h2 className="text-4xl sm:text-5xl font-serif font-light text-[#0B1420] leading-tight">
             <span className="italic text-[#0B1420]/70">Made for</span>{' '}
             <span className="text-[#340E09] font-serif font-bold not-italic">Everyday Carry</span>
           </h2>
-          <p className="text-[#0B1420]/60 text-sm sm:text-base max-w-xl font-light tracking-wide leading-relaxed">
+          <p className="text-[#0B1420]/60 text-sm sm:text-base max-w-xl lg:mx-auto lg:text-balance font-light tracking-wide leading-relaxed">
             Hand-finished from 320 GSM cotton canvas — plain silhouettes in Black &amp; Off White, plus fun printed designs. Reusable, washable, and made to order.
           </p>
         </div>
 
         {/* Filters; scroll-mt clears the pinned navbar when the shop nav or banner scrolls here. */}
         <div id="catalog-filters" className="mb-6 sm:mb-10 space-y-3 scroll-mt-28">
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-5 lg:justify-center">
             <div className={CHIP_ROW}>
               {categories.map((cat) => (
                 <button
@@ -235,7 +236,7 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
           </div>
 
           {products.length > 0 && (
-            <div className="flex items-center gap-3 text-[11px] font-mono uppercase tracking-wider text-[#0B1420]/55" aria-live="polite">
+            <div className="flex items-center gap-3 lg:justify-center text-[11px] font-mono uppercase tracking-wider text-[#0B1420]/55" aria-live="polite">
               <span>
                 {filteredProducts.length} {filteredProducts.length === 1 ? 'tote' : 'totes'}
               </span>
