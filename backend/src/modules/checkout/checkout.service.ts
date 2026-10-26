@@ -6,8 +6,13 @@ import { getRedis } from "../../config/redis.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { CheckoutSession, CheckoutShippingOptions, ShippingQuote } from "../../types/checkout.js";
 import { getShippingRate } from "../../services/shiprocket.service.js";
-import { salePrice } from "../../config/sale.js";
+import { Order } from "../order/order.model.js";
+import { applyOffers, offersNow } from "../offers/applyOffers.js";
+import { toOfferLines } from "../cart/cartLines.js";
+import { checkoutTotals } from "./checkoutTotals.js";
 const SESSION_TTL_SECONDS = 60 * 20; // 20 min
+// Orders in these states never went through, so they do not use up the first-order discount.
+const NOT_A_REAL_ORDER = ["pending_payment", "payment_failed", "cancelled", "failed"];
 
 interface BuyNowInput {
     productId: string;
@@ -186,15 +191,13 @@ export const createCheckoutSessionService = async (
     buyNowItem?: BuyNowInput
 ) => {
     const redis = getRedis();
-    let itemsToProcess: Array<{ productId: string; quantity: number }> = [];
+    let itemsToProcess: Array<{ productId: string; quantity: number; isFreeGift: boolean }> = [];
     let source: "CART" | "BUY_NOW" = "CART";
-
-    console.log(buyNowItem,selectedProductIds)
 
     // ─── STEP 1: PARSE SOURCE (BUY NOW VS STANDARD CART) ─────────────────
     if (buyNowItem) {
         source = "BUY_NOW";
-        itemsToProcess = [{ productId: buyNowItem.productId, quantity: buyNowItem.quantity }];
+        itemsToProcess = [{ productId: buyNowItem.productId, quantity: buyNowItem.quantity, isFreeGift: false }];
     } else {
         source = "CART";
         const cart = await Cart.findOne({ userId }).lean();
@@ -202,64 +205,80 @@ export const createCheckoutSessionService = async (
             throw new ApiError(404, "Your shopping cart is empty");
         }
 
-        const filteredItems = cart.items.filter((item) =>
-            selectedProductIds.includes(item.productId.toString())
+        const paidItems = cart.items.filter(
+            (item) => item.isFreeGift !== true && selectedProductIds.includes(item.productId.toString())
         );
 
-        if (!filteredItems.length) {
+        if (!paidItems.length) {
             throw new ApiError(400, "No valid items selected for checkout");
         }
 
-        itemsToProcess = filteredItems.map((item) => ({
+        // Free bags are never picked one by one: they all come along, and applyOffers keeps as many as the selected totes earn.
+        const freeItems = cart.items.filter((item) => item.isFreeGift === true);
+
+        itemsToProcess = [...paidItems, ...freeItems].map((item) => ({
             productId: item.productId.toString(),
             quantity: item.quantity,
+            isFreeGift: item.isFreeGift === true,
         }));
     }
 
     // ─── STEP 2: BATCH PRODUCT FETCH (AVOIDS N+1) ────────────────────────
     const productIds = itemsToProcess.map((i) => i.productId);
     const products = await Product.find({ _id: { $in: productIds } })
-        .select("title price discountPrice stock thumbnail weight sku gstPercentage") // weight/sku added — needed for shipping + Shiprocket line items
+        .select("title price discountPrice stock thumbnail weight sku gstPercentage tags") // weight/sku for shipping + Shiprocket line items, tags for the free-bag design group
         .lean();
 
     const productMap = new Map(products.map((p) => [p._id.toString(), p]));
 
-    // ─── STEP 3: CONSOLIDATE SNAPSHOT, SUBTOTAL (ORIGINAL PRICE) + DISCOUNT ──
-    let subtotal = 0; // sum of ORIGINAL prices — what the order summary "Subtotal" row should show
-    let discount = 0; // sum of item-level savings from discountPrice
-    const gstAmount = 0; // Catalogue prices are final; tax is not added at checkout.
-    const checkoutItems = [];
-
+    // ─── STEP 3: PRICE THROUGH THE ONE OFFER, SNAPSHOT ITEMS, SUBTOTAL + DISCOUNT ──
     for (const item of itemsToProcess) {
-        const product = productMap.get(item.productId);
-
-        if (!product) {
+        if (!productMap.has(item.productId)) {
             throw new ApiError(404, "One or more products in your checkout do not exist");
         }
+    }
 
-        if (product.stock < item.quantity) {
+    // Two checkouts opened side by side before either is paid could both get the first-order discount.
+    const hasPastOrder = await Order.exists({ userId, status: { $nin: NOT_A_REAL_ORDER } });
+    const result = applyOffers(toOfferLines(itemsToProcess, productMap), {
+        now: offersNow(),
+        isFirstOrder: !hasPastOrder,
+    });
+
+    // A tote can be in the order both paid and free, so stock has to cover the two together.
+    const unitsWanted = new Map<string, number>();
+    for (const line of result.lines) {
+        unitsWanted.set(line.productId, (unitsWanted.get(line.productId) ?? 0) + line.quantity);
+    }
+
+    // Built from the priced lines, so a free bag applyOffers dropped is simply absent and a partly kept one has its kept quantity.
+    const checkoutItems = result.lines.map((line) => {
+        const product = productMap.get(line.productId)!;
+
+        if (product.stock < unitsWanted.get(line.productId)!) {
             throw new ApiError(400, `"${product.title}" is out of stock or low on inventory`);
         }
 
-        const originalPrice = product.price;
-        // Site-wide sale (config/sale.ts) lands in `discount`, so the session total,
-        // COD order, Razorpay amount and Shiprocket all pick it up.
-        const priceAtCheckout = salePrice(product.discountPrice ?? product.price);
-
-        subtotal += originalPrice * item.quantity;
-        discount += (originalPrice - priceAtCheckout) * item.quantity;
-        checkoutItems.push({
-            productId: item.productId,
-            quantity: item.quantity,
-            priceAtCheckout, // actual selling price — what gets taxed and totaled
-            originalPrice, // MRP — display/invoice only
-            sku: product.sku ?? item.productId, // fallback to productId if the product genuinely has no SKU yet
+        return {
+            productId: line.productId,
+            quantity: line.quantity,
+            isFreeGift: line.isFreeGift,
+            priceAtCheckout: line.unitPrice, // actual selling price: 0 for a free bag
+            originalPrice: product.price, // MRP — display/invoice only
+            sku: product.sku ?? line.productId, // fallback to productId if the product genuinely has no SKU yet
             weight: product.weight ?? null, // stored per item so recalculation never has to re-query products
             title: product.title,
             thumbnail: product.thumbnail,
-            gstPercentage:product.gstPercentage,
-        });
-    }
+            gstPercentage: product.gstPercentage,
+        };
+    });
+
+    // subtotal is the sum of ORIGINAL prices; discount is the sale markdown, free bags and first-order 10% together.
+    const { subtotal, discount } = checkoutTotals(
+        checkoutItems.map((i) => ({ originalPrice: i.originalPrice, unitPrice: i.priceAtCheckout, quantity: i.quantity })),
+        result.orderLevelDiscount
+    );
+    const gstAmount = 0; // Catalogue prices are final; tax is not added at checkout.
 
     // ─── STEP 4: AUTO-APPLY DEFAULT ADDRESS IF ONE EXISTS or take recently created ────────────────
     const defaultAddress = await Address.findOne({ userId })
@@ -296,6 +315,9 @@ export const createCheckoutSessionService = async (
         items: checkoutItems,
         discount,
         subtotal,
+        offer: result.offerSaving === 0 ? null : result.offer,
+        offerSaving: result.offerSaving,
+        removedFreeLines: result.removedFreeLines,
         gstAmount: Math.round(gstAmount * 100) / 100,
         deliveryAddress,
         paymentMethod,
