@@ -123,11 +123,11 @@ async function recalculateShipping(session: CheckoutSession) {
         // sent to Shiprocket) reads from it. Set FREE_SHIPPING_THRESHOLD to 0 to
         // charge shipping on every order.
         const freeShippingThreshold = Number(process.env.FREE_SHIPPING_THRESHOLD ?? 999);
-        // A flat cushion added to every charged shipping quote. Shiprocket's
-        // rate estimate here comes back a few rupees under what the actual
-        // "Ship Now" screen bills the seller, so without this the seller loses
-        // that gap on each order. Tune with SHIPPING_BUFFER; 0 disables it.
-        const shippingBuffer = Number(process.env.SHIPPING_BUFFER ?? 8);
+        // A flat cushion added to every charged shipping quote. The quote is the
+        // cheapest courier, but Shiprocket now assigns the best-rated one (up to
+        // ~₹20 dearer, e.g. Blue Dart Pune to Bangalore), and its estimate runs a
+        // few rupees under the real "Ship Now" bill. Tune with SHIPPING_BUFFER; 0 disables it.
+        const shippingBuffer = Number(process.env.SHIPPING_BUFFER ?? 20);
         const qualifiesForFreeShipping = freeShippingThreshold > 0 && declaredValue >= freeShippingThreshold;
 
         const toQuote = (result: PromiseSettledResult<Awaited<ReturnType<typeof getShippingRate>>>): ShippingQuote | null => {
