@@ -11,6 +11,7 @@ interface AdminOrderAlertItem {
     sku?: string;
     quantity: number;
     unitPrice: number;
+    isFreeGift?: boolean;
 }
 
 interface AdminOrderAlertProps {
@@ -48,7 +49,7 @@ export const orderAdminAlertTemplate = ({
       <tr>
         <td style="padding:8px 0;color:#333;">${i.name}${i.sku ? ` <span style="color:#999;font-size:12px;">(${i.sku})</span>` : ""}</td>
         <td style="padding:8px 0;color:#333;text-align:center;">×${i.quantity}</td>
-        <td style="padding:8px 0;color:#333;text-align:right;">${money(i.unitPrice * i.quantity)}</td>
+        <td style="padding:8px 0;color:#333;text-align:right;">${i.isFreeGift ? "FREE (not returnable)" : money(i.unitPrice * i.quantity)}</td>
       </tr>`
         )
         .join("");

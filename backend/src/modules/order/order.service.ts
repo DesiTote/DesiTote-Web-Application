@@ -16,10 +16,16 @@ import { orderConfirmedEmailTemplate } from "../../email/templates/order-confirm
 import { orderCancelledEmailTemplate } from "../../email/templates/order-cancelled.js";
 import { orderAdminAlertTemplate } from "../../email/templates/order-admin-alert.js";
 import { decrementStockForOrder, restoreStockForOrder } from "./stock.service.js";
+import { buildShiprocketPayload } from "./shiprocketPayload.js";
+import type { CheckoutSession } from "../../types/checkout.js";
 
-// Read at call time, not module load — see config/loadEnv.ts.
-const getShiprocketPickupLocation = () => process.env.SHIPROCKET_PICKUP_LOCATION?.trim();
-const DEFAULT_PACKAGE_DIMENSIONS_CM = { length: 25, breadth: 20, height: 5 };
+// Sessions made before offers existed (they live 20 minutes in Redis) lack these fields, so default them.
+function offerFieldsOf(session: CheckoutSession) {
+    return {
+        offer: { code: session.offer ?? null, saving: session.offerSaving ?? 0 },
+        finalSale: session.offer === "buy2get1",
+    };
+}
 
 
 export async function placeOrderService(input: PlaceOrderInput) {
@@ -89,10 +95,12 @@ export async function placeOrderService(input: PlaceOrderInput) {
                 originalPrice: item.originalPrice, // MRP — display/invoice only, never used in totals
                 gstPercentage: item.gstPercentage,
                 lineTotal: item.priceAtCheckout * item.quantity,
+                isFreeGift: item.isFreeGift === true,
             })),
             subtotal: sessionData.subtotal,
             shippingCharge: shippingQuote.charge,
             discount: sessionData.discount,
+            ...offerFieldsOf(sessionData),
             gstAmount: 0,
             grandTotal,
             currency: "INR",
@@ -155,46 +163,6 @@ function buildResponse(order: any) {
     };
 }
 
-function buildShiprocketPayload(order: any) {
-    return {
-        order_id: order._id.toString(),
-        order_date: new Date().toISOString().slice(0, 10),
-        pickup_location: getShiprocketPickupLocation(),
-
-        billing_customer_name: order.deliveryAddress.fullName,
-        billing_last_name: "",
-        billing_address: order.deliveryAddress.addressLine1,
-        billing_address_2: order.deliveryAddress.addressLine2,
-        billing_city: order.deliveryAddress.district,
-        billing_pincode: order.deliveryAddress.pincode,
-        billing_state: order.deliveryAddress.state,
-        billing_country: order.deliveryAddress.country,
-        billing_phone: order.deliveryAddress.mobileNumber,
-        billing_email: order.billingEmail,
-        shipping_is_billing: true,
-
-        // Shiprocket expects "COD" or "Prepaid" specifically — not "ONLINE"
-        payment_method: order.payment.method === "COD" ? "COD" : "Prepaid",
-        sub_total: order.subtotal,
-        total_discount: order.discount,
-        shipping_charges: order.shippingCharge,
-        length: DEFAULT_PACKAGE_DIMENSIONS_CM.length,
-        breadth: DEFAULT_PACKAGE_DIMENSIONS_CM.breadth,
-        height: DEFAULT_PACKAGE_DIMENSIONS_CM.height,
-        weight: order.packageWeight,
-
-        order_items: order.items.map((item: any) => ({
-            name: item.name,
-            sku: item.sku,
-            units: item.quantity,
-            selling_price: Number(item.unitPrice.toFixed(2)),
-            discount: "",
-            tax: String(item.gstPercentage),
-            hsn: "4202", // cotton tote bags — same for the whole catalogue
-        })),
-    };
-}
-
 export async function getOrderService(orderId: string, userId: string) {
     validateObjectId(orderId, "orderId");
     validateObjectId(userId, "userId");
@@ -223,6 +191,8 @@ export async function getOrderService(orderId: string, userId: string) {
         paymentMethod: order.payment.method,
         subtotal: order.subtotal,
         discount: order.discount,
+        offer: order.offer ?? { code: null, saving: 0 },
+        finalSale: order.finalSale === true,
         gstAmount: order.gstAmount,
         shippingCharges: order.shippingCharge || 0,
         total: order.grandTotal,
@@ -234,6 +204,7 @@ export async function getOrderService(orderId: string, userId: string) {
             quantity: item.quantity,
             image: item.image,
             price: item.unitPrice,
+            isFreeGift: item.isFreeGift === true,
         })),
         shippingAddress: order.deliveryAddress,
 
@@ -496,10 +467,12 @@ export async function createRazorpayOrderService(input: CreateRazorpayOrderInput
                     gstPercentage: item.gstPercentage,
                     originalPrice: item.originalPrice,
                     lineTotal: item.priceAtCheckout * item.quantity,
+                    isFreeGift: item.isFreeGift === true,
                 })),
                 subtotal: sessionData.subtotal,
                 shippingCharge: shippingQuote.charge,
                 discount: sessionData.discount,
+                ...offerFieldsOf(sessionData),
                 gstAmount: 0,
                 grandTotal,
                 currency: "INR",
@@ -684,6 +657,7 @@ export async function pushToShiprocket(order: any, sessionId: string) {
                     name: updated!.deliveryAddress?.fullName || "there",
                     orderId: updated!._id.toString(),
                     orderNumber: updated!.orderNumber.toString(),
+                    finalSale: updated!.finalSale === true,
                 }),
             });
         } catch (err) {
@@ -708,6 +682,7 @@ export async function pushToShiprocket(order: any, sessionId: string) {
                             sku: it.sku,
                             quantity: it.quantity,
                             unitPrice: it.unitPrice,
+                            isFreeGift: it.isFreeGift === true,
                         })),
                         customerName: updated!.deliveryAddress?.fullName || "Customer",
                         customerPhone: updated!.deliveryAddress?.mobileNumber || "",

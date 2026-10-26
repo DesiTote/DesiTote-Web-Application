@@ -131,9 +131,13 @@ export async function fetchAdminOrderById(orderId: string) {
         throw new ApiError(404, "Order not found");
     }
 
+    // lean() skips schema defaults, so orders placed before offers existed need them filled in here.
     return {
         ...order,
         _id: order._id.toString(),
+        items: order.items.map((item) => ({ ...item, isFreeGift: item.isFreeGift === true })),
+        offer: order.offer ?? { code: null, saving: 0 },
+        finalSale: order.finalSale === true,
         statusBucket: ORDER_STATUS_BUCKET_MAP[order.status as OrderStatus] ?? null,
     };
 }

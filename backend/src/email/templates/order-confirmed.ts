@@ -4,12 +4,14 @@ interface OrderConfirmedProps {
     name: string;
     orderId: string;
     orderNumber:string;
+    finalSale?: boolean;
 }
 
 export const orderConfirmedEmailTemplate = ({
     name,
     orderId,
     orderNumber,
+    finalSale,
 }: OrderConfirmedProps) =>
     emailLayout({
         title: "Your Order is Confirmed 🎉",
@@ -40,6 +42,14 @@ export const orderConfirmedEmailTemplate = ({
         <strong>Order Number</strong><br/>
         #${orderNumber}
       </div>
+
+      ${
+          finalSale
+              ? `<p style="color:#555;line-height:1.8;">
+        This order used Buy 2 Get 1, so it is final sale: items can't be returned unless they arrive damaged or wrong, and the free bag can't be returned.
+      </p>`
+              : ""
+      }
 
       <p style="color:#555;line-height:1.8;">
         We'll notify you as soon as your order is packed, shipped, and on its
