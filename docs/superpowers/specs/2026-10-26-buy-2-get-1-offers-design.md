@@ -78,7 +78,7 @@ A customer who qualifies for the first-order 10% during the sale gets the 25% in
 
 ### Frontend
 
-- **Cart drawer.** With the sale on and at least 2 paid totes, a "Choose your free bag" row shows the eligible designs (one card per design, any colour or zip option, the photo of the first matching variant). Tapping adds that variant as free. Free lines show "FREE · not returnable" and a ₹0 price. When `freeGiftsRemoved` comes back, a short message says why.
+- **Cart drawer.** With the sale on and at least 2 paid totes, a "Choose your free bag" row shows the eligible designs (one card per design and colour, using the first zip option of that colour). Tapping adds that variant as free. Free lines show "FREE · not returnable" and a ₹0 price. When `freeGiftsRemoved` comes back, a short message says why.
 - **Prices.** With a free bag in the cart, paid lines show full price and a note: "Buy 2 Get 1 applied instead of 25% off."
 - **Checkout.** One offer row: "Buy 2 Get 1: −₹X", "Diwali Sale 25%: −₹X" or "First order 10%: −₹X".
 - **Order pages.** Free lines and final sale are shown on the customer's order page and the admin order page.
@@ -87,7 +87,7 @@ A customer who qualifies for the first-order 10% during the sale gets the 25% in
 
 ## Error handling
 
-- Adding a free bag when not allowed: 400 with the reason ("Add 2 totes to get a free bag", "Free bags are only from the picture designs", "Buy 2 Get 1 ends 11 November").
+- Adding a free bag when not allowed: 400 with the reason ("Add 2 totes to get a free bag", "Add 2 more totes for another free bag", "Free bags are only from the picture designs", "Buy 2 Get 1 ended on 11 November").
 - Free lines dropped later (sale ended, a paid tote removed): removed, never charged, and reported to the customer. A dropped free bag is never quietly turned into a paid one.
 - The sale ending between opening checkout and paying: the session's prices stand, as today.
 
