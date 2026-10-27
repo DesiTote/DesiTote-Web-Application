@@ -1,8 +1,8 @@
 import React from 'react';
 import { ArrowRight, Banknote, Hand, Truck } from 'lucide-react';
 import { SALE, isSaleOn, saleLastDay } from '../lib/sale';
+import { useNavigate } from 'react-router-dom';
 import { playPop } from '../utils/audio';
-import { scrollToBags } from './ProductCatalog';
 import bannerWide from '../assets/images/diwali-banner-wide.webp';
 import bannerTall from '../assets/images/diwali-banner-tall.webp';
 
@@ -14,11 +14,12 @@ const firstDay = SALE.startsAt.toLocaleDateString('en-IN', { day: 'numeric', tim
  * so the offer below stays sharp, readable and correct if the dates or percent change.
  */
 export const DiwaliSaleBanner: React.FC = () => {
+  const navigate = useNavigate();
   if (!isSaleOn()) return null;
 
   const shopNow = () => {
     playPop();
-    scrollToBags();
+    navigate('/shop');
   };
 
   return (

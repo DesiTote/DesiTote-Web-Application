@@ -16,15 +16,9 @@ export interface CatalogFilters {
 }
 export const NO_FILTERS: CatalogFilters = { type: 'all', color: null, zip: null };
 
-/** Takes the shopper to the filter chips, so the bags are on screen rather than the section heading. */
-export const scrollToBags = () => {
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.getElementById('catalog-filters')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
-};
-
 interface ProductCatalogProps {
   products: Product[];
-  /** Owned by the home page, so the shop nav at the top can set them too. */
+  /** Owned by the shop page, which keeps them in the address (see lib/shopFilters). */
   filters: CatalogFilters;
   onFiltersChange: (filters: CatalogFilters) => void;
   onAddToCart: (item: {

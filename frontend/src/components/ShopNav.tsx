@@ -1,6 +1,6 @@
 import React from 'react';
 import { Product } from '../types';
-import { BagType, CatalogFilters, scrollToBags } from './ProductCatalog';
+import { BagType, CatalogFilters } from './ProductCatalog';
 import { filterOptions, iconImage } from '../utils/variants';
 import { customOrderUrl } from '../lib/whatsapp';
 import { isSaleOn } from '../lib/sale';
@@ -45,7 +45,7 @@ interface ShopNavProps {
 
 /**
  * Top of the home page, the way Myntra opens: bag-type tabs, then a row of photo icons.
- * Every tap filters the product grid and takes the shopper to it.
+ * Every tap opens the bags on the shop page, filtered to that choice.
  */
 export const ShopNav: React.FC<ShopNavProps> = ({ products, filters, onChange }) => {
   const { colors, zips } = filterOptions(products);
@@ -53,7 +53,6 @@ export const ShopNav: React.FC<ShopNavProps> = ({ products, filters, onChange })
   const apply = (next: CatalogFilters) => {
     playSnap();
     onChange(next);
-    scrollToBags();
   };
 
   const icons = [

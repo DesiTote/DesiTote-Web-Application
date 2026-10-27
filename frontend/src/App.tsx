@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { MarqueeTicker } from './components/MarqueeTicker';
 import { BestsellerSpotlight } from './components/BestsellerSpotlight';
@@ -25,6 +25,7 @@ import { AuthModalProvider, useAuthModal } from './context/AuthModalContext';
 import { authErrorMessage } from './context/AuthContext';
 import { ApiError } from './lib/api';
 import { dismissBoot } from './lib/boot';
+import { filtersFromSearch, shopSearch } from './lib/shopFilters';
 
 import { REVIEWS } from './data/totes';
 import { Product, Review } from './types';
@@ -64,21 +65,13 @@ function HomePage({
   onAddReview: (review: Review) => void;
 }) {
   const { products } = useProducts();
-  const [filters, setFilters] = useState<CatalogFilters>(NO_FILTERS);
+  const navigate = useNavigate();
 
-  // Shop first, the way Myntra opens: tabs and icons, the festive banner while the sale runs, then the bags.
+  // Myntra-style: the home page shows categories; tapping one opens the bags on /shop, already filtered.
   return (
     <main>
-      <ShopNav products={products} filters={filters} onChange={setFilters} />
+      <ShopNav products={products} filters={NO_FILTERS} onChange={(f) => navigate(`/shop${shopSearch(f)}`)} />
       <DiwaliSaleBanner />
-      <ProductCatalog
-        products={products}
-        onAddToCart={onAddToCart}
-        onQuickView={onQuickView}
-        formatPrice={formatPrice}
-        filters={filters}
-        onFiltersChange={setFilters}
-      />
       <MarqueeTicker />
       <BestsellerSpotlight onAddToCart={onAddToCart} formatPrice={formatPrice} />
       <PrintGallery
@@ -91,6 +84,36 @@ function HomePage({
       <CustomOrders />
       <ReviewsSection reviews={reviewsList} onAddReview={onAddReview} />
       <FAQSection />
+    </main>
+  );
+}
+
+function ShopPage({
+  onAddToCart,
+  onQuickView,
+  formatPrice,
+}: {
+  onAddToCart: (item: AddToCartItem) => void;
+  onQuickView: (product: Product) => void;
+  formatPrice: (inr: number) => string;
+}) {
+  const { products } = useProducts();
+  const [params, setParams] = useSearchParams();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <main>
+      <ProductCatalog
+        products={products}
+        onAddToCart={onAddToCart}
+        onQuickView={onQuickView}
+        formatPrice={formatPrice}
+        filters={filtersFromSearch(params)}
+        onFiltersChange={(f: CatalogFilters) => setParams(shopSearch(f), { replace: true })}
+      />
     </main>
   );
 }
@@ -208,6 +231,10 @@ function AppShell() {
   // to the shop but the browser's back button. Go home first when we are not
   // already there, then scroll once it has rendered.
   const handleNavigate = (sectionId: string) => {
+    if (sectionId === 'catalog') {
+      navigate('/shop');
+      return;
+    }
     if (location.pathname !== '/') {
       setPendingSection(sectionId);
       navigate('/');
@@ -264,6 +291,10 @@ function AppShell() {
               onAddReview={handleAddReview}
             />
           }
+        />
+        <Route
+          path="/shop"
+          element={<ShopPage onAddToCart={handleAddToCart} onQuickView={setQuickViewProduct} formatPrice={formatPrice} />}
         />
         {/* Payment providers check for these before approving a business, and
             shoppers look for them before trusting one. */}
