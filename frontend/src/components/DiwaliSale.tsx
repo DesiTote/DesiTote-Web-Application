@@ -31,7 +31,7 @@ export const DiwaliSaleBanner: React.FC = () => {
             src={bannerTall}
             width={1024}
             height={1365}
-            alt="Desi Totes canvas totes among lit diyas and marigolds"
+            alt="Hanuman and She Is My Queen canvas totes on a carved chowki among lit diyas and marigolds"
             fetchPriority="high"
             decoding="async"
             className="block w-full h-auto"
