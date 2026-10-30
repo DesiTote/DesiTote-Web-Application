@@ -39,13 +39,16 @@ export const DiwaliSaleBanner: React.FC = () => {
         </picture>
 
         {/* Shade under the words only: the bottom on phones, the left half on wider screens. */}
-        <div className="absolute inset-x-0 bottom-0 md:inset-y-0 md:right-auto md:w-[58%] flex flex-col justify-end md:justify-center gap-3 sm:gap-4 p-5 pt-28 sm:p-8 md:p-12 lg:p-16 bg-gradient-to-t md:bg-gradient-to-r from-[#140a0b]/90 via-[#140a0b]/55 to-transparent text-[#F7F2E8]">
+        <div className="absolute inset-x-0 bottom-0 md:inset-y-0 md:right-auto md:w-[58%] flex flex-col justify-end md:justify-center gap-2.5 sm:gap-4 p-5 pt-28 sm:p-8 md:p-12 lg:p-16 bg-gradient-to-t md:bg-gradient-to-r from-[#140a0b]/90 via-[#140a0b]/55 to-transparent text-[#F7F2E8]">
           <p className="text-sm sm:text-base font-semibold tracking-wide text-[#E8A33D]">{SALE.name}</p>
-          <h2 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[0.95] tracking-tight text-balance">
+          <h2 className="text-[42px] sm:text-6xl lg:text-7xl font-extrabold leading-[0.95] tracking-tight text-balance">
             Flat {SALE.percent}% off
           </h2>
-          <p className="text-[13px] sm:text-base text-pretty text-[#F7F2E8]/80 md:max-w-[34ch]">
-            Every tote, {firstDay} to {saleLastDay()}.
+          <p className="-mt-1 text-xl sm:text-3xl lg:text-4xl font-extrabold leading-tight tracking-tight text-[#E8A33D]">
+            or Buy 2, Get 1 Free
+          </p>
+          <p className="text-[13px] sm:text-base text-pretty text-[#F7F2E8]/80 md:max-w-[38ch]">
+            Every tote, {firstDay} to {saleLastDay()}. Add any 2 totes, then pick your free one in the cart.
           </p>
           <button
             onClick={shopNow}
