@@ -106,7 +106,7 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h4 className="text-[10px] font-mono font-medium uppercase tracking-[0.2em] text-[#B87D00]">Shop</h4>
             <ul className="space-y-2.5 text-white/50 font-light">
-              <li><a href="#catalog" className="hover:text-white transition-colors">Plain Canvas Totes</a></li>
+              <li><Link to="/shop?type=plain" className="hover:text-white transition-colors">Plain Canvas Totes</Link></li>
               <li><a href="#gallery" className="hover:text-white transition-colors">Printed Designs</a></li>
               <li><a href="#bestseller-spotlight" className="hover:text-white transition-colors">Bestsellers</a></li>
             </ul>
